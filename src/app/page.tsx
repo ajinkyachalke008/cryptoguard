@@ -39,7 +39,7 @@ export default function Home() {
           </div>
 
           <h1 className="mx-auto max-w-4xl text-5xl sm:text-6xl font-extrabold leading-tight">
-            <span className="block text-[oklch(0.86_0.16_100)] drop-shadow-[0_0_20px_#ffd70080] font-black tracking-tight">
+            <span className="block bg-clip-text text-transparent bg-[linear-gradient(90deg,#E6C200, #FFD700, #FFE066, #E6C200)] bg-[length:200%_200%] animate-[pulse_5s_ease-in-out_infinite] drop-shadow-[0_0_20px_#ffd70080] font-black tracking-tight">
               Cryptoguard
             </span>
             <span className="mt-2 block text-[oklch(0.86_0.16_100)] drop-shadow-[0_0_12px_#ffd70066]">
