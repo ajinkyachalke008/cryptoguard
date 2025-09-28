@@ -41,27 +41,54 @@ export function useTransactions() {
   const [txs, setTxs] = useState<Tx[]>([])
 
   useEffect(() => {
+    // Generate initial historical data to show increasing trend
+    const now = Date.now()
+    const initialTxs: Tx[] = []
+    for (let m = 0; m <= 9; m++) {
+      // m=0: recent minute (higher count), m=9: 9min ago (lower count)
+      const numTxsInMinute = 5 + (9 - m) * 2  // 23 recent to 5 old
+      const tsBase = now - m * 60000
+      for (let j = 0; j < numTxsInMinute; j++) {
+        const ts = tsBase - Math.random() * 60000
+        const a = pick(COUNTRIES)
+        let b = pick(COUNTRIES)
+        while (b.code === a.code) b = pick(COUNTRIES)
+        const status = randomStatus()
+        const amount = Math.floor(Math.random() * 10000) + 100
+        initialTxs.push({
+          id: `${Math.floor(ts)}-${Math.floor(Math.random() * 9999)}`,
+          amount,
+          from: a.name,
+          to: b.name,
+          latLngFrom: [a.lat, a.lng],
+          latLngTo: [b.lat, b.lng],
+          status,
+        })
+      }
+    }
+    setTxs(initialTxs)
+
+    // Ongoing generation
     const id = setInterval(() => {
       const a = pick(COUNTRIES)
       let b = pick(COUNTRIES)
       if (b.code === a.code) b = pick(COUNTRIES)
       const status = randomStatus()
       const amount = Math.floor(Math.random() * 10000) + 100
-      setTxs((prev) =>
-        [
-          {
-            id: `${Date.now()}-${Math.floor(Math.random() * 9999)}`,
-            amount,
-            from: a.name,
-            to: b.name,
-            latLngFrom: [a.lat, a.lng],
-            latLngTo: [b.lat, b.lng],
-            status,
-          },
-          ...prev,
-        ].slice(0, 50)
-      )
+      setTxs((prev) => [
+        {
+          id: `${Date.now()}-${Math.floor(Math.random() * 9999)}`,
+          amount,
+          from: a.name,
+          to: b.name,
+          latLngFrom: [a.lat, a.lng],
+          latLngTo: [b.lat, b.lng],
+          status,
+        },
+        ...prev,
+      ].slice(0, 1200))  // Keep 10min history (1200 at 500ms interval)
     }, 500)
+
     return () => clearInterval(id)
   }, [])
 
