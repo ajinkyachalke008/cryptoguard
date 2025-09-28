@@ -29,7 +29,7 @@ const solutions = [
   {
     title: "Fraud Dashboard",
     img:
-      "https://images.unsplash.com/photo-1551281044-8d8f3df7fbf6?q=80&w=1600&auto=format&fit=crop",
+      "https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/project-uploads/0ad00823-3ee5-4e7f-969c-c69c567a8b0d/generated_images/futuristic-ai-crypto-fraud-detection-das-c0f89733-20250928055008.jpg?",
   },
   {
     title: "Compliance Reports",
