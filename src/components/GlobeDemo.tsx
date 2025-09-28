@@ -95,6 +95,82 @@ export default function GlobeDemo() {
     }
   }, [])
 
+  // Country borders + heatmap overlay (load once)
+  useEffect(() => {
+    const globe = globeRef.current as any
+    if (!globe) return
+
+    // Public geojson with properties.name
+    fetch("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
+      .then((r) => r.json())
+      .then((geojson) => {
+        globe
+          .polygonsData(geojson.features)
+          .polygonStrokeColor(() => "#FFD70033")
+          .polygonSideColor(() => "rgba(255,215,0,0.06)")
+          .polygonAltitude(() => 0.003)
+      })
+      .catch(() => {})
+  }, [])
+
+  // Update heatmap intensity + labels from live fraud counts
+  useEffect(() => {
+    const globe = globeRef.current as any
+    if (!globe) return
+
+    const fraudCounts: Record<string, number> = {}
+    txs.forEach((t) => {
+      if (t.status === "fraud") fraudCounts[t.to] = (fraudCounts[t.to] || 0) + 1
+    })
+
+    // Re-apply cap color to reflect latest counts
+    globe.polygonCapColor((d: any) => {
+      const name: string = d?.properties?.name || d?.properties?.ADMIN || ""
+      // lenient matching for common country naming differences
+      const key =
+        fraudCounts[name] !== undefined
+          ? name
+          : Object.keys(fraudCounts).find((k) => name.includes(k) || k.includes(name)) || ""
+      const c = key ? fraudCounts[key] || 0 : 0
+      const a = Math.min(1, c / 6)
+      return `rgba(255,215,0,${0.06 + a * 0.4})`
+    })
+
+    // Floating labels for top countries
+    const TOP_POS: Record<string, { lat: number; lng: number }> = {
+      "United States": { lat: 38, lng: -97 },
+      "United States of America": { lat: 38, lng: -97 },
+      India: { lat: 20, lng: 77 },
+      China: { lat: 35, lng: 103 },
+      "United Kingdom": { lat: 54, lng: -2 },
+      Japan: { lat: 36, lng: 138 },
+      Brazil: { lat: -10, lng: -55 },
+      Nigeria: { lat: 9, lng: 8 },
+      Russia: { lat: 60, lng: 90 },
+      Germany: { lat: 51, lng: 9 },
+      UAE: { lat: 24, lng: 54 },
+      "United Arab Emirates": { lat: 24, lng: 54 },
+    }
+
+    const top = Object.entries(fraudCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([country, count]) => {
+        const pos = TOP_POS[country]
+        return pos ? { ...pos, text: `${country} • ${count}`, value: count } : null
+      })
+      .filter(Boolean)
+
+    globe
+      .labelsData(top)
+      .labelLat((d: any) => d.lat)
+      .labelLng((d: any) => d.lng)
+      .labelText((d: any) => d.text)
+      .labelColor(() => "#FFD700")
+      .labelSize((d: any) => 0.8 + Math.min(1.4, d.value / 4))
+      .labelResolution(2)
+  }, [txs])
+
   // Update arcs when txs change
   useEffect(() => {
     const globe = globeRef.current as any
