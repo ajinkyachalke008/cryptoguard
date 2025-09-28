@@ -57,7 +57,7 @@ export default function GlobeDemo() {
     let raf = 0
     const animate = () => {
       raf = requestAnimationFrame(animate)
-      ;(globe as any).rotation.y += 0.0008
+      ;(globe as any).rotation.y += 0.0004
       renderer.render(scene, camera)
     }
     animate()
