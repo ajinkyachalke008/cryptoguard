@@ -125,6 +125,15 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  @keyframes glow-pulse {
+    0%, 100% {
+      text-shadow: 0 0 8px currentColor, 0 0 16px currentColor, 0 0 24px rgba(255,215,0,0.8), 0 0 40px rgba(255,215,0,0.6);
+    }
+    50% {
+      text-shadow: 0 0 16px currentColor, 0 0 32px currentColor, 0 0 48px rgba(255,215,0,1), 0 0 80px rgba(255,215,0,0.8);
+    }
+  }
 }
 
 /* Hide Next.js error overlay portal */
