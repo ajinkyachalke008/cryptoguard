@@ -57,7 +57,7 @@ export default function GlobeDemo() {
     let raf = 0
     const animate = () => {
       raf = requestAnimationFrame(animate)
-      ;(globe as any).rotation.y += 0.0004
+      ;(globe as any).rotation.y += 0.0006  // Slightly faster rotation
       renderer.render(scene, camera)
     }
     animate()
@@ -106,9 +106,9 @@ export default function GlobeDemo() {
       .then((geojson) => {
         globe
           .polygonsData(geojson.features)
-          .polygonStrokeColor(() => "#FFD70033")
-          .polygonSideColor(() => "rgba(255,215,0,0.06)")
-          .polygonAltitude(() => 0.003)
+          .polygonStrokeColor(() => "#FFD70066")  // Brighter, more visible golden borders
+          .polygonSideColor(() => "rgba(255,215,0,0.12)")  // More opaque side fill
+          .polygonAltitude(() => 0.005)  // Slightly higher for visibility
       })
       .catch(() => {})
   }, [])
@@ -133,7 +133,7 @@ export default function GlobeDemo() {
           : Object.keys(fraudCounts).find((k) => name.includes(k) || k.includes(name)) || ""
       const c = key ? fraudCounts[key] || 0 : 0
       const a = Math.min(1, c / 6)
-      return `rgba(255,215,0,${0.06 + a * 0.4})`
+      return `rgba(255,215,0,${0.12 + a * 0.4})`  // Higher base opacity for better visibility
     })
 
     // Floating labels for top countries
