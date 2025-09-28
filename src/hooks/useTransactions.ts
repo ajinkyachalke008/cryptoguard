@@ -61,7 +61,7 @@ export function useTransactions() {
           ...prev,
         ].slice(0, 50)
       )
-    }, 1200)
+    }, 500)
     return () => clearInterval(id)
   }, [])
 
@@ -80,14 +80,27 @@ export function useTransactions() {
 
   const perMinute = useMemo(() => {
     const now = Date.now()
-    const buckets: Record<number, number> = {}
+    const safeBuckets: Record<number, number> = {}
+    const riskyBuckets: Record<number, number> = {}
+    const fraudBuckets: Record<number, number> = {}
     txs.forEach((t) => {
       const minute = Math.floor((now - parseInt(t.id.split("-")[0])) / 60000)
-      buckets[minute] = (buckets[minute] || 0) + 1
+      if (t.status === "safe") {
+        safeBuckets[minute] = (safeBuckets[minute] || 0) + 1
+      } else if (t.status === "risky") {
+        riskyBuckets[minute] = (riskyBuckets[minute] || 0) + 1
+      } else {
+        fraudBuckets[minute] = (fraudBuckets[minute] || 0) + 1
+      }
     })
     const data = Array.from({ length: 10 }, (_, i) => {
       const key = 9 - i
-      return { name: `${key}m`, value: buckets[key] || 0 }
+      return { 
+        name: `${key}m`, 
+        safe: safeBuckets[key] || 0,
+        risky: riskyBuckets[key] || 0,
+        fraud: fraudBuckets[key] || 0
+      }
     })
     return data
   }, [txs])
