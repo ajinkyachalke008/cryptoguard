@@ -39,7 +39,7 @@ export default function Home() {
           </div>
 
           <h1 className="mx-auto max-w-4xl text-5xl sm:text-6xl font-extrabold leading-tight">
-            <span className="block text-[#FFD700] font-black tracking-tight drop-shadow-[0_0_1px_#000,0_0_2px_#000,0_0_4px_#000,0_0_8px_currentColor,0_0_16px_currentColor,0_0_24px_rgba(255,215,0,0.8),0_0_40px_rgba(255,215,0,0.6)] animate-[glow-pulse_2s_ease-in-out_infinite] [-webkit-text-stroke:1px_#000] [text-shadow:0_0_1px_#000,0_0_2px_#000,0_0_4px_#000,0_0_8px_currentColor,0_0_16px_currentColor,0_0_24px_rgba(255,215,0,0.8),0_0_40px_rgba(255,215,0,0.6)]">
+            <span className="block text-[#FFD700] font-black tracking-tight">
               Cryptoguard
             </span>
             <span className="mt-2 block text-[oklch(0.86_0.16_100)] drop-shadow-[0_0_20px_#ffd70080]">
