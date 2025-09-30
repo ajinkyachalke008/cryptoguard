@@ -57,7 +57,7 @@ export default function GlobeDemo() {
     let raf = 0
     const animate = () => {
       raf = requestAnimationFrame(animate)
-      ;(globe as any).rotation.y += 0.0006  // Slightly faster rotation
+      ;(globe as any).rotation.y += 0.002  // Faster rotation speed
       renderer.render(scene, camera)
     }
     animate()
