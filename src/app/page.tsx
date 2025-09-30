@@ -27,12 +27,12 @@ export default function Home() {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10">
           {/* Animated shader-esque gradient + particles */}
-          <div className="absolute inset-0 bg-[radial-gradient(1200px_600px_at_50%_-20%,rgba(255,215,0,0.12),transparent_60%),radial-gradient(800px_400px_at_80%_30%,rgba(255,215,0,0.08),transparent_60%),linear-gradient(180deg,transparent,rgba(0,0,0,0.6))]" />
+          <div className="absolute inset-0 bg-[radial-gradient(1200px_600px_at_50%_-20%,rgba(255,215,0,0.15),transparent_60%),radial-gradient(800px_400px_at_80%_30%,rgba(255,215,0,0.10),transparent_60%),linear-gradient(180deg,transparent,rgba(0,0,0,0.8))]" />
           <NeonParticles />
         </div>
 
         <div className="mx-auto max-w-7xl px-4 pt-16 pb-20 text-center">
-          <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-yellow-500/40 bg-black/40 px-3 py-1 text-xs text-yellow-300 shadow-[0_0_20px_#ffd70033] backdrop-blur">
+          <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-yellow-500/50 bg-black/60 px-3 py-1 text-xs text-yellow-300 shadow-[0_0_20px_#ffd70044] backdrop-blur-sm">
             <span className="inline-flex items-center gap-1">
               <Zap className="size-3 text-yellow-400" /> NEW • AI Fraud Detection
             </span>
@@ -46,23 +46,23 @@ export default function Home() {
               AI Crypto Fraud Detection
             </span>
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-balance text-sm sm:text-base text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-2xl text-balance text-sm sm:text-base text-gray-300">
             Monitor global crypto transactions in real-time, identify risky flows, and stop fraud with a hybrid AI engine.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button className="h-11 rounded-full bg-yellow-500/95 px-6 text-black shadow-[0_0_24px_#ffd70080] transition-transform hover:scale-[1.03] hover:bg-yellow-400">
+            <Button className="h-11 rounded-full bg-yellow-500 px-6 text-black font-semibold shadow-[0_0_24px_#ffd70080] transition-transform hover:scale-[1.03] hover:bg-yellow-400">
               Launch Live Demo
             </Button>
             <Button
               variant="outline"
-              className="h-11 rounded-full border-yellow-500/60 px-6 text-yellow-300 shadow-[0_0_24px_#ffd70040] transition-transform hover:scale-[1.03] hover:text-yellow-200 hover:border-yellow-400"
+              className="h-11 rounded-full border-yellow-500/70 bg-black/40 px-6 text-yellow-300 font-semibold shadow-[0_0_24px_#ffd70040] transition-transform hover:scale-[1.03] hover:text-yellow-200 hover:border-yellow-400 hover:bg-black/60"
             >
               View Dashboard
             </Button>
             <Button
               variant="ghost"
               onClick={() => setRegOpen(true)}
-              className="h-11 rounded-full text-yellow-300 hover:text-yellow-200 hover:bg-yellow-500/10"
+              className="h-11 rounded-full text-yellow-300 font-semibold hover:text-yellow-200 hover:bg-yellow-500/20"
             >
               Register
             </Button>
@@ -73,17 +73,17 @@ export default function Home() {
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute left-1/2 top-1/2 h-[480px] w-[480px] -translate-x-1/2 -translate-y-1/2">
             <span className="absolute left-1/2 top-0 -translate-x-1/2 animate-[spin_18s_linear_infinite] [animation-direction:reverse]">
-              <span className="inline-block -translate-x-[200px] -translate-y-[16px] rounded-full bg-yellow-500/20 px-3 py-1 text-yellow-300 shadow-[0_0_16px_#ffd70066]">
+              <span className="inline-block -translate-x-[200px] -translate-y-[16px] rounded-full bg-yellow-500/30 px-3 py-1 text-yellow-300 font-semibold shadow-[0_0_16px_#ffd70066]">
                 ₿ BTC
               </span>
             </span>
             <span className="absolute left-1/2 top-0 -translate-x-1/2 animate-[spin_24s_linear_infinite]">
-              <span className="inline-block translate-x-[220px] translate-y-[40px] rounded-full bg-yellow-500/20 px-3 py-1 text-yellow-300 shadow-[0_0_16px_#ffd70066]">
+              <span className="inline-block translate-x-[220px] translate-y-[40px] rounded-full bg-yellow-500/30 px-3 py-1 text-yellow-300 font-semibold shadow-[0_0_16px_#ffd70066]">
                 Ξ ETH
               </span>
             </span>
             <span className="absolute left-1/2 top-0 -translate-x-1/2 animate-[spin_30s_linear_infinite]">
-              <span className="inline-block -translate-x-[120px] translate-y-[200px] rounded-full bg-yellow-500/20 px-3 py-1 text-yellow-300 shadow-[0_0_16px_#ffd70066]">
+              <span className="inline-block -translate-x-[120px] translate-y-[200px] rounded-full bg-yellow-500/30 px-3 py-1 text-yellow-300 font-semibold shadow-[0_0_16px_#ffd70066]">
                 ₮ USDT
               </span>
             </span>
@@ -93,7 +93,7 @@ export default function Home() {
 
       {/* Centerpiece Globe Demo */}
       <section className="mx-auto max-w-7xl px-4">
-        <div className="mt-6 rounded-xl border border-yellow-500/30 bg-black/30 p-4 backdrop-blur">
+        <div className="mt-6 rounded-xl border border-yellow-500/40 bg-black/50 p-4 backdrop-blur-sm shadow-[0_0_40px_#ffd70022]">
           <GlobeDemo />
         </div>
       </section>
