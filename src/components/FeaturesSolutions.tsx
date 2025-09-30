@@ -52,46 +52,46 @@ export default function FeaturesSolutions() {
         {features.map((f) => (
           <div
             key={f.title}
-            className="group relative overflow-hidden rounded-xl border border-yellow-500/30 bg-black/40 p-4 shadow-[0_0_30px_#ffd70022] transition-transform will-change-transform hover:-translate-y-1 hover:shadow-[0_0_40px_#ffd70055]"
+            className="group relative overflow-hidden rounded-xl border border-yellow-500/40 bg-black/60 p-4 shadow-[0_0_30px_#ffd70022] transition-transform will-change-transform hover:-translate-y-1 hover:shadow-[0_0_40px_#ffd70055] backdrop-blur"
           >
-            <div className="absolute inset-0 opacity-30">
+            <div className="absolute inset-0 opacity-20">
               <Image src={f.img} alt="feature" fill className="object-cover" />
             </div>
             <div className="relative">
-              <div className="text-yellow-400 font-semibold mb-1">{f.title}</div>
-              <div className="text-muted-foreground text-sm">{f.desc}</div>
+              <div className="text-yellow-400 font-bold mb-1">{f.title}</div>
+              <div className="text-gray-300 text-sm">{f.desc}</div>
             </div>
           </div>
         ))}
       </div>
 
-      <h3 className="text-center text-2xl font-semibold text-yellow-400 mt-14">Our Solutions</h3>
+      <h3 className="text-center text-2xl font-bold text-yellow-400 mt-14">Our Solutions</h3>
       <div className="grid md:grid-cols-3 gap-6 mt-6">
         {solutions.map((s) => (
           <button
             key={s.title}
             onClick={() => setModal(s)}
-            className="group relative h-48 overflow-hidden rounded-xl border border-yellow-500/30 bg-black/40 p-4 text-left shadow-[0_0_30px_#ffd70022] transition-transform hover:-translate-y-1 hover:shadow-[0_0_40px_#ffd70055]"
+            className="group relative h-48 overflow-hidden rounded-xl border border-yellow-500/40 bg-black/60 p-4 text-left shadow-[0_0_30px_#ffd70022] transition-transform hover:-translate-y-1 hover:shadow-[0_0_40px_#ffd70055] backdrop-blur"
           >
-            <Image src={s.img} alt={s.title} fill className="object-cover opacity-50 group-hover:opacity-70 transition" />
-            <div className="relative text-yellow-300 font-medium">{s.title}</div>
+            <Image src={s.img} alt={s.title} fill className="object-cover opacity-30 group-hover:opacity-50 transition" />
+            <div className="relative text-yellow-300 font-bold text-lg">{s.title}</div>
           </button>
         ))}
       </div>
 
       {modal && (
         <div className="fixed inset-0 z-50 grid place-items-center">
-          <div className="absolute inset-0 bg-black/70" onClick={() => setModal(null)} />
-          <div className="relative w-full max-w-3xl rounded-xl border border-yellow-500/40 bg-background/90 p-6 shadow-[0_0_40px_#ffd70044]">
-            <div className="text-yellow-400 mb-4 font-semibold">{modal.title}</div>
+          <div className="absolute inset-0 bg-black/80" onClick={() => setModal(null)} />
+          <div className="relative w-full max-w-3xl rounded-xl border border-yellow-500/50 bg-background/95 p-6 shadow-[0_0_40px_#ffd70044] backdrop-blur">
+            <div className="text-yellow-400 mb-4 font-bold text-xl">{modal.title}</div>
             <div className="relative h-80">
               <Image src={modal.img} alt={modal.title} fill className="object-cover rounded-md" />
             </div>
-            <div className="mt-4 text-sm text-muted-foreground">
+            <div className="mt-4 text-sm text-gray-300">
               Mini demo placeholder: animated fraud widgets coming soon.
             </div>
             <div className="mt-4 flex justify-end">
-              <Button onClick={() => setModal(null)} className="bg-yellow-500 text-black hover:bg-yellow-400">Close</Button>
+              <Button onClick={() => setModal(null)} className="bg-yellow-500 text-black hover:bg-yellow-400 font-semibold">Close</Button>
             </div>
           </div>
         </div>
