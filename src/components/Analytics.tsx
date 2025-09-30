@@ -20,7 +20,7 @@ export default function Analytics() {
   const currentTotal = perMinute[perMinute.length - 1]?.safe + perMinute[perMinute.length - 1]?.risky + perMinute[perMinute.length - 1]?.fraud || 0
 
   return (
-    <div className="rounded-xl border border-yellow-500/30 bg-black/40 p-4 backdrop-blur shadow-[0_0_30px_#ffd70033]">
+    <div className="rounded-xl border border-yellow-500/40 bg-black/60 p-4 backdrop-blur shadow-[0_0_30px_#ffd70033]">
       <div className="text-yellow-400 font-semibold mb-3">Transactions per minute</div>
       <div className="text-2xl font-bold text-yellow-400 mb-2">
         Live: {currentTotal} tx/min
@@ -28,8 +28,8 @@ export default function Analytics() {
       <ChartContainer config={config} className="h-56 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={perMinute}>
-            <XAxis dataKey="name" stroke="#777" tickLine={false} axisLine={false} />
-            <YAxis stroke="#777" tickLine={false} axisLine={false} allowDecimals={false} />
+            <XAxis dataKey="name" stroke="#999" tickLine={false} axisLine={false} />
+            <YAxis stroke="#999" tickLine={false} axisLine={false} allowDecimals={false} />
             <Tooltip content={<ChartTooltipContent />} />
             <Legend verticalAlign="top" height={36} />
             <Line
