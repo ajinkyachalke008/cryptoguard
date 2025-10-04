@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import NavBar from "@/components/NavBar"
 import Footer from "@/components/Footer"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,7 +21,9 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Download,
-  Filter
+  Filter,
+  FileText,
+  Key
 } from "lucide-react"
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
 
@@ -55,7 +58,8 @@ const topCountries = [
   { country: "🇧🇷 Brazil", transactions: 5234, fraud: 298, percentage: 5.7 }
 ]
 
-export default function DashboardPage() {
+export default function Dashboard() {
+  const router = useRouter()
   const [liveCount, setLiveCount] = useState(10582)
   const [fraudCount, setFraudCount] = useState(234)
 
@@ -70,17 +74,19 @@ export default function DashboardPage() {
   }, [])
 
   return (
-    <div className="relative min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background">
       <NavBar />
 
-      <main className="mx-auto max-w-7xl px-4 py-8">
+      <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-yellow-300 mb-2">Dashboard</h1>
-          <p className="text-gray-400">Real-time crypto fraud detection and monitoring</p>
+          <h1 className="text-4xl font-bold bg-[linear-gradient(180deg,#fff7cc_0%,#ffd700_50%,#b58100_100%)] bg-clip-text text-transparent">
+            Dashboard
+          </h1>
+          <p className="text-gray-400 mt-2">Real-time crypto fraud monitoring & analytics</p>
         </div>
 
-        {/* Stats Overview */}
+        {/* Stats Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
           <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -293,39 +299,40 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-yellow-300">Quick Actions</CardTitle>
-            <CardDescription className="text-gray-400">Manage your fraud detection operations</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-4">
-              <Button className="h-auto flex-col items-start p-4 bg-yellow-500/10 border border-yellow-500/30 hover:bg-yellow-500/20 text-left">
-                <Shield className="h-6 w-6 text-yellow-400 mb-2" />
-                <span className="font-semibold text-yellow-300">Review Cases</span>
-                <span className="text-xs text-gray-400 mt-1">12 pending</span>
-              </Button>
-              <Button className="h-auto flex-col items-start p-4 bg-yellow-500/10 border border-yellow-500/30 hover:bg-yellow-500/20 text-left">
-                <Download className="h-6 w-6 text-yellow-400 mb-2" />
-                <span className="font-semibold text-yellow-300">Export Report</span>
-                <span className="text-xs text-gray-400 mt-1">Generate PDF</span>
-              </Button>
-              <Button className="h-auto flex-col items-start p-4 bg-yellow-500/10 border border-yellow-500/30 hover:bg-yellow-500/20 text-left">
-                <Users className="h-6 w-6 text-yellow-400 mb-2" />
-                <span className="font-semibold text-yellow-300">Team Analytics</span>
-                <span className="text-xs text-gray-400 mt-1">View performance</span>
-              </Button>
-              <Button className="h-auto flex-col items-start p-4 bg-yellow-500/10 border border-yellow-500/30 hover:bg-yellow-500/20 text-left">
-                <TrendingUp className="h-6 w-6 text-yellow-400 mb-2" />
-                <span className="font-semibold text-yellow-300">AI Insights</span>
-                <span className="text-xs text-gray-400 mt-1">View predictions</span>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </main>
-
-      <Footer />
+        <div className="rounded-xl border border-yellow-500/40 bg-black/60 p-6 backdrop-blur-sm shadow-[0_0_40px_#ffd70022]">
+          <h2 className="text-xl font-semibold text-yellow-300 mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Button
+              onClick={() => router.push("/cases")}
+              className="h-auto flex flex-col items-center gap-2 py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 hover:border-yellow-500/50"
+            >
+              <FileText className="size-6" />
+              <span className="font-semibold">Review Cases</span>
+            </Button>
+            <Button
+              onClick={() => router.push("/reports")}
+              className="h-auto flex flex-col items-center gap-2 py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 hover:border-yellow-500/50"
+            >
+              <Download className="size-6" />
+              <span className="font-semibold">Export Report</span>
+            </Button>
+            <Button
+              onClick={() => router.push("/team")}
+              className="h-auto flex flex-col items-center gap-2 py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 hover:border-yellow-500/50"
+            >
+              <Users className="size-6" />
+              <span className="font-semibold">Team Analytics</span>
+            </Button>
+            <Button
+              onClick={() => router.push("/api-keys")}
+              className="h-auto flex flex-col items-center gap-2 py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 hover:border-yellow-500/50"
+            >
+              <Key className="size-6" />
+              <span className="font-semibold">API Keys</span>
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
