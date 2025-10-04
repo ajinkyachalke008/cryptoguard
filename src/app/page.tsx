@@ -11,6 +11,7 @@ import Analytics from "@/components/Analytics"
 import Leaderboard from "@/components/Leaderboard"
 import TransactionsTable from "@/components/TransactionsTable"
 import FeaturesSolutions from "@/components/FeaturesSolutions"
+import SecurityFeatures from "@/components/SecurityFeatures"
 import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { Sparkles, Zap } from "lucide-react"
@@ -117,6 +118,9 @@ export default function Home() {
         <Leaderboard />
         <TransactionsTable />
       </section>
+
+      {/* Security Features */}
+      <SecurityFeatures />
 
       {/* Features & Solutions */}
       <section id="features" className="mt-12">
