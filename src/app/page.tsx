@@ -15,9 +15,11 @@ import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { Sparkles, Zap } from "lucide-react"
 import { RegistrationModal } from "@/components/RegistrationModal"
+import { LiveDemoModal } from "@/components/LiveDemoModal"
 
 export default function Home() {
   const [regOpen, setRegOpen] = useState(false)
+  const [demoOpen, setDemoOpen] = useState(false)
   const router = useRouter()
 
   return (
@@ -52,7 +54,10 @@ export default function Home() {
             Monitor global crypto transactions in real-time, identify risky flows, and stop fraud with a hybrid AI engine.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button className="h-11 rounded-full bg-yellow-500 px-6 text-black font-semibold shadow-[0_0_24px_#ffd70080] transition-transform hover:scale-[1.03] hover:bg-yellow-400">
+            <Button 
+              onClick={() => setDemoOpen(true)}
+              className="h-11 rounded-full bg-yellow-500 px-6 text-black font-semibold shadow-[0_0_24px_#ffd70080] transition-transform hover:scale-[1.03] hover:bg-yellow-400"
+            >
               Launch Live Demo
             </Button>
             <Button
@@ -122,6 +127,9 @@ export default function Home() {
 
       {/* Registration Modal (hero trigger) */}
       <RegistrationModal open={regOpen} onOpenChange={setRegOpen} />
+      
+      {/* Live Demo Modal */}
+      <LiveDemoModal open={demoOpen} onOpenChange={setDemoOpen} />
     </div>
   )
 }
