@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import NavBar from "@/components/NavBar"
 import NeonParticles from "@/components/NeonParticles"
 import CursorTrail from "@/components/CursorTrail"
@@ -17,6 +18,7 @@ import { RegistrationModal } from "@/components/RegistrationModal"
 
 export default function Home() {
   const [regOpen, setRegOpen] = useState(false)
+  const router = useRouter()
 
   return (
     <div className="relative min-h-screen bg-background text-foreground">
@@ -55,6 +57,7 @@ export default function Home() {
             </Button>
             <Button
               variant="outline"
+              onClick={() => router.push("/dashboard")}
               className="h-11 rounded-full border-yellow-500/70 bg-black/40 px-6 text-yellow-300 font-semibold shadow-[0_0_24px_#ffd70040] transition-transform hover:scale-[1.03] hover:text-yellow-200 hover:border-yellow-400 hover:bg-black/60"
             >
               View Dashboard
