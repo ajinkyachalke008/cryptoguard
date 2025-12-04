@@ -301,34 +301,48 @@ export default function Dashboard() {
         {/* Quick Actions */}
         <div className="rounded-xl border border-yellow-500/40 bg-black/60 p-6 backdrop-blur-sm shadow-[0_0_40px_#ffd70022]">
           <h2 className="text-xl font-semibold text-yellow-300 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             <Button
-              onClick={() => router.push("/cases")}
+              onClick={() => router.push("/scanner")}
               className="h-auto flex flex-col items-center gap-2 py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 hover:border-yellow-500/50"
             >
-              <FileText className="size-6" />
-              <span className="font-semibold">Review Cases</span>
+              <Shield className="size-6" />
+              <span className="font-semibold text-sm">Scan Wallet</span>
+            </Button>
+            <Button
+              onClick={() => router.push("/watchlist")}
+              className="h-auto flex flex-col items-center gap-2 py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 hover:border-yellow-500/50"
+            >
+              <Eye className="size-6" />
+              <span className="font-semibold text-sm">Watchlist</span>
+            </Button>
+            <Button
+              onClick={() => router.push("/alerts")}
+              className="h-auto flex flex-col items-center gap-2 py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 hover:border-yellow-500/50"
+            >
+              <AlertTriangle className="size-6" />
+              <span className="font-semibold text-sm">Alerts</span>
+            </Button>
+            <Button
+              onClick={() => router.push("/graph")}
+              className="h-auto flex flex-col items-center gap-2 py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 hover:border-yellow-500/50"
+            >
+              <Activity className="size-6" />
+              <span className="font-semibold text-sm">Graph Explorer</span>
             </Button>
             <Button
               onClick={() => router.push("/reports")}
               className="h-auto flex flex-col items-center gap-2 py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 hover:border-yellow-500/50"
             >
               <Download className="size-6" />
-              <span className="font-semibold">Export Report</span>
-            </Button>
-            <Button
-              onClick={() => router.push("/team")}
-              className="h-auto flex flex-col items-center gap-2 py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 hover:border-yellow-500/50"
-            >
-              <Users className="size-6" />
-              <span className="font-semibold">Team Analytics</span>
+              <span className="font-semibold text-sm">Reports</span>
             </Button>
             <Button
               onClick={() => router.push("/api-keys")}
               className="h-auto flex flex-col items-center gap-2 py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 hover:border-yellow-500/50"
             >
               <Key className="size-6" />
-              <span className="font-semibold">API Keys</span>
+              <span className="font-semibold text-sm">API Keys</span>
             </Button>
           </div>
         </div>
