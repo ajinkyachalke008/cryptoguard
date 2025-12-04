@@ -10,6 +10,7 @@ import TransactionFeed from "@/components/TransactionFeed"
 import Analytics from "@/components/Analytics"
 import Leaderboard from "@/components/Leaderboard"
 import TransactionsTable from "@/components/TransactionsTable"
+import TransactionManagement from "@/components/TransactionManagement"
 import FeaturesSolutions from "@/components/FeaturesSolutions"
 import SecurityFeatures from "@/components/SecurityFeatures"
 import Footer from "@/components/Footer"
@@ -118,6 +119,9 @@ export default function Home() {
         <Leaderboard />
         <TransactionsTable />
       </section>
+
+      {/* Transaction Management Section */}
+      <TransactionManagement />
 
       {/* Security Features */}
       <SecurityFeatures />
