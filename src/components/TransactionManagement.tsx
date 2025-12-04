@@ -25,7 +25,11 @@ import {
   X,
   CheckCircle,
   AlertOctagon,
-  Activity
+  Activity,
+  Zap,
+  Cpu,
+  Radio,
+  Scan
 } from "lucide-react"
 import {
   Dialog,
@@ -81,7 +85,7 @@ export default function TransactionManagement() {
         tx.from.toLowerCase().includes(searchQuery.toLowerCase()) ||
         tx.to.toLowerCase().includes(searchQuery.toLowerCase())
       )
-      .slice(0, 50) // Show latest 50
+      .slice(0, 50)
   }, [txs, filter, searchQuery])
 
   // Generate mock related accounts for deep research
@@ -172,17 +176,25 @@ export default function TransactionManagement() {
 
   const getStatusColor = (status: TxStatus) => {
     switch (status) {
-      case "safe": return "text-green-400"
-      case "risky": return "text-orange-400"
-      case "fraud": return "text-red-400"
+      case "safe": return "text-emerald-400"
+      case "risky": return "text-amber-400"
+      case "fraud": return "text-rose-400"
+    }
+  }
+
+  const getStatusGlow = (status: TxStatus) => {
+    switch (status) {
+      case "safe": return "shadow-[0_0_20px_rgba(52,211,153,0.4),inset_0_0_20px_rgba(52,211,153,0.1)]"
+      case "risky": return "shadow-[0_0_20px_rgba(251,191,36,0.4),inset_0_0_20px_rgba(251,191,36,0.1)]"
+      case "fraud": return "shadow-[0_0_20px_rgba(251,113,133,0.4),inset_0_0_20px_rgba(251,113,133,0.1)]"
     }
   }
 
   const getStatusBg = (status: TxStatus) => {
     switch (status) {
-      case "safe": return "bg-green-500/20 border-green-500/50"
-      case "risky": return "bg-orange-500/20 border-orange-500/50"
-      case "fraud": return "bg-red-500/20 border-red-500/50"
+      case "safe": return "bg-emerald-500/10 border-emerald-500/40"
+      case "risky": return "bg-amber-500/10 border-amber-500/40"
+      case "fraud": return "bg-rose-500/10 border-rose-500/40"
     }
   }
 
@@ -211,205 +223,260 @@ export default function TransactionManagement() {
   }, [txs])
 
   return (
-    <section className="mx-auto max-w-7xl px-4 mt-8">
-      <div className="rounded-xl border border-yellow-500/40 bg-black/50 p-6 backdrop-blur-sm shadow-[0_0_40px_#ffd70022]">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-yellow-400 flex items-center gap-2">
-              <Activity className="size-6" />
-              Transaction Management
-            </h2>
-            <p className="text-gray-400 text-sm mt-1">
-              Monitor, analyze, and take action on suspicious transactions
-            </p>
-          </div>
-          
-          {/* Stats Overview */}
-          <div className="flex gap-3">
-            <div className="px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/30">
-              <div className="text-xs text-green-400">Safe</div>
-              <div className="text-lg font-bold text-green-300">{stats.safe}</div>
-            </div>
-            <div className="px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/30">
-              <div className="text-xs text-orange-400">Risky</div>
-              <div className="text-lg font-bold text-orange-300">{stats.risky}</div>
-            </div>
-            <div className="px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/30">
-              <div className="text-xs text-red-400">Fraud</div>
-              <div className="text-lg font-bold text-red-300">{stats.fraud}</div>
-            </div>
-          </div>
+    <section className="mx-auto max-w-7xl px-4 mt-12">
+      {/* Futuristic Container */}
+      <div className="relative rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-black/80 via-black/60 to-yellow-950/20 p-1 backdrop-blur-xl shadow-[0_0_60px_rgba(255,215,0,0.15),0_0_100px_rgba(255,215,0,0.05)]">
+        {/* Animated corner accents */}
+        <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-yellow-500/60 rounded-tl-2xl" />
+        <div className="absolute top-0 right-0 w-20 h-20 border-t-2 border-r-2 border-yellow-500/60 rounded-tr-2xl" />
+        <div className="absolute bottom-0 left-0 w-20 h-20 border-b-2 border-l-2 border-yellow-500/60 rounded-bl-2xl" />
+        <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-yellow-500/60 rounded-br-2xl" />
+        
+        {/* Scan line effect */}
+        <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
+          <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(255,215,0,0.03)_50%)] bg-[length:100%_4px] animate-pulse" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent animate-pulse" />
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-4">
-          {/* Search */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-500" />
-            <Input
-              placeholder="Search by Transaction ID, Location..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-black/40 border-yellow-500/30 text-white placeholder:text-gray-500 focus:border-yellow-500"
-            />
-          </div>
-          
-          {/* Status Filter Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="border-yellow-500/30 bg-black/40 text-yellow-300 hover:bg-yellow-500/10 min-w-[140px]">
-                <Filter className="size-4 mr-2" />
-                {filter === "all" ? "All Status" : filter.charAt(0).toUpperCase() + filter.slice(1)}
-                <ChevronDown className="size-4 ml-2" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-black/95 border-yellow-500/30">
-              <DropdownMenuItem onClick={() => setFilter("all")} className="text-white hover:bg-yellow-500/20">
-                All Transactions
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilter("safe")} className="text-green-400 hover:bg-green-500/20">
-                <Shield className="size-4 mr-2" /> Safe
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilter("risky")} className="text-orange-400 hover:bg-orange-500/20">
-                <AlertTriangle className="size-4 mr-2" /> Risky
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilter("fraud")} className="text-red-400 hover:bg-red-500/20">
-                <XCircle className="size-4 mr-2" /> Fraud
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        {/* Transactions List */}
-        <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-          {filteredTxs.length === 0 ? (
-            <div className="text-center py-10 text-gray-500">
-              No transactions found matching your criteria
-            </div>
-          ) : (
-            filteredTxs.map((tx) => (
-              <div
-                key={tx.id}
-                className={`p-4 rounded-lg border ${getStatusBg(tx.status)} transition-all hover:shadow-lg ${
-                  frozenAccounts.has(tx.from) || frozenAccounts.has(tx.to) ? "opacity-60" : ""
-                }`}
-              >
-                <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-                  {/* Status Badge & ID */}
-                  <div className="flex items-center gap-3 min-w-[200px]">
-                    <div className={`p-2 rounded-full ${getStatusBg(tx.status)} ${getStatusColor(tx.status)}`}>
-                      {getStatusIcon(tx.status)}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <Hash className="size-3 text-gray-500" />
-                        <span className="text-xs text-gray-400 font-mono">{tx.id.slice(0, 12)}...</span>
-                      </div>
-                      <div className={`text-sm font-semibold ${getStatusColor(tx.status)} capitalize`}>
-                        {tx.status}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Amount */}
-                  <div className="flex items-center gap-2 min-w-[120px]">
-                    <DollarSign className="size-4 text-yellow-500" />
-                    <span className="text-white font-semibold">${tx.amount.toLocaleString()}</span>
-                  </div>
-
-                  {/* Location From -> To */}
-                  <div className="flex items-center gap-2 flex-1">
-                    <MapPin className="size-4 text-blue-400" />
-                    <span className="text-gray-300">{tx.from}</span>
-                    <ArrowRight className="size-4 text-yellow-500" />
-                    <span className="text-gray-300">{tx.to}</span>
-                  </div>
-
-                  {/* Time */}
-                  <div className="flex items-center gap-2 min-w-[100px]">
-                    <Clock className="size-4 text-gray-500" />
-                    <span className="text-gray-400 text-sm">{formatTime(tx.id)}</span>
-                  </div>
-
-                  {/* Frozen Badge */}
-                  {(frozenAccounts.has(tx.from) || frozenAccounts.has(tx.to)) && (
-                    <div className="px-2 py-1 rounded bg-blue-500/20 border border-blue-500/50 text-blue-400 text-xs flex items-center gap-1">
-                      <Snowflake className="size-3" /> Frozen
-                    </div>
-                  )}
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleFreeze(tx)}
-                      disabled={frozenAccounts.has(tx.from) && frozenAccounts.has(tx.to)}
-                      className="border-blue-500/50 text-blue-400 hover:bg-blue-500/20 hover:text-blue-300"
-                    >
-                      <Snowflake className="size-4 mr-1" />
-                      Freeze
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleDeepResearch(tx)}
-                      className="border-purple-500/50 text-purple-400 hover:bg-purple-500/20 hover:text-purple-300"
-                    >
-                      <Microscope className="size-4 mr-1" />
-                      Research
-                    </Button>
-                  </div>
+        <div className="relative p-6 rounded-xl">
+          {/* Header */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+            <div className="flex items-center gap-4">
+              {/* Animated icon container */}
+              <div className="relative">
+                <div className="absolute inset-0 bg-yellow-500/20 rounded-xl blur-xl animate-pulse" />
+                <div className="relative p-3 rounded-xl bg-gradient-to-br from-yellow-500/20 to-yellow-600/10 border border-yellow-500/40 shadow-[0_0_30px_rgba(255,215,0,0.3)]">
+                  <Cpu className="size-8 text-yellow-400" />
                 </div>
               </div>
-            ))
-          )}
+              <div>
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-yellow-200 via-yellow-400 to-yellow-200 bg-clip-text text-transparent flex items-center gap-2">
+                  Transaction Control Center
+                  <span className="flex items-center gap-1 px-2 py-0.5 text-xs font-normal bg-yellow-500/20 border border-yellow-500/40 rounded-full text-yellow-400">
+                    <Radio className="size-3 animate-pulse" /> LIVE
+                  </span>
+                </h2>
+                <p className="text-gray-400 text-sm mt-1 flex items-center gap-2">
+                  <Zap className="size-3 text-yellow-500" />
+                  AI-powered monitoring • Real-time threat analysis
+                </p>
+              </div>
+            </div>
+            
+            {/* Futuristic Stats Cards */}
+            <div className="flex gap-3">
+              {[
+                { label: "SECURE", value: stats.safe, color: "emerald", icon: Shield },
+                { label: "FLAGGED", value: stats.risky, color: "amber", icon: AlertTriangle },
+                { label: "THREAT", value: stats.fraud, color: "rose", icon: XCircle }
+              ].map((stat) => (
+                <div 
+                  key={stat.label}
+                  className={`relative group px-4 py-3 rounded-xl bg-${stat.color}-500/5 border border-${stat.color}-500/30 hover:border-${stat.color}-500/60 transition-all duration-300 hover:shadow-[0_0_30px_rgba(255,215,0,0.2)]`}
+                >
+                  <div className={`absolute inset-0 bg-${stat.color}-500/5 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity`} />
+                  <div className="relative">
+                    <div className={`flex items-center gap-1 text-xs text-${stat.color}-400 mb-1`}>
+                      <stat.icon className="size-3" />
+                      {stat.label}
+                    </div>
+                    <div className={`text-2xl font-bold text-${stat.color}-300 font-mono tracking-wider`}>
+                      {stat.value.toString().padStart(3, '0')}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Futuristic Filters Bar */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-6 p-4 rounded-xl bg-black/40 border border-yellow-500/20">
+            {/* Search with glow */}
+            <div className="relative flex-1 group">
+              <div className="absolute inset-0 bg-yellow-500/10 rounded-lg blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-yellow-500/60 group-focus-within:text-yellow-400 transition-colors" />
+              <Input
+                placeholder="Search transaction matrix..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="relative pl-11 h-12 bg-black/60 border-yellow-500/30 text-white placeholder:text-gray-600 focus:border-yellow-500 focus:shadow-[0_0_20px_rgba(255,215,0,0.2)] transition-all font-mono"
+              />
+              <Scan className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-yellow-500/40" />
+            </div>
+            
+            {/* Status Filter */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="h-12 min-w-[160px] border-yellow-500/30 bg-black/60 text-yellow-300 hover:bg-yellow-500/10 hover:border-yellow-500/60 hover:shadow-[0_0_20px_rgba(255,215,0,0.2)] transition-all font-mono"
+                >
+                  <Filter className="size-4 mr-2" />
+                  {filter === "all" ? "ALL STATUS" : filter.toUpperCase()}
+                  <ChevronDown className="size-4 ml-auto" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-black/95 border-yellow-500/30 backdrop-blur-xl">
+                <DropdownMenuItem onClick={() => setFilter("all")} className="text-white hover:bg-yellow-500/20 font-mono">
+                  ALL TRANSACTIONS
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilter("safe")} className="text-emerald-400 hover:bg-emerald-500/20 font-mono">
+                  <Shield className="size-4 mr-2" /> SECURE
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilter("risky")} className="text-amber-400 hover:bg-amber-500/20 font-mono">
+                  <AlertTriangle className="size-4 mr-2" /> FLAGGED
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilter("fraud")} className="text-rose-400 hover:bg-rose-500/20 font-mono">
+                  <XCircle className="size-4 mr-2" /> THREAT
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Transactions Grid */}
+          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+            {filteredTxs.length === 0 ? (
+              <div className="text-center py-16 text-gray-500">
+                <Scan className="size-12 mx-auto mb-4 opacity-30" />
+                <p className="font-mono">NO MATCHING TRANSACTIONS IN DATABASE</p>
+              </div>
+            ) : (
+              filteredTxs.map((tx, index) => (
+                <div
+                  key={tx.id}
+                  className={`group relative p-4 rounded-xl border ${getStatusBg(tx.status)} ${getStatusGlow(tx.status)} transition-all duration-300 hover:scale-[1.01] ${
+                    frozenAccounts.has(tx.from) || frozenAccounts.has(tx.to) ? "opacity-50" : ""
+                  }`}
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  {/* Holographic overlay on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
+                  
+                  <div className="relative flex flex-col lg:flex-row lg:items-center gap-4">
+                    {/* Status Indicator */}
+                    <div className="flex items-center gap-3 min-w-[180px]">
+                      <div className={`relative p-2.5 rounded-lg ${getStatusBg(tx.status)} ${getStatusColor(tx.status)}`}>
+                        <div className={`absolute inset-0 rounded-lg animate-ping opacity-20 ${
+                          tx.status === "fraud" ? "bg-rose-500" : tx.status === "risky" ? "bg-amber-500" : "bg-emerald-500"
+                        }`} />
+                        {getStatusIcon(tx.status)}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Hash className="size-3 text-gray-600" />
+                          <span className="text-xs text-gray-500 font-mono tracking-wider">{tx.id.slice(0, 10)}...</span>
+                        </div>
+                        <div className={`text-sm font-bold ${getStatusColor(tx.status)} uppercase tracking-wider`}>
+                          {tx.status === "safe" ? "VERIFIED" : tx.status === "risky" ? "FLAGGED" : "THREAT"}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Amount with glow */}
+                    <div className="flex items-center gap-2 min-w-[130px]">
+                      <DollarSign className="size-4 text-yellow-500" />
+                      <span className="text-white font-bold font-mono text-lg tracking-wider">
+                        {tx.amount.toLocaleString()}
+                      </span>
+                    </div>
+
+                    {/* Route Visualization */}
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/30">
+                        <MapPin className="size-3 text-blue-400" />
+                        <span className="text-blue-300 text-sm font-mono">{tx.from}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-8 h-px bg-gradient-to-r from-blue-500 to-yellow-500" />
+                        <ArrowRight className="size-4 text-yellow-500 -mx-1" />
+                        <div className="w-8 h-px bg-gradient-to-r from-yellow-500 to-purple-500" />
+                      </div>
+                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/30">
+                        <MapPin className="size-3 text-purple-400" />
+                        <span className="text-purple-300 text-sm font-mono">{tx.to}</span>
+                      </div>
+                    </div>
+
+                    {/* Timestamp */}
+                    <div className="flex items-center gap-2 min-w-[110px]">
+                      <Clock className="size-4 text-gray-600" />
+                      <span className="text-gray-400 text-sm font-mono">{formatTime(tx.id)}</span>
+                    </div>
+
+                    {/* Frozen Badge */}
+                    {(frozenAccounts.has(tx.from) || frozenAccounts.has(tx.to)) && (
+                      <div className="px-3 py-1.5 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 text-xs flex items-center gap-2 font-mono shadow-[0_0_15px_rgba(34,211,238,0.3)]">
+                        <Snowflake className="size-3 animate-pulse" /> FROZEN
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleFreeze(tx)}
+                        disabled={frozenAccounts.has(tx.from) && frozenAccounts.has(tx.to)}
+                        className="border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-500/60 hover:text-cyan-300 hover:shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all font-mono text-xs"
+                      >
+                        <Snowflake className="size-4 mr-1" />
+                        FREEZE
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeepResearch(tx)}
+                        className="border-purple-500/40 text-purple-400 hover:bg-purple-500/20 hover:border-purple-500/60 hover:text-purple-300 hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all font-mono text-xs"
+                      >
+                        <Microscope className="size-4 mr-1" />
+                        ANALYZE
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
 
       {/* Freeze Confirmation Dialog */}
       <Dialog open={freezeDialogOpen} onOpenChange={setFreezeDialogOpen}>
-        <DialogContent className="bg-black/95 border-yellow-500/40 text-white max-w-md">
+        <DialogContent className="bg-gradient-to-br from-black/98 to-cyan-950/30 border-cyan-500/40 text-white max-w-md backdrop-blur-xl shadow-[0_0_60px_rgba(34,211,238,0.2)]">
           <DialogHeader>
-            <DialogTitle className="text-yellow-400 flex items-center gap-2">
+            <DialogTitle className="text-cyan-400 flex items-center gap-2 font-mono">
               <Snowflake className="size-5" />
-              Freeze Account Confirmation
+              FREEZE PROTOCOL
             </DialogTitle>
             <DialogDescription className="text-gray-400">
-              This action will freeze both sender and receiver accounts associated with this transaction.
+              Initiating account suspension sequence
             </DialogDescription>
           </DialogHeader>
           
           {selectedTx && (
             <div className="space-y-4 py-4">
-              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30">
-                <div className="flex items-center gap-2 text-red-400 mb-2">
-                  <AlertOctagon className="size-4" />
-                  <span className="font-semibold">Warning</span>
+              <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/40 shadow-[0_0_20px_rgba(251,113,133,0.2)]">
+                <div className="flex items-center gap-2 text-rose-400 mb-2">
+                  <AlertOctagon className="size-4 animate-pulse" />
+                  <span className="font-bold font-mono">⚠ CRITICAL ACTION</span>
                 </div>
                 <p className="text-sm text-gray-300">
-                  Freezing these accounts will immediately halt all transactions. This action requires manual review to unfreeze.
+                  This will immediately halt all transactions for associated wallets. Manual override required for restoration.
                 </p>
               </div>
               
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Transaction ID:</span>
-                  <span className="text-gray-300 font-mono">{selectedTx.id.slice(0, 16)}...</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Sender Account:</span>
-                  <span className="text-gray-300">{selectedTx.from}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Receiver Account:</span>
-                  <span className="text-gray-300">{selectedTx.to}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Amount:</span>
-                  <span className="text-yellow-400 font-semibold">${selectedTx.amount.toLocaleString()}</span>
-                </div>
+              <div className="space-y-3 p-4 rounded-xl bg-black/40 border border-cyan-500/20">
+                {[
+                  { label: "TX-ID", value: selectedTx.id.slice(0, 16) + "..." },
+                  { label: "SOURCE", value: selectedTx.from },
+                  { label: "TARGET", value: selectedTx.to },
+                  { label: "VALUE", value: `$${selectedTx.amount.toLocaleString()}`, highlight: true }
+                ].map((item) => (
+                  <div key={item.label} className="flex justify-between text-sm font-mono">
+                    <span className="text-gray-500">{item.label}:</span>
+                    <span className={item.highlight ? "text-yellow-400 font-bold" : "text-gray-300"}>{item.value}</span>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -418,16 +485,16 @@ export default function TransactionManagement() {
             <Button
               variant="outline"
               onClick={() => setFreezeDialogOpen(false)}
-              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+              className="border-gray-600 text-gray-300 hover:bg-gray-800 font-mono"
             >
-              Cancel
+              ABORT
             </Button>
             <Button
               onClick={confirmFreeze}
-              className="bg-blue-600 text-white hover:bg-blue-700"
+              className="bg-cyan-600 text-white hover:bg-cyan-500 shadow-[0_0_20px_rgba(34,211,238,0.3)] font-mono"
             >
               <Snowflake className="size-4 mr-2" />
-              Confirm Freeze
+              EXECUTE FREEZE
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -435,105 +502,96 @@ export default function TransactionManagement() {
 
       {/* Deep Research Dialog */}
       <Dialog open={researchDialogOpen} onOpenChange={setResearchDialogOpen}>
-        <DialogContent className="bg-black/95 border-yellow-500/40 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-gradient-to-br from-black/98 to-purple-950/30 border-purple-500/40 text-white max-w-4xl max-h-[90vh] overflow-y-auto backdrop-blur-xl shadow-[0_0_60px_rgba(168,85,247,0.2)]">
           <DialogHeader>
-            <DialogTitle className="text-yellow-400 flex items-center gap-2">
+            <DialogTitle className="text-purple-400 flex items-center gap-2 font-mono">
               <Microscope className="size-5" />
-              Deep Research Analysis
+              DEEP ANALYSIS MODULE
             </DialogTitle>
             <DialogDescription className="text-gray-400">
-              Comprehensive analysis of related accounts and transaction patterns
+              Neural network threat assessment and pattern recognition
             </DialogDescription>
           </DialogHeader>
           
           {selectedTx && (
             <div className="space-y-6 py-4">
               {/* Transaction Summary */}
-              <div className="p-4 rounded-lg border border-yellow-500/30 bg-yellow-500/5">
-                <h3 className="text-yellow-400 font-semibold mb-3 flex items-center gap-2">
+              <div className="p-4 rounded-xl border border-yellow-500/30 bg-yellow-500/5 shadow-[0_0_30px_rgba(255,215,0,0.1)]">
+                <h3 className="text-yellow-400 font-bold mb-3 flex items-center gap-2 font-mono">
                   <Hash className="size-4" />
-                  Transaction Summary
+                  TRANSACTION MATRIX
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div>
-                    <div className="text-xs text-gray-500">ID</div>
-                    <div className="text-sm font-mono text-gray-300">{selectedTx.id.slice(0, 12)}...</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500">Amount</div>
-                    <div className="text-sm font-semibold text-yellow-400">${selectedTx.amount.toLocaleString()}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500">Route</div>
-                    <div className="text-sm text-gray-300">{selectedTx.from} → {selectedTx.to}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500">Status</div>
-                    <div className={`text-sm font-semibold ${getStatusColor(selectedTx.status)} capitalize`}>
-                      {selectedTx.status}
+                  {[
+                    { label: "ID", value: selectedTx.id.slice(0, 12) + "..." },
+                    { label: "VALUE", value: `$${selectedTx.amount.toLocaleString()}` },
+                    { label: "ROUTE", value: `${selectedTx.from} → ${selectedTx.to}` },
+                    { label: "STATUS", value: selectedTx.status.toUpperCase(), status: true }
+                  ].map((item) => (
+                    <div key={item.label}>
+                      <div className="text-xs text-gray-500 font-mono">{item.label}</div>
+                      <div className={`text-sm font-mono ${item.status ? getStatusColor(selectedTx.status) : "text-gray-300"} font-bold`}>
+                        {item.value}
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
 
               {/* Related Accounts */}
               <div>
-                <h3 className="text-purple-400 font-semibold mb-3 flex items-center gap-2">
+                <h3 className="text-purple-400 font-bold mb-3 flex items-center gap-2 font-mono">
                   <Network className="size-4" />
-                  Related Accounts ({generateRelatedAccounts(selectedTx).length})
+                  CONNECTED NODES ({generateRelatedAccounts(selectedTx).length})
                 </h3>
                 <div className="space-y-3">
                   {generateRelatedAccounts(selectedTx).map((account, idx) => (
-                    <div key={idx} className="p-4 rounded-lg border border-purple-500/30 bg-purple-500/5">
+                    <div key={idx} className="p-4 rounded-xl border border-purple-500/30 bg-purple-500/5 hover:bg-purple-500/10 transition-all">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-full bg-purple-500/20">
+                          <div className="p-2 rounded-lg bg-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.3)]">
                             <User className="size-4 text-purple-400" />
                           </div>
                           <div>
-                            <div className="font-semibold text-white">{account.name}</div>
-                            <div className="text-xs text-gray-500">{account.id}</div>
+                            <div className="font-bold text-white font-mono">{account.name}</div>
+                            <div className="text-xs text-gray-500 font-mono">{account.id}</div>
                           </div>
                         </div>
                         
                         <div className="flex flex-wrap gap-4 text-sm">
                           <div>
-                            <div className="text-xs text-gray-500">Risk Score</div>
-                            <div className={`font-semibold ${
-                              account.riskScore >= 70 ? "text-red-400" : 
-                              account.riskScore >= 40 ? "text-orange-400" : "text-green-400"
+                            <div className="text-xs text-gray-500 font-mono">RISK</div>
+                            <div className={`font-bold font-mono ${
+                              account.riskScore >= 70 ? "text-rose-400" : 
+                              account.riskScore >= 40 ? "text-amber-400" : "text-emerald-400"
                             }`}>
                               {account.riskScore}%
                             </div>
                           </div>
                           <div>
-                            <div className="text-xs text-gray-500">Total Txns</div>
-                            <div className="text-gray-300">{account.totalTransactions}</div>
+                            <div className="text-xs text-gray-500 font-mono">TOTAL</div>
+                            <div className="text-gray-300 font-mono">{account.totalTransactions}</div>
                           </div>
                           <div>
-                            <div className="text-xs text-gray-500">Fraud Txns</div>
-                            <div className="text-red-400">{account.fraudTransactions}</div>
+                            <div className="text-xs text-gray-500 font-mono">THREATS</div>
+                            <div className="text-rose-400 font-mono">{account.fraudTransactions}</div>
                           </div>
                           <div>
-                            <div className="text-xs text-gray-500">Location</div>
-                            <div className="text-gray-300 flex items-center gap-1">
+                            <div className="text-xs text-gray-500 font-mono">LOCATION</div>
+                            <div className="text-gray-300 flex items-center gap-1 font-mono">
                               <Globe className="size-3" />
                               {account.location}
                             </div>
-                          </div>
-                          <div>
-                            <div className="text-xs text-gray-500">Last Activity</div>
-                            <div className="text-gray-400">{account.lastActivity}</div>
                           </div>
                         </div>
                         
                         <Button
                           size="sm"
                           variant="outline"
-                          className="border-blue-500/50 text-blue-400 hover:bg-blue-500/20"
+                          className="border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/20 font-mono text-xs"
                         >
                           <Snowflake className="size-3 mr-1" />
-                          Freeze
+                          FREEZE
                         </Button>
                       </div>
                     </div>
@@ -543,36 +601,36 @@ export default function TransactionManagement() {
 
               {/* Transaction Patterns */}
               <div>
-                <h3 className="text-cyan-400 font-semibold mb-3 flex items-center gap-2">
+                <h3 className="text-cyan-400 font-bold mb-3 flex items-center gap-2 font-mono">
                   <TrendingUp className="size-4" />
-                  Detected Patterns
+                  BEHAVIOR PATTERNS
                 </h3>
                 <div className="grid md:grid-cols-2 gap-3">
                   {generatePatterns(selectedTx).map((pattern, idx) => (
-                    <div key={idx} className="p-4 rounded-lg border border-cyan-500/30 bg-cyan-500/5">
+                    <div key={idx} className="p-4 rounded-xl border border-cyan-500/30 bg-cyan-500/5 hover:bg-cyan-500/10 transition-all">
                       <div className="flex items-start justify-between mb-2">
-                        <div className="font-semibold text-white">{pattern.pattern}</div>
-                        <div className={`px-2 py-0.5 rounded text-xs ${
-                          pattern.riskLevel === "high" ? "bg-red-500/20 text-red-400" :
-                          pattern.riskLevel === "medium" ? "bg-orange-500/20 text-orange-400" :
-                          "bg-green-500/20 text-green-400"
+                        <div className="font-bold text-white font-mono text-sm">{pattern.pattern}</div>
+                        <div className={`px-2 py-0.5 rounded-full text-xs font-mono ${
+                          pattern.riskLevel === "high" ? "bg-rose-500/20 text-rose-400 shadow-[0_0_10px_rgba(251,113,133,0.3)]" :
+                          pattern.riskLevel === "medium" ? "bg-amber-500/20 text-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.3)]" :
+                          "bg-emerald-500/20 text-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.3)]"
                         }`}>
-                          {pattern.riskLevel}
+                          {pattern.riskLevel.toUpperCase()}
                         </div>
                       </div>
-                      <p className="text-sm text-gray-400 mb-2">{pattern.description}</p>
+                      <p className="text-sm text-gray-400 mb-3">{pattern.description}</p>
                       <div className="flex items-center gap-2">
-                        <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+                        <div className="flex-1 h-2 bg-black/60 rounded-full overflow-hidden">
                           <div 
-                            className={`h-full ${
-                              pattern.riskLevel === "high" ? "bg-red-500" :
-                              pattern.riskLevel === "medium" ? "bg-orange-500" :
-                              "bg-green-500"
+                            className={`h-full transition-all duration-1000 ${
+                              pattern.riskLevel === "high" ? "bg-gradient-to-r from-rose-600 to-rose-400" :
+                              pattern.riskLevel === "medium" ? "bg-gradient-to-r from-amber-600 to-amber-400" :
+                              "bg-gradient-to-r from-emerald-600 to-emerald-400"
                             }`}
                             style={{ width: `${pattern.frequency}%` }}
                           />
                         </div>
-                        <span className="text-xs text-gray-500">{pattern.frequency}%</span>
+                        <span className="text-xs text-gray-500 font-mono w-10">{pattern.frequency}%</span>
                       </div>
                     </div>
                   ))}
@@ -580,49 +638,49 @@ export default function TransactionManagement() {
               </div>
 
               {/* AI Recommendations */}
-              <div className="p-4 rounded-lg border border-yellow-500/30 bg-yellow-500/5">
-                <h3 className="text-yellow-400 font-semibold mb-3 flex items-center gap-2">
-                  <CheckCircle className="size-4" />
-                  AI Recommendations
+              <div className="p-4 rounded-xl border border-yellow-500/30 bg-yellow-500/5 shadow-[0_0_30px_rgba(255,215,0,0.1)]">
+                <h3 className="text-yellow-400 font-bold mb-3 flex items-center gap-2 font-mono">
+                  <Cpu className="size-4" />
+                  AI RECOMMENDATIONS
                 </h3>
                 <div className="space-y-2">
                   {selectedTx.status === "fraud" && (
                     <>
                       <div className="flex items-start gap-2 text-sm">
-                        <div className="mt-1 size-1.5 rounded-full bg-red-400" />
-                        <span className="text-gray-300">Immediately freeze all associated accounts</span>
+                        <div className="mt-1.5 size-2 rounded-full bg-rose-400 animate-pulse shadow-[0_0_10px_rgba(251,113,133,0.5)]" />
+                        <span className="text-gray-300 font-mono">IMMEDIATE: Freeze all linked wallets</span>
                       </div>
                       <div className="flex items-start gap-2 text-sm">
-                        <div className="mt-1 size-1.5 rounded-full bg-red-400" />
-                        <span className="text-gray-300">Flag transaction for compliance review</span>
+                        <div className="mt-1.5 size-2 rounded-full bg-rose-400 animate-pulse shadow-[0_0_10px_rgba(251,113,133,0.5)]" />
+                        <span className="text-gray-300 font-mono">FLAG: Escalate to compliance team</span>
                       </div>
                       <div className="flex items-start gap-2 text-sm">
-                        <div className="mt-1 size-1.5 rounded-full bg-orange-400" />
-                        <span className="text-gray-300">Analyze connected wallet network for additional fraud</span>
+                        <div className="mt-1.5 size-2 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)]" />
+                        <span className="text-gray-300 font-mono">SCAN: Analyze network graph for threats</span>
                       </div>
                     </>
                   )}
                   {selectedTx.status === "risky" && (
                     <>
                       <div className="flex items-start gap-2 text-sm">
-                        <div className="mt-1 size-1.5 rounded-full bg-orange-400" />
-                        <span className="text-gray-300">Monitor account for 24 hours before action</span>
+                        <div className="mt-1.5 size-2 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)]" />
+                        <span className="text-gray-300 font-mono">MONITOR: 24-hour surveillance protocol</span>
                       </div>
                       <div className="flex items-start gap-2 text-sm">
-                        <div className="mt-1 size-1.5 rounded-full bg-yellow-400" />
-                        <span className="text-gray-300">Request additional KYC verification</span>
+                        <div className="mt-1.5 size-2 rounded-full bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.5)]" />
+                        <span className="text-gray-300 font-mono">VERIFY: Request enhanced KYC data</span>
                       </div>
                     </>
                   )}
                   {selectedTx.status === "safe" && (
                     <>
                       <div className="flex items-start gap-2 text-sm">
-                        <div className="mt-1 size-1.5 rounded-full bg-green-400" />
-                        <span className="text-gray-300">No immediate action required</span>
+                        <div className="mt-1.5 size-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
+                        <span className="text-gray-300 font-mono">STATUS: No action required</span>
                       </div>
                       <div className="flex items-start gap-2 text-sm">
-                        <div className="mt-1 size-1.5 rounded-full bg-green-400" />
-                        <span className="text-gray-300">Continue standard monitoring</span>
+                        <div className="mt-1.5 size-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
+                        <span className="text-gray-300 font-mono">CONTINUE: Standard monitoring active</span>
                       </div>
                     </>
                   )}
@@ -635,18 +693,18 @@ export default function TransactionManagement() {
             <Button
               variant="outline"
               onClick={() => setResearchDialogOpen(false)}
-              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+              className="border-gray-600 text-gray-300 hover:bg-gray-800 font-mono"
             >
               <X className="size-4 mr-2" />
-              Close
+              CLOSE
             </Button>
             <Button
               onClick={() => {
                 toast.success("Report exported successfully")
               }}
-              className="bg-yellow-500 text-black hover:bg-yellow-400"
+              className="bg-yellow-500 text-black hover:bg-yellow-400 shadow-[0_0_20px_rgba(255,215,0,0.3)] font-mono font-bold"
             >
-              Export Report
+              EXPORT REPORT
             </Button>
           </DialogFooter>
         </DialogContent>
