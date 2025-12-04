@@ -283,9 +283,7 @@ export default function Analytics() {
 
       {/* Chart */}
       <ChartContainer config={config} className="h-64 w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          {renderChart()}
-        </ResponsiveContainer>
+        {renderChart()}
       </ChartContainer>
 
       {/* Legend */}
