@@ -18,19 +18,20 @@ import {
   Eye,
   Bell,
   Network,
-  FileText,
+  Download,
   LayoutDashboard,
-  Home
+  Home,
+  Shield
 } from "lucide-react"
 
-const navLinks = [
+const navItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/scanner", label: "Scanner", icon: Search },
   { href: "/watchlist", label: "Watchlist", icon: Eye },
   { href: "/alerts", label: "Alerts", icon: Bell },
   { href: "/graph", label: "Graph", icon: Network },
-  { href: "/reports", label: "Reports", icon: FileText },
+  { href: "/reports", label: "Reports", icon: Download },
 ]
 
 export default function NavBar() {
@@ -45,39 +46,40 @@ export default function NavBar() {
     <div className="sticky top-0 z-40 w-full backdrop-blur bg-background/90 border-b border-yellow-500/30">
       <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <button 
+        <div 
+          className="flex items-center gap-2 text-yellow-400 font-bold cursor-pointer"
           onClick={() => router.push("/")}
-          className="flex items-center gap-2 text-yellow-400 font-bold hover:text-yellow-300 transition-colors"
         >
-          <Sparkles className="size-5" />
+          <Shield className="size-5" />
           <span>Cryptoguard</span>
-        </button>
+        </div>
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-1">
-          {navLinks.map((link) => {
-            const Icon = link.icon
-            const isActive = pathname === link.href
+          {navItems.map((item) => {
+            const isActive = pathname === item.href
+            const Icon = item.icon
             return (
-              <button
-                key={link.href}
-                onClick={() => router.push(link.href)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                  isActive
-                    ? "bg-yellow-500/20 text-yellow-300 shadow-[0_0_12px_#ffd70033]"
+              <Button
+                key={item.href}
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push(item.href)}
+                className={`text-sm ${
+                  isActive 
+                    ? "text-yellow-300 bg-yellow-500/20" 
                     : "text-gray-400 hover:text-yellow-300 hover:bg-yellow-500/10"
                 }`}
               >
-                <Icon className="size-4" />
-                {link.label}
-              </button>
+                <Icon className="size-4 mr-1.5" />
+                {item.label}
+              </Button>
             )
           })}
         </nav>
 
-        {/* Right side actions */}
+        {/* Actions */}
         <div className="flex items-center gap-2">
-          {/* Ask AI Button */}
           <Button
             variant="outline"
             size="sm"
@@ -86,8 +88,6 @@ export default function NavBar() {
           >
             <Mic className="size-4 mr-2" /> Ask AI
           </Button>
-
-          {/* Register Button */}
           <Button
             size="sm"
             className="hidden sm:flex bg-yellow-500 hover:bg-yellow-400 text-black shadow-[0_0_20px_#ffd70066] font-semibold"
@@ -95,8 +95,6 @@ export default function NavBar() {
           >
             Register
           </Button>
-
-          {/* Theme Toggle */}
           <Button
             variant="ghost"
             size="sm"
@@ -107,63 +105,70 @@ export default function NavBar() {
             {theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
           </Button>
 
-          {/* Mobile Menu */}
-          <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <DropdownMenuTrigger asChild className="lg:hidden">
-              <Button variant="ghost" size="sm" className="text-yellow-300">
-                {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent 
-              align="end" 
-              className="w-56 bg-black/95 border-yellow-500/50 shadow-[0_0_40px_#ffd70033]"
-            >
-              {navLinks.map((link) => {
-                const Icon = link.icon
-                const isActive = pathname === link.href
-                return (
-                  <DropdownMenuItem
-                    key={link.href}
-                    onClick={() => {
-                      router.push(link.href)
-                      setMobileMenuOpen(false)
-                    }}
-                    className={`flex items-center gap-2 ${
-                      isActive
-                        ? "text-yellow-300 bg-yellow-500/20"
-                        : "text-gray-300 focus:text-yellow-300 focus:bg-yellow-500/20"
-                    }`}
-                  >
-                    <Icon className="size-4" />
-                    {link.label}
-                  </DropdownMenuItem>
-                )
-              })}
-              <DropdownMenuSeparator className="bg-yellow-500/20" />
-              <DropdownMenuItem
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="lg:hidden text-yellow-300"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+          </Button>
+        </div>
+      </div>
+
+      {/* Mobile Navigation */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden border-t border-yellow-500/20 bg-background/95 backdrop-blur">
+          <nav className="flex flex-col p-4 space-y-1">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href
+              const Icon = item.icon
+              return (
+                <Button
+                  key={item.href}
+                  variant="ghost"
+                  onClick={() => {
+                    router.push(item.href)
+                    setMobileMenuOpen(false)
+                  }}
+                  className={`justify-start ${
+                    isActive 
+                      ? "text-yellow-300 bg-yellow-500/20" 
+                      : "text-gray-400 hover:text-yellow-300 hover:bg-yellow-500/10"
+                  }`}
+                >
+                  <Icon className="size-4 mr-2" />
+                  {item.label}
+                </Button>
+              )
+            })}
+            <div className="pt-2 flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 border-yellow-500/50 text-yellow-300"
                 onClick={() => {
                   setAskOpen(true)
                   setMobileMenuOpen(false)
                 }}
-                className="text-gray-300 focus:text-yellow-300 focus:bg-yellow-500/20"
               >
-                <Mic className="size-4 mr-2" />
-                Ask AI
-              </DropdownMenuItem>
-              <DropdownMenuItem
+                <Mic className="size-4 mr-2" /> Ask AI
+              </Button>
+              <Button
+                size="sm"
+                className="flex-1 bg-yellow-500 text-black"
                 onClick={() => {
                   setOpen(true)
                   setMobileMenuOpen(false)
                 }}
-                className="text-gray-300 focus:text-yellow-300 focus:bg-yellow-500/20"
               >
-                <Sparkles className="size-4 mr-2" />
                 Register
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </Button>
+            </div>
+          </nav>
         </div>
-      </div>
+      )}
 
       <RegistrationModal open={open} onOpenChange={setOpen} />
       
