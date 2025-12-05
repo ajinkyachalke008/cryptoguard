@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
 import {
   Search,
@@ -21,17 +22,34 @@ import {
   Download,
   LayoutDashboard,
   Home,
-  Shield
+  Shield,
+  Wallet,
+  FileCode,
+  Image,
+  Store,
+  MessageSquare,
+  ChevronDown
 } from "lucide-react"
 
-const navItems = [
+const mainNavItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/scanner", label: "Scanner", icon: Search },
+]
+
+const scannerItems = [
+  { href: "/wallet-scan", label: "Wallet Scanner", icon: Wallet, description: "Multi-chain wallet risk analysis" },
+  { href: "/scanner", label: "Quick Scan", icon: Search, description: "Fast wallet lookup" },
+  { href: "/protocol-risk", label: "Protocol/Token", icon: FileCode, description: "DeFi protocol risk scoring" },
+  { href: "/nft-risk", label: "NFT Collection", icon: Image, description: "Wash trading & fake volume" },
+  { href: "/marketplace-risk", label: "Marketplace", icon: Store, description: "Marketplace risk assessment" },
+]
+
+const toolItems = [
   { href: "/watchlist", label: "Watchlist", icon: Eye },
   { href: "/alerts", label: "Alerts", icon: Bell },
-  { href: "/graph", label: "Graph", icon: Network },
+  { href: "/graph", label: "Graph Explorer", icon: Network },
   { href: "/reports", label: "Reports", icon: Download },
+  { href: "/ask-ai", label: "Ask CryptoGuard", icon: MessageSquare },
 ]
 
 export default function NavBar() {
@@ -41,6 +59,9 @@ export default function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
+
+  const isPathActive = (href: string) => pathname === href
+  const isScannerActive = scannerItems.some(item => pathname === item.href)
 
   return (
     <div className="sticky top-0 z-40 w-full backdrop-blur bg-background/90 border-b border-yellow-500/30">
@@ -56,8 +77,74 @@ export default function NavBar() {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-1">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href
+          {/* Main Nav Items */}
+          {mainNavItems.map((item) => {
+            const isActive = isPathActive(item.href)
+            const Icon = item.icon
+            return (
+              <Button
+                key={item.href}
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push(item.href)}
+                className={`text-sm ${
+                  isActive 
+                    ? "text-yellow-300 bg-yellow-500/20" 
+                    : "text-gray-400 hover:text-yellow-300 hover:bg-yellow-500/10"
+                }`}
+              >
+                <Icon className="size-4 mr-1.5" />
+                {item.label}
+              </Button>
+            )
+          })}
+
+          {/* Scanners Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`text-sm ${
+                  isScannerActive
+                    ? "text-yellow-300 bg-yellow-500/20"
+                    : "text-gray-400 hover:text-yellow-300 hover:bg-yellow-500/10"
+                }`}
+              >
+                <Search className="size-4 mr-1.5" />
+                Scanners
+                <ChevronDown className="size-3 ml-1" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-64 bg-black/95 border-yellow-500/30 backdrop-blur-sm">
+              <DropdownMenuLabel className="text-yellow-400 text-xs">Risk Scanners</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-yellow-500/20" />
+              {scannerItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <DropdownMenuItem
+                    key={item.href}
+                    onClick={() => router.push(item.href)}
+                    className={`cursor-pointer ${
+                      isPathActive(item.href)
+                        ? "bg-yellow-500/20 text-yellow-300"
+                        : "text-gray-300 hover:text-yellow-300 hover:bg-yellow-500/10"
+                    }`}
+                  >
+                    <Icon className="size-4 mr-2 text-yellow-500" />
+                    <div>
+                      <div className="font-medium">{item.label}</div>
+                      <div className="text-xs text-gray-500">{item.description}</div>
+                    </div>
+                  </DropdownMenuItem>
+                )
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Tools */}
+          {toolItems.slice(0, 4).map((item) => {
+            const isActive = isPathActive(item.href)
             const Icon = item.icon
             return (
               <Button
@@ -84,9 +171,9 @@ export default function NavBar() {
             variant="outline"
             size="sm"
             className="hidden sm:flex border-yellow-500/50 text-yellow-300 hover:text-yellow-200 hover:border-yellow-400 shadow-[0_0_20px_#ffd70033] font-semibold"
-            onClick={() => setAskOpen(true)}
+            onClick={() => router.push("/ask-ai")}
           >
-            <Mic className="size-4 mr-2" /> Ask AI
+            <MessageSquare className="size-4 mr-2" /> Ask AI
           </Button>
           <Button
             size="sm"
@@ -119,10 +206,11 @@ export default function NavBar() {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-yellow-500/20 bg-background/95 backdrop-blur">
+        <div className="lg:hidden border-t border-yellow-500/20 bg-background/95 backdrop-blur max-h-[80vh] overflow-y-auto">
           <nav className="flex flex-col p-4 space-y-1">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href
+            {/* Main Items */}
+            {mainNavItems.map((item) => {
+              const isActive = isPathActive(item.href)
               const Icon = item.icon
               return (
                 <Button
@@ -143,17 +231,72 @@ export default function NavBar() {
                 </Button>
               )
             })}
+
+            {/* Scanner Section */}
+            <div className="pt-2">
+              <p className="text-xs text-gray-500 px-3 py-2 font-semibold">SCANNERS</p>
+              {scannerItems.map((item) => {
+                const isActive = isPathActive(item.href)
+                const Icon = item.icon
+                return (
+                  <Button
+                    key={item.href}
+                    variant="ghost"
+                    onClick={() => {
+                      router.push(item.href)
+                      setMobileMenuOpen(false)
+                    }}
+                    className={`justify-start w-full ${
+                      isActive 
+                        ? "text-yellow-300 bg-yellow-500/20" 
+                        : "text-gray-400 hover:text-yellow-300 hover:bg-yellow-500/10"
+                    }`}
+                  >
+                    <Icon className="size-4 mr-2" />
+                    {item.label}
+                  </Button>
+                )
+              })}
+            </div>
+
+            {/* Tools Section */}
+            <div className="pt-2">
+              <p className="text-xs text-gray-500 px-3 py-2 font-semibold">TOOLS</p>
+              {toolItems.map((item) => {
+                const isActive = isPathActive(item.href)
+                const Icon = item.icon
+                return (
+                  <Button
+                    key={item.href}
+                    variant="ghost"
+                    onClick={() => {
+                      router.push(item.href)
+                      setMobileMenuOpen(false)
+                    }}
+                    className={`justify-start w-full ${
+                      isActive 
+                        ? "text-yellow-300 bg-yellow-500/20" 
+                        : "text-gray-400 hover:text-yellow-300 hover:bg-yellow-500/10"
+                    }`}
+                  >
+                    <Icon className="size-4 mr-2" />
+                    {item.label}
+                  </Button>
+                )
+              })}
+            </div>
+
             <div className="pt-2 flex gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 className="flex-1 border-yellow-500/50 text-yellow-300"
                 onClick={() => {
-                  setAskOpen(true)
+                  router.push("/ask-ai")
                   setMobileMenuOpen(false)
                 }}
               >
-                <Mic className="size-4 mr-2" /> Ask AI
+                <MessageSquare className="size-4 mr-2" /> Ask AI
               </Button>
               <Button
                 size="sm"
@@ -171,24 +314,6 @@ export default function NavBar() {
       )}
 
       <RegistrationModal open={open} onOpenChange={setOpen} />
-      
-      {/* Ask AI Modal */}
-      {askOpen && (
-        <div className="fixed inset-0 z-50 grid place-items-center">
-          <div className="absolute inset-0 bg-black/80" onClick={() => setAskOpen(false)} />
-          <div className="relative w-full max-w-lg rounded-xl border border-yellow-500/50 bg-background/95 p-6 shadow-[0_0_40px_#ffd70044] backdrop-blur">
-            <div className="text-yellow-400 mb-3 font-bold">Ask Cryptoguard</div>
-            <input
-              placeholder="e.g., Show latest fraud in Asia"
-              className="w-full rounded-md bg-black/60 border border-yellow-500/40 p-3 outline-none text-sm text-foreground placeholder:text-gray-400"
-            />
-            <div className="mt-4 flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setAskOpen(false)}>Close</Button>
-              <Button className="bg-yellow-500 text-black hover:bg-yellow-400 font-semibold">Ask</Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
