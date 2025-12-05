@@ -6,6 +6,7 @@ import NavBar from "@/components/NavBar"
 import NeonParticles from "@/components/NeonParticles"
 import CursorTrail from "@/components/CursorTrail"
 import GlobeDemo from "@/components/GlobeDemo"
+import { GlobeLegend } from "@/components/GlobeLegend"
 import TransactionFeed from "@/components/TransactionFeed"
 import Analytics from "@/components/Analytics"
 import Leaderboard from "@/components/Leaderboard"
@@ -18,6 +19,13 @@ import { Button } from "@/components/ui/button"
 import { Sparkles, Zap } from "lucide-react"
 import { RegistrationModal } from "@/components/RegistrationModal"
 import { LiveDemoModal } from "@/components/LiveDemoModal"
+import { TypeWriter } from "@/components/TypeWriter"
+import { FloatingStats } from "@/components/FloatingStats"
+import { SocialProof } from "@/components/SocialProof"
+import { TryItDemo } from "@/components/TryItDemo"
+import { PricingSection } from "@/components/PricingSection"
+import { FAQSection } from "@/components/FAQSection"
+import { StickyCTA } from "@/components/StickyCTA"
 
 export default function Home() {
   const [regOpen, setRegOpen] = useState(false)
@@ -37,7 +45,7 @@ export default function Home() {
           <NeonParticles />
         </div>
 
-        <div className="mx-auto max-w-7xl px-4 pt-16 pb-20 text-center">
+        <div className="mx-auto max-w-7xl px-4 pt-16 pb-12 text-center">
           <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-yellow-500/50 bg-black/60 px-3 py-1 text-xs text-yellow-300 shadow-[0_0_20px_#ffd70044] backdrop-blur-sm">
             <span className="inline-flex items-center gap-1">
               <Zap className="size-3 text-yellow-400" /> NEW • AI Fraud Detection
@@ -49,7 +57,17 @@ export default function Home() {
               Cryptoguard
             </span>
             <span className="mt-2 block text-[oklch(0.86_0.16_100)] drop-shadow-[0_0_20px_#ffd70080]">
-              AI Crypto Fraud Detection
+              <TypeWriter 
+                words={[
+                  "AI Crypto Fraud Detection",
+                  "Real-time Risk Scoring",
+                  "Graph Network Analysis",
+                  "Compliance Automation"
+                ]}
+                typingSpeed={80}
+                deletingSpeed={40}
+                pauseTime={2500}
+              />
             </span>
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-balance text-sm sm:text-base text-gray-300">
@@ -77,6 +95,9 @@ export default function Home() {
               Register
             </Button>
           </div>
+
+          {/* Floating Stats */}
+          <FloatingStats />
         </div>
 
         {/* Floating crypto icons orbiting background */}
@@ -101,10 +122,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Centerpiece Globe Demo */}
+      {/* Centerpiece Globe Demo with Legend */}
       <section className="mx-auto max-w-7xl px-4">
-        <div className="mt-6 rounded-xl border border-yellow-500/40 bg-black/50 p-4 backdrop-blur-sm shadow-[0_0_40px_#ffd70022]">
+        <div className="mt-6 rounded-xl border border-yellow-500/40 bg-black/50 p-4 backdrop-blur-sm shadow-[0_0_40px_#ffd70022] relative">
           <GlobeDemo />
+          <GlobeLegend />
         </div>
       </section>
 
@@ -120,6 +142,9 @@ export default function Home() {
         <TransactionsTable />
       </section>
 
+      {/* Try It Demo Section */}
+      <TryItDemo />
+
       {/* Transaction Management Section */}
       <TransactionManagement />
 
@@ -131,6 +156,15 @@ export default function Home() {
         <FeaturesSolutions />
       </section>
 
+      {/* Social Proof Section */}
+      <SocialProof />
+
+      {/* Pricing Section */}
+      <PricingSection />
+
+      {/* FAQ / How It Works Section */}
+      <FAQSection />
+
       <Footer />
 
       {/* Registration Modal (hero trigger) */}
@@ -138,6 +172,12 @@ export default function Home() {
       
       {/* Live Demo Modal */}
       <LiveDemoModal open={demoOpen} onOpenChange={setDemoOpen} />
+
+      {/* Sticky CTA Bar */}
+      <StickyCTA 
+        onOpenDemo={() => setDemoOpen(true)}
+        onOpenRegister={() => setRegOpen(true)}
+      />
     </div>
   )
 }
