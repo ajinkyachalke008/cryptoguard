@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { walletScans, protocolScans, nftScans, marketplaceScans, alerts, watchlist } from '@/db/schema';
+import { walletScans, protocolScans, nftScans, marketplaceScans, alerts, watchlists } from '@/db/schema';
 import { sql, count, avg, eq } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
@@ -79,8 +79,8 @@ export async function GET(request: NextRequest) {
     // Get active watchlist count
     const [activeWatchlistCount] = await db
       .select({ count: count() })
-      .from(watchlist)
-      .where(eq(watchlist.isActive, true));
+      .from(watchlists)
+      .where(eq(watchlists.userId, 1));
 
     // Calculate average risk scores from all scan types
     const [walletAvgRisk] = await db
