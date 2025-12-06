@@ -50,6 +50,7 @@ const toolItems = [
   { href: "/graph", label: "Graph Explorer", icon: Network },
   { href: "/reports", label: "Reports", icon: Download },
   { href: "/ask-ai", label: "Ask CryptoGuard", icon: MessageSquare },
+  { href: "/downloads", label: "Downloads", icon: Download },
 ]
 
 export default function NavBar() {
@@ -142,7 +143,7 @@ export default function NavBar() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Tools */}
+          {/* Tools - show first 4, then Downloads */}
           {toolItems.slice(0, 4).map((item) => {
             const isActive = isPathActive(item.href)
             const Icon = item.icon
@@ -163,6 +164,21 @@ export default function NavBar() {
               </Button>
             )
           })}
+          
+          {/* Downloads Button - Highlighted */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push("/downloads")}
+            className={`text-sm ${
+              isPathActive("/downloads")
+                ? "text-yellow-300 bg-yellow-500/20" 
+                : "text-gray-400 hover:text-yellow-300 hover:bg-yellow-500/10"
+            }`}
+          >
+            <Download className="size-4 mr-1.5" />
+            Downloads
+          </Button>
         </nav>
 
         {/* Actions */}
