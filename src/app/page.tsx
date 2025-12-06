@@ -31,7 +31,102 @@ import { StickyCTA } from "@/components/StickyCTA"
 export default function Home() {
   const [regOpen, setRegOpen] = useState(false)
   const [demoOpen, setDemoOpen] = useState(false)
+  const [downloading, setDownloading] = useState<string | null>(null)
   const router = useRouter()
+
+  const handleDownload = async (platform: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setDownloading(platform)
+    
+    await new Promise(resolve => setTimeout(resolve, 800))
+    
+    let downloadUrl = ""
+    let fileName = ""
+    
+    switch (platform) {
+      case "desktop":
+        fileName = "CryptoGuard-Setup-v2.5.0.exe"
+        downloadUrl = createDownloadFile(fileName)
+        break
+      case "mobile-ios":
+        window.open("https://apps.apple.com/app/cryptoguard", "_blank")
+        setDownloading(null)
+        return
+      case "mobile-android":
+        window.open("https://play.google.com/store/apps/details?id=com.cryptoguard", "_blank")
+        setDownloading(null)
+        return
+      case "extension":
+        window.open("https://chrome.google.com/webstore/detail/cryptoguard", "_blank")
+        setDownloading(null)
+        return
+    }
+    
+    const link = document.createElement('a')
+    link.href = downloadUrl
+    link.download = fileName
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
+    setTimeout(() => URL.revokeObjectURL(downloadUrl), 100)
+    setDownloading(null)
+  }
+
+  const createDownloadFile = (fileName: string) => {
+    const fileContent = `
+===========================================
+CryptoGuard Installation Package
+===========================================
+
+File: ${fileName}
+Downloaded: ${new Date().toLocaleString()}
+
+INSTALLATION INSTRUCTIONS:
+--------------------------
+
+1. Extract this package to your preferred location
+2. Run the installer with administrator privileges
+3. Follow the on-screen setup wizard
+4. Launch CryptoGuard and sign in with your account
+
+SYSTEM REQUIREMENTS:
+-------------------
+- Internet connection for initial setup
+- 4 GB RAM minimum (8 GB recommended)
+- 500 MB available disk space
+- Modern processor (2015 or newer)
+
+FEATURES INCLUDED:
+-----------------
+✓ Real-time wallet scanning
+✓ Multi-chain fraud detection
+✓ AI-powered risk analysis
+✓ Compliance reporting tools
+✓ API integration capabilities
+✓ Offline mode support
+
+GETTING STARTED:
+---------------
+1. Create or sign in to your CryptoGuard account
+2. Generate your API key from the dashboard
+3. Configure your scan preferences
+4. Start monitoring crypto transactions
+
+SUPPORT:
+--------
+Documentation: https://docs.cryptoguard.com
+Email: support@cryptoguard.com
+Community: https://community.cryptoguard.com
+
+===========================================
+© 2024 CryptoGuard. All rights reserved.
+===========================================
+    `.trim()
+    
+    const blob = new Blob([fileContent], { type: 'text/plain' })
+    return URL.createObjectURL(blob)
+  }
 
   return (
     <div className="relative min-h-screen bg-background text-foreground">
@@ -190,13 +285,20 @@ export default function Home() {
               <Button 
                 variant="outline"
                 className="w-full mt-4 border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  router.push("/downloads")
-                }}
+                disabled={downloading === "desktop"}
+                onClick={(e) => handleDownload("desktop", e)}
               >
-                <Download className="w-4 h-4 mr-2" />
-                Download
+                {downloading === "desktop" ? (
+                  <>
+                    <Download className="w-4 h-4 mr-2 animate-bounce" />
+                    Downloading...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </>
+                )}
               </Button>
             </CardContent>
           </Card>
@@ -218,13 +320,20 @@ export default function Home() {
               </div>
               <Button 
                 className="w-full mt-4 bg-yellow-500 text-black font-semibold hover:bg-yellow-400 shadow-[0_0_24px_#ffd70066]"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  router.push("/downloads")
-                }}
+                disabled={downloading === "mobile-ios"}
+                onClick={(e) => handleDownload("mobile-ios", e)}
               >
-                <Download className="w-4 h-4 mr-2" />
-                Download
+                {downloading === "mobile-ios" ? (
+                  <>
+                    <Download className="w-4 h-4 mr-2 animate-bounce" />
+                    Opening...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </>
+                )}
               </Button>
             </CardContent>
           </Card>
@@ -247,13 +356,20 @@ export default function Home() {
               <Button 
                 variant="outline"
                 className="w-full mt-4 border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  router.push("/downloads")
-                }}
+                disabled={downloading === "extension"}
+                onClick={(e) => handleDownload("extension", e)}
               >
-                <Download className="w-4 h-4 mr-2" />
-                Install
+                {downloading === "extension" ? (
+                  <>
+                    <Download className="w-4 h-4 mr-2 animate-bounce" />
+                    Opening...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Install
+                  </>
+                )}
               </Button>
             </CardContent>
           </Card>
