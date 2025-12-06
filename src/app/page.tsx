@@ -16,7 +16,8 @@ import FeaturesSolutions from "@/components/FeaturesSolutions"
 import SecurityFeatures from "@/components/SecurityFeatures"
 import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
-import { Sparkles, Zap } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Sparkles, Zap, Download, Monitor, Smartphone, Chrome, ArrowRight } from "lucide-react"
 import { RegistrationModal } from "@/components/RegistrationModal"
 import { LiveDemoModal } from "@/components/LiveDemoModal"
 import { TypeWriter } from "@/components/TypeWriter"
@@ -158,6 +159,116 @@ export default function Home() {
 
       {/* Social Proof Section */}
       <SocialProof />
+
+      {/* Downloads Section */}
+      <section className="mx-auto max-w-7xl px-4 py-16">
+        <div className="text-center mb-8">
+          <h2 className="text-4xl font-bold bg-[linear-gradient(180deg,#fff7cc_0%,#ffd700_50%,#b58100_100%)] bg-clip-text text-transparent mb-3">
+            Download CryptoGuard
+          </h2>
+          <p className="text-gray-400 max-w-2xl mx-auto">
+            Get CryptoGuard on all your devices. Available for desktop, mobile, and browser extensions.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {/* Desktop */}
+          <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm hover:border-yellow-500/60 transition-all hover:shadow-[0_0_40px_#ffd70022] cursor-pointer" onClick={() => router.push("/downloads")}>
+            <CardContent className="pt-6 text-center">
+              <div className="w-16 h-16 rounded-full bg-yellow-500/10 flex items-center justify-center mx-auto mb-4">
+                <Monitor className="w-8 h-8 text-yellow-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-yellow-300 mb-2">Desktop Apps</h3>
+              <p className="text-sm text-gray-400 mb-4">
+                Windows, macOS, and Linux
+              </p>
+              <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+                <span>v2.5.0</span>
+                <span>•</span>
+                <span>24K+ Downloads</span>
+              </div>
+              <Button 
+                variant="outline"
+                className="w-full mt-4 border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  router.push("/downloads")
+                }}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Mobile */}
+          <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm hover:border-yellow-500/60 transition-all hover:shadow-[0_0_40px_#ffd70022] cursor-pointer ring-2 ring-yellow-500/30" onClick={() => router.push("/downloads")}>
+            <CardContent className="pt-6 text-center">
+              <div className="w-16 h-16 rounded-full bg-yellow-500/10 flex items-center justify-center mx-auto mb-4">
+                <Smartphone className="w-8 h-8 text-yellow-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-yellow-300 mb-2">Mobile Apps</h3>
+              <p className="text-sm text-gray-400 mb-4">
+                iOS and Android
+              </p>
+              <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+                <span>v1.8.2</span>
+                <span>•</span>
+                <span>108K+ Downloads</span>
+              </div>
+              <Button 
+                className="w-full mt-4 bg-yellow-500 text-black font-semibold hover:bg-yellow-400 shadow-[0_0_24px_#ffd70066]"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  router.push("/downloads")
+                }}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Browser Extension */}
+          <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm hover:border-yellow-500/60 transition-all hover:shadow-[0_0_40px_#ffd70022] cursor-pointer" onClick={() => router.push("/downloads")}>
+            <CardContent className="pt-6 text-center">
+              <div className="w-16 h-16 rounded-full bg-yellow-500/10 flex items-center justify-center mx-auto mb-4">
+                <Chrome className="w-8 h-8 text-yellow-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-yellow-300 mb-2">Browser Extension</h3>
+              <p className="text-sm text-gray-400 mb-4">
+                Chrome, Firefox, Edge, Brave
+              </p>
+              <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+                <span>v3.1.4</span>
+                <span>•</span>
+                <span>162K+ Downloads</span>
+              </div>
+              <Button 
+                variant="outline"
+                className="w-full mt-4 border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  router.push("/downloads")
+                }}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Install
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="text-center mt-8">
+          <Button
+            onClick={() => router.push("/downloads")}
+            className="bg-yellow-500/20 border border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/30 font-semibold"
+          >
+            View All Downloads & Developer Tools
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
+      </section>
 
       {/* Pricing Section */}
       <PricingSection />
