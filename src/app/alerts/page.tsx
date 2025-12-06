@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import NavBar from "@/components/NavBar"
 import Footer from "@/components/Footer"
@@ -50,7 +50,8 @@ import {
   Shield,
   TrendingUp,
   Activity,
-  RefreshCw
+  RefreshCw,
+  Loader2
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -63,133 +64,16 @@ interface Alert {
   severity: AlertSeverity
   type: AlertType
   status: AlertStatus
-  walletAddress: string
-  txHash?: string
+  wallet_address: string
+  tx_hash?: string
   blockchain: string
   message: string
   description: string
-  triggeringRule: string
+  triggering_rule: string
   amount?: number
   timestamp: string
-  detectedAt: string
+  detected_at: string
 }
-
-const initialAlerts: Alert[] = [
-  {
-    id: "ALT-001",
-    severity: "critical",
-    type: "pattern",
-    status: "new",
-    walletAddress: "0x742d35Cc6634C0532925a3b844Bc454e4438f44E",
-    txHash: "0x8a7d...f3e2",
-    blockchain: "Ethereum",
-    message: "Brand new wallet moved $200k within 10 minutes",
-    description: "A wallet created 10 minutes ago has received and moved over $200,000 in rapid succession. This pattern is consistent with money laundering or scam fund extraction.",
-    triggeringRule: "New wallet + large rapid movement",
-    amount: 203450,
-    timestamp: "2 min ago",
-    detectedAt: "2024-12-04T14:32:00Z"
-  },
-  {
-    id: "ALT-002",
-    severity: "high",
-    type: "watchlist",
-    status: "new",
-    walletAddress: "0x3f5CE5FBFe3E9af3971dD833D26bA9b5C936f0bE",
-    txHash: "0x2c9e...a1b4",
-    blockchain: "Ethereum",
-    message: "Wallet received $75k from mixer address",
-    description: "Watchlisted wallet received a direct transfer from a known Tornado Cash deposit address.",
-    triggeringRule: "Watchlist + mixer interaction",
-    amount: 75230,
-    timestamp: "8 min ago",
-    detectedAt: "2024-12-04T14:26:00Z"
-  },
-  {
-    id: "ALT-003",
-    severity: "high",
-    type: "risk_spike",
-    status: "in_progress",
-    walletAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-    blockchain: "Ethereum",
-    message: "Risk score spiked from 22 to 78",
-    description: "Wallet risk score increased significantly due to multiple interactions with flagged addresses in the past hour.",
-    triggeringRule: "Risk score delta > 50",
-    timestamp: "15 min ago",
-    detectedAt: "2024-12-04T14:19:00Z"
-  },
-  {
-    id: "ALT-004",
-    severity: "medium",
-    type: "pattern",
-    status: "new",
-    walletAddress: "0x28C6c06298d514Db089934071355E5743bf21d60",
-    txHash: "0x5f1a...d8c3",
-    blockchain: "Bitcoin",
-    message: "Structuring pattern detected",
-    description: "Multiple transactions just under $10,000 threshold detected from this wallet within 2 hours, possibly indicative of structuring to avoid reporting.",
-    triggeringRule: "Multiple just-under-threshold tx",
-    amount: 48500,
-    timestamp: "23 min ago",
-    detectedAt: "2024-12-04T14:11:00Z"
-  },
-  {
-    id: "ALT-005",
-    severity: "medium",
-    type: "watchlist",
-    status: "resolved",
-    walletAddress: "0x1f5a9c3d8e7b6a4f2c0d9e8f7a6b5c4d3e2f1a0b",
-    txHash: "0x9b2c...e4f7",
-    blockchain: "Polygon",
-    message: "Watchlist wallet activity detected",
-    description: "Monitored wallet made outgoing transfer to unknown address.",
-    triggeringRule: "Watchlist outgoing threshold",
-    amount: 12340,
-    timestamp: "1 hour ago",
-    detectedAt: "2024-12-04T13:34:00Z"
-  },
-  {
-    id: "ALT-006",
-    severity: "low",
-    type: "pattern",
-    status: "dismissed",
-    walletAddress: "0xa1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0",
-    blockchain: "BSC",
-    message: "High-frequency trading detected",
-    description: "Unusually high number of transactions in short period - likely automated trading bot.",
-    triggeringRule: "High-frequency tx burst",
-    timestamp: "2 hours ago",
-    detectedAt: "2024-12-04T12:34:00Z"
-  },
-  {
-    id: "ALT-007",
-    severity: "critical",
-    type: "pattern",
-    status: "in_progress",
-    walletAddress: "0x9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d",
-    txHash: "0x4e8f...c2a1",
-    blockchain: "Ethereum",
-    message: "Direct OFAC sanctioned address interaction",
-    description: "This wallet has directly transacted with an address on the OFAC sanctions list. Immediate investigation required.",
-    triggeringRule: "Sanctioned address direct link",
-    amount: 156780,
-    timestamp: "35 min ago",
-    detectedAt: "2024-12-04T13:59:00Z"
-  },
-  {
-    id: "ALT-008",
-    severity: "low",
-    type: "risk_spike",
-    status: "new",
-    walletAddress: "0x2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c",
-    blockchain: "Arbitrum",
-    message: "Minor risk score increase",
-    description: "Wallet risk score increased from 12 to 28 due to new indirect connections.",
-    triggeringRule: "Risk score delta > 15",
-    timestamp: "45 min ago",
-    detectedAt: "2024-12-04T13:49:00Z"
-  }
-]
 
 const severityConfig = {
   low: { bg: "bg-blue-500/20", border: "border-blue-500/50", text: "text-blue-400", icon: Bell, label: "Low" },
@@ -213,15 +97,38 @@ const typeConfig = {
 
 export default function AlertsPage() {
   const router = useRouter()
-  const [alerts, setAlerts] = useState<Alert[]>(initialAlerts)
+  const [alerts, setAlerts] = useState<Alert[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [severityFilter, setSeverityFilter] = useState<"all" | AlertSeverity>("all")
   const [statusFilter, setStatusFilter] = useState<"all" | AlertStatus>("all")
   const [typeFilter, setTypeFilter] = useState<"all" | AlertType>("all")
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null)
 
+  useEffect(() => {
+    fetchAlerts()
+    const interval = setInterval(fetchAlerts, 30000) // Refresh every 30s
+    return () => clearInterval(interval)
+  }, [])
+
+  const fetchAlerts = async () => {
+    try {
+      const response = await fetch("/api/alerts")
+      if (!response.ok) {
+        throw new Error("Failed to fetch alerts")
+      }
+      const data = await response.json()
+      setAlerts(data.alerts || [])
+    } catch (error) {
+      console.error("Failed to fetch alerts:", error)
+      toast.error("Failed to load alerts")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const filteredAlerts = alerts.filter(alert => {
-    const matchesSearch = alert.walletAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesSearch = alert.wallet_address.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           alert.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           alert.id.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesSeverity = severityFilter === "all" || alert.severity === severityFilter
@@ -230,11 +137,26 @@ export default function AlertsPage() {
     return matchesSearch && matchesSeverity && matchesStatus && matchesType
   })
 
-  const handleUpdateStatus = (alertId: string, newStatus: AlertStatus) => {
-    setAlerts(prev => prev.map(alert => 
-      alert.id === alertId ? { ...alert, status: newStatus } : alert
-    ))
-    toast.success(`Alert status updated to ${statusConfig[newStatus].label}`)
+  const handleUpdateStatus = async (alertId: string, newStatus: AlertStatus) => {
+    try {
+      const response = await fetch(`/api/alerts/${alertId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus })
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to update alert")
+      }
+
+      setAlerts(prev => prev.map(alert => 
+        alert.id === alertId ? { ...alert, status: newStatus } : alert
+      ))
+      toast.success(`Alert status updated to ${statusConfig[newStatus].label}`)
+    } catch (error) {
+      console.error("Failed to update alert:", error)
+      toast.error("Failed to update alert status")
+    }
   }
 
   const criticalCount = alerts.filter(a => a.severity === "critical" && a.status !== "resolved" && a.status !== "dismissed").length
@@ -243,6 +165,21 @@ export default function AlertsPage() {
   const inProgressCount = alerts.filter(a => a.status === "in_progress").length
 
   const SeverityIcon = selectedAlert ? severityConfig[selectedAlert.severity].icon : Bell
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <NavBar />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 text-yellow-500 animate-spin mx-auto mb-4" />
+            <p className="text-gray-400">Loading alerts...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -257,7 +194,11 @@ export default function AlertsPage() {
             </h1>
             <p className="text-gray-400 mt-2">Monitor and manage fraud detection alerts</p>
           </div>
-          <Button variant="outline" className="border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20">
+          <Button 
+            variant="outline" 
+            onClick={fetchAlerts}
+            className="border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20"
+          >
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>
@@ -423,7 +364,7 @@ export default function AlertsPage() {
                           </div>
                           <p className={`font-medium ${severity.text}`}>{alert.message}</p>
                           <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray-500">
-                            <span className="font-mono">{alert.walletAddress.slice(0, 10)}...{alert.walletAddress.slice(-6)}</span>
+                            <span className="font-mono">{alert.wallet_address.slice(0, 10)}...{alert.wallet_address.slice(-6)}</span>
                             <span>•</span>
                             <span>{alert.blockchain}</span>
                             {alert.amount && (
@@ -433,7 +374,7 @@ export default function AlertsPage() {
                               </>
                             )}
                             <span>•</span>
-                            <span>{alert.timestamp}</span>
+                            <span>{new Date(alert.detected_at).toLocaleString()}</span>
                           </div>
                         </div>
 
@@ -444,7 +385,7 @@ export default function AlertsPage() {
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation()
-                              router.push(`/scanner?address=${alert.walletAddress}`)
+                              router.push(`/scanner?address=${alert.wallet_address}`)
                             }}
                             className="text-yellow-300 hover:text-yellow-200 hover:bg-yellow-500/20"
                           >
@@ -455,7 +396,7 @@ export default function AlertsPage() {
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation()
-                              router.push(`/graph?address=${alert.walletAddress}`)
+                              router.push(`/graph?address=${alert.wallet_address}`)
                             }}
                             className="text-yellow-300 hover:text-yellow-200 hover:bg-yellow-500/20"
                           >
@@ -530,7 +471,7 @@ export default function AlertsPage() {
                         {selectedAlert.message}
                       </DialogTitle>
                       <DialogDescription className="text-gray-400">
-                        Alert {selectedAlert.id} • {selectedAlert.timestamp}
+                        Alert {selectedAlert.id} • {new Date(selectedAlert.detected_at).toLocaleString()}
                       </DialogDescription>
                     </div>
                   </div>
@@ -555,16 +496,16 @@ export default function AlertsPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <p className="text-xs text-gray-500">Wallet Address</p>
-                      <code className="text-sm text-yellow-300">{selectedAlert.walletAddress}</code>
+                      <code className="text-sm text-yellow-300">{selectedAlert.wallet_address}</code>
                     </div>
                     <div className="space-y-1">
                       <p className="text-xs text-gray-500">Blockchain</p>
                       <p className="text-sm text-gray-300">{selectedAlert.blockchain}</p>
                     </div>
-                    {selectedAlert.txHash && (
+                    {selectedAlert.tx_hash && (
                       <div className="space-y-1">
                         <p className="text-xs text-gray-500">Transaction Hash</p>
-                        <code className="text-sm text-gray-300">{selectedAlert.txHash}</code>
+                        <code className="text-sm text-gray-300">{selectedAlert.tx_hash}</code>
                       </div>
                     )}
                     {selectedAlert.amount && (
@@ -575,14 +516,14 @@ export default function AlertsPage() {
                     )}
                     <div className="space-y-1 col-span-2">
                       <p className="text-xs text-gray-500">Triggering Rule</p>
-                      <p className="text-sm text-orange-400">{selectedAlert.triggeringRule}</p>
+                      <p className="text-sm text-orange-400">{selectedAlert.triggering_rule}</p>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap gap-2 pt-2">
                     <Button
                       onClick={() => {
-                        router.push(`/scanner?address=${selectedAlert.walletAddress}`)
+                        router.push(`/scanner?address=${selectedAlert.wallet_address}`)
                         setSelectedAlert(null)
                       }}
                       className="bg-yellow-500/20 border border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/30"
@@ -592,7 +533,7 @@ export default function AlertsPage() {
                     </Button>
                     <Button
                       onClick={() => {
-                        router.push(`/graph?address=${selectedAlert.walletAddress}`)
+                        router.push(`/graph?address=${selectedAlert.wallet_address}`)
                         setSelectedAlert(null)
                       }}
                       variant="outline"
@@ -602,14 +543,14 @@ export default function AlertsPage() {
                       Graph Explorer
                     </Button>
                     <Button
-                      onClick={() => router.push(`/reports?address=${selectedAlert.walletAddress}`)}
+                      onClick={() => router.push(`/reports?address=${selectedAlert.wallet_address}`)}
                       variant="outline"
                       className="border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20"
                     >
                       <Download className="w-4 h-4 mr-2" />
                       Export Report
                     </Button>
-                    {selectedAlert.txHash && (
+                    {selectedAlert.tx_hash && (
                       <Button variant="ghost" className="text-gray-400 hover:text-yellow-300">
                         <ExternalLink className="w-4 h-4 mr-2" />
                         View on Explorer
