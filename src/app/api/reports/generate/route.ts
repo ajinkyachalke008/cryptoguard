@@ -196,19 +196,18 @@ export async function POST(request: NextRequest) {
 
     // Store in database
     const newReport = await db.insert(reports).values({
-      report_type: report_type,
-      entity_address: entity_address.trim(),
+      reportType: report_type,
+      entityAddress: entity_address.trim(),
       blockchain: blockchain.trim().toLowerCase(),
-      user_id: 1,
-      report_data: JSON.stringify(reportData),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      userId: 1,
+      reportData: JSON.stringify(reportData),
+      createdAt: new Date().toISOString()
     }).returning();
 
     // Parse the report_data back to object for response
     const createdReport = {
       ...newReport[0],
-      report_data: JSON.parse(newReport[0].report_data as string)
+      reportData: JSON.parse(newReport[0].reportData as string)
     };
 
     return NextResponse.json(createdReport, { status: 201 });

@@ -56,18 +56,15 @@ export async function PATCH(
     // Prepare update data
     const updateData: {
       status?: string;
-      resolved_at?: string;
-      updated_at: string;
-    } = {
-      updated_at: new Date().toISOString(),
-    };
+      resolvedAt?: string;
+    } = {};
 
     if (status) {
       updateData.status = status;
 
       // Set resolved_at if status changed to "resolved"
       if (status === 'resolved') {
-        updateData.resolved_at = new Date().toISOString();
+        updateData.resolvedAt = new Date().toISOString();
       }
     }
 

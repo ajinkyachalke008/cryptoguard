@@ -55,7 +55,7 @@ export async function GET(
 
     // Handle JSON format
     if (format === 'json') {
-      const jsonContent = JSON.stringify(reportData.report_data || reportData, null, 2);
+      const jsonContent = JSON.stringify(reportData.reportData || reportData, null, 2);
       
       return new NextResponse(jsonContent, {
         status: 200,

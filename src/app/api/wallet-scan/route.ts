@@ -250,8 +250,7 @@ export async function POST(request: NextRequest) {
         sanctionsStatus,
         pepRiskLevel,
         scanData: JSON.stringify(scanData),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        createdAt: new Date().toISOString()
       })
       .returning();
     

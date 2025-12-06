@@ -1,22 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { watchlist } from '@/db/schema';
+import { watchlists } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { getCurrentUser } from '@/lib/auth';
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const user = await getCurrentUser(request);
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Authentication required', code: 'UNAUTHORIZED' },
-        { status: 401 }
-      );
-    }
-
     const id = params.id;
     if (!id || isNaN(parseInt(id))) {
       return NextResponse.json(
@@ -26,18 +17,6 @@ export async function PATCH(
     }
 
     const requestBody = await request.json();
-
-    // Security check: prevent user ID injection
-    if ('userId' in requestBody || 'user_id' in requestBody) {
-      return NextResponse.json(
-        {
-          error: 'User ID cannot be provided in request body',
-          code: 'USER_ID_NOT_ALLOWED',
-        },
-        { status: 400 }
-      );
-    }
-
     const { label, risk_threshold, last_activity_at } = requestBody;
 
     // Validate risk_threshold if provided
@@ -54,11 +33,11 @@ export async function PATCH(
       }
     }
 
-    // Check if record exists and belongs to user
+    // Check if record exists (user_id = 1)
     const existingRecord = await db
       .select()
-      .from(watchlist)
-      .where(and(eq(watchlist.id, parseInt(id)), eq(watchlist.userId, user.id)))
+      .from(watchlists)
+      .where(and(eq(watchlists.id, parseInt(id)), eq(watchlists.userId, 1)))
       .limit(1);
 
     if (existingRecord.length === 0) {
@@ -71,30 +50,27 @@ export async function PATCH(
     // Prepare update data
     const updateData: {
       label?: string;
-      risk_threshold?: number;
-      last_activity_at?: string;
-      updatedAt: string;
-    } = {
-      updatedAt: new Date().toISOString(),
-    };
+      riskThreshold?: number;
+      lastActivityAt?: string;
+    } = {};
 
     if (label !== undefined) {
       updateData.label = typeof label === 'string' ? label.trim() : label;
     }
 
     if (risk_threshold !== undefined) {
-      updateData.risk_threshold = Number(risk_threshold);
+      updateData.riskThreshold = Number(risk_threshold);
     }
 
     if (last_activity_at !== undefined) {
-      updateData.last_activity_at = last_activity_at;
+      updateData.lastActivityAt = last_activity_at;
     }
 
     // Update the record
     const updated = await db
-      .update(watchlist)
+      .update(watchlists)
       .set(updateData)
-      .where(and(eq(watchlist.id, parseInt(id)), eq(watchlist.userId, user.id)))
+      .where(and(eq(watchlists.id, parseInt(id)), eq(watchlists.userId, 1)))
       .returning();
 
     if (updated.length === 0) {
@@ -122,14 +98,6 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const user = await getCurrentUser(request);
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Authentication required', code: 'UNAUTHORIZED' },
-        { status: 401 }
-      );
-    }
-
     const id = params.id;
     if (!id || isNaN(parseInt(id))) {
       return NextResponse.json(
@@ -138,11 +106,11 @@ export async function DELETE(
       );
     }
 
-    // Check if record exists and belongs to user
+    // Check if record exists (user_id = 1)
     const existingRecord = await db
       .select()
-      .from(watchlist)
-      .where(and(eq(watchlist.id, parseInt(id)), eq(watchlist.userId, user.id)))
+      .from(watchlists)
+      .where(and(eq(watchlists.id, parseInt(id)), eq(watchlists.userId, 1)))
       .limit(1);
 
     if (existingRecord.length === 0) {
@@ -154,8 +122,8 @@ export async function DELETE(
 
     // Delete the record
     const deleted = await db
-      .delete(watchlist)
-      .where(and(eq(watchlist.id, parseInt(id)), eq(watchlist.userId, user.id)))
+      .delete(watchlists)
+      .where(and(eq(watchlists.id, parseInt(id)), eq(watchlists.userId, 1)))
       .returning();
 
     if (deleted.length === 0) {
