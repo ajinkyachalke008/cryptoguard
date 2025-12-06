@@ -136,17 +136,17 @@ export async function POST(request: NextRequest) {
     
     // Sanitize inputs
     const alertData = {
-      user_id: 1, // Hardcoded as per requirements
+      userId: 1,
       severity: body.severity.toLowerCase().trim(),
-      alert_type: body.alert_type.trim(),
-      wallet_address: body.wallet_address?.trim() || null,
-      tx_hash: body.tx_hash?.trim() || null,
+      alertType: body.alert_type.trim(),
+      walletAddress: body.wallet_address?.trim() || null,
+      txHash: body.tx_hash?.trim() || null,
       blockchain: body.blockchain?.trim() || null,
       message: body.message.trim(),
       description: body.description?.trim() || null,
       amount: body.amount?.trim() || null,
-      status: 'active', // Default status
-      created_at: new Date().toISOString()
+      status: 'active',
+      createdAt: new Date().toISOString()
     };
     
     // Insert into database

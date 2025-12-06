@@ -43,9 +43,9 @@ export async function GET(
     const reportData = report[0];
     let parsedReport = { ...reportData };
 
-    if (reportData.report_data && typeof reportData.report_data === 'string') {
+    if (reportData.reportData && typeof reportData.reportData === 'string') {
       try {
-        parsedReport.report_data = JSON.parse(reportData.report_data);
+        parsedReport.reportData = JSON.parse(reportData.reportData);
       } catch (parseError) {
         console.error('Error parsing report_data:', parseError);
         // Keep original string if parsing fails
