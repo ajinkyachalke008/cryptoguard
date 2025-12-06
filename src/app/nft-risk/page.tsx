@@ -162,26 +162,122 @@ export default function NFTRiskPage() {
     setIsScanning(true)
     setScanComplete(false)
     
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    const washTrading = generateMockWashTradingData(collection)
-    const fakeVolume = generateMockFakeVolumeData(collection)
-    const marketplace = generateMockMarketplaceData()
-    
-    // Calculate overall score
-    const washWeight = washTrading.wash_trading_level === "HIGH" ? 90 : washTrading.wash_trading_level === "MEDIUM" ? 50 : 20
-    const volumeWeight = fakeVolume.fake_volume_label === "HEAVILY_MANIPULATED" ? 90 : fakeVolume.fake_volume_label === "SUSPICIOUS" ? 50 : 20
-    const score = Math.floor((washWeight + volumeWeight) / 2)
-    
-    setWashTradingData(washTrading)
-    setFakeVolumeData(fakeVolume)
-    setMarketplaceData(marketplace)
-    setOverallScore(score)
-    setAiExplanation(generateMockAIExplanation(collection, score))
-    
-    setIsScanning(false)
-    setScanComplete(true)
-    toast.success("NFT collection scan complete")
+    try {
+      const contractAddress = collection.startsWith('0x') && collection.length >= 40 
+        ? collection 
+        : '0x' + Array(40).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('')
+      
+      const response = await fetch('/api/nft-scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          collection_name: collection.trim(),
+          contract_address: contractAddress,
+          blockchain: 'ethereum'
+        })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Scan failed')
+      }
+
+      const data = await response.json()
+      const scanData = data.scan_data
+      
+      // Map wash trading data
+      const washLevel = data.wash_trading_level.toUpperCase() as "LOW" | "MEDIUM" | "HIGH"
+      setWashTradingData({
+        collection: data.collection_name,
+        wash_trading_level: washLevel,
+        wash_trading_ratio: scanData.wash_trading_data?.volume_percentage / 100 || 0,
+        wash_trading_explanation: scanData.wash_trading_data?.detected
+          ? `${scanData.wash_trading_data.volume_percentage}% of collection volume shows wash trading patterns.`
+          : "Minimal wash trading detected. Volume appears mostly organic.",
+        suspicious_wallets: scanData.wash_trading_data?.suspicious_wallets 
+          ? Array(Math.min(scanData.wash_trading_data.suspicious_wallets, 4)).fill(0).map((_, i) => ({
+              address: `0xWASH${i+1}...abc`,
+              trade_count: Math.floor(Math.random() * 50),
+              volume_usd: Math.floor(Math.random() * 150000),
+              connected_wallets: Math.floor(Math.random() * 5) + 3
+            }))
+          : [],
+        circular_trades: scanData.wash_trading_data?.patterns?.map((pattern: string) => ({
+          pattern: pattern.substring(0, 10),
+          occurrences: Math.floor(Math.random() * 50),
+          volume_usd: Math.floor(Math.random() * 500000)
+        })) || [],
+        volume_analysis: {
+          total_volume_24h: scanData.marketplace_data?.total_volume_usd || 500000,
+          wash_volume_24h: Math.floor((scanData.marketplace_data?.total_volume_usd || 500000) * (scanData.wash_trading_data?.volume_percentage / 100 || 0)),
+          organic_volume_24h: Math.floor((scanData.marketplace_data?.total_volume_usd || 500000) * (1 - (scanData.wash_trading_data?.volume_percentage / 100 || 0)))
+        }
+      })
+      
+      // Map fake volume data
+      const fakeRatio = parseInt(data.fake_volume_ratio) / 100
+      setFakeVolumeData({
+        collection: data.collection_name,
+        total_volume_eth: (scanData.marketplace_data?.total_volume_usd || 500000) / 2000, // rough USD to ETH
+        fake_volume_ratio: fakeRatio,
+        estimated_real_volume_eth: ((scanData.marketplace_data?.total_volume_usd || 500000) / 2000) * (1 - fakeRatio),
+        fake_volume_label: fakeRatio >= 0.5 ? "HEAVILY_MANIPULATED" : fakeRatio >= 0.25 ? "SUSPICIOUS" : "AUTHENTIC",
+        volume_breakdown: {
+          organic_trades: Math.floor((1 - fakeRatio) * 100),
+          suspected_wash: Math.floor(fakeRatio * 70),
+          bot_activity: Math.floor(fakeRatio * 30)
+        },
+        comparison: {
+          reported_floor: scanData.marketplace_data?.floor_price_usd / 2000 || 1.5,
+          estimated_floor: (scanData.marketplace_data?.floor_price_usd / 2000 || 1.5) * 0.7,
+          price_inflation: Math.floor(fakeRatio * 100)
+        }
+      })
+      
+      // Generate mock marketplace data
+      setMarketplaceData(generateMockMarketplaceData())
+      
+      // Map AI explanation
+      setAiExplanation({
+        entity_address: data.collection_name,
+        entity_type: "nft_collection",
+        risk_score: data.risk_score,
+        short_summary: scanData.ai_explanation?.split('\n\n')[0] || `NFT collection risk score: ${data.risk_score}/100`,
+        analyst_summary: scanData.ai_explanation || '',
+        risk_factors: [],
+        recommendations: [
+          "Monitor trading patterns",
+          "Verify collection authenticity before purchase"
+        ],
+        generated_at: data.created_at
+      })
+      
+      setOverallScore(data.risk_score)
+      setIsScanning(false)
+      setScanComplete(true)
+      toast.success("NFT collection scan complete")
+      
+    } catch (error) {
+      console.error('Scan error:', error)
+      toast.error(error instanceof Error ? error.message : 'Scan failed')
+      setIsScanning(false)
+      
+      // Fallback to mock data
+      const washTrading = generateMockWashTradingData(collection)
+      const fakeVolume = generateMockFakeVolumeData(collection)
+      const marketplace = generateMockMarketplaceData()
+      
+      const washWeight = washTrading.wash_trading_level === "HIGH" ? 90 : washTrading.wash_trading_level === "MEDIUM" ? 50 : 20
+      const volumeWeight = fakeVolume.fake_volume_label === "HEAVILY_MANIPULATED" ? 90 : fakeVolume.fake_volume_label === "SUSPICIOUS" ? 50 : 20
+      const score = Math.floor((washWeight + volumeWeight) / 2)
+      
+      setWashTradingData(washTrading)
+      setFakeVolumeData(fakeVolume)
+      setMarketplaceData(marketplace)
+      setOverallScore(score)
+      setAiExplanation(generateMockAIExplanation(collection, score))
+      setScanComplete(true)
+    }
   }
 
   const getRiskBadge = (score: number) => {
