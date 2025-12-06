@@ -2,19 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { protocolScans } from '@/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
-import { getCurrentUser } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    // Authentication check
-    const user = await getCurrentUser(request);
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Authentication required', code: 'UNAUTHORIZED' },
-        { status: 401 }
-      );
-    }
-
     const { searchParams } = new URL(request.url);
 
     // Parse pagination parameters
@@ -40,8 +30,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Build query conditions
-    const conditions = [eq(protocolScans.userId, user.id)];
+    // Build query conditions (user_id = 1)
+    const conditions = [eq(protocolScans.userId, 1)];
 
     if (blockchain) {
       conditions.push(eq(protocolScans.blockchain, blockchain));
@@ -71,7 +61,7 @@ export async function GET(request: NextRequest) {
     // Parse scan_data JSON for each scan
     const parsedScans = scans.map(scan => ({
       ...scan,
-      scanData: scan.scanData ? JSON.parse(scan.scanData) : null
+      scanData: scan.scanData ? JSON.parse(scan.scanData as string) : null
     }));
 
     // Calculate pagination metadata
