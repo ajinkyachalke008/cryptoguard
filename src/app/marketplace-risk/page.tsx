@@ -35,73 +35,12 @@ const marketplaces = [
   { name: "SuperRare", url: "https://superrare.com", logo: "💫" }
 ]
 
-function generateMockMarketplaceData(name: string): MarketplaceRiskData {
-  const labels = ["LOW", "MEDIUM", "HIGH"] as const
-  const label = labels[Math.floor(Math.random() * 3)]
-  const score = label === "HIGH" ? 70 + Math.floor(Math.random() * 25) : label === "MEDIUM" ? 40 + Math.floor(Math.random() * 30) : Math.floor(Math.random() * 40)
-  
-  return {
-    marketplace: name,
-    marketplace_url: marketplaces.find(m => m.name === name)?.url || `https://${name.toLowerCase()}.io`,
-    marketplace_risk_score: score,
-    marketplace_risk_label: label,
-    marketplace_risk_reasons: label !== "LOW" ? [
-      "High percentage of wash trading collections.",
-      label === "HIGH" ? "Frequent fake collections imitating blue-chip NFTs." : "Some unverified collections present.",
-      label === "HIGH" ? "Multiple fraud incidents reported in past 30 days." : undefined
-    ].filter(Boolean) as string[] : [],
-    metrics: {
-      wash_trading_percentage: label === "HIGH" ? 35 : label === "MEDIUM" ? 18 : 8,
-      fake_collection_count: label === "HIGH" ? 156 : label === "MEDIUM" ? 45 : 12,
-      fraud_incident_count: label === "HIGH" ? 23 : label === "MEDIUM" ? 8 : 2,
-      verified_collection_ratio: label === "HIGH" ? 45 : label === "MEDIUM" ? 68 : 89,
-      average_response_time_hours: label === "HIGH" ? 72 : label === "MEDIUM" ? 24 : 6
-    },
-    recent_incidents: label !== "LOW" ? [
-      { date: "2024-11-15", type: "Fake Collection", description: "Fake BAYC collection listed and sold 50 items", affected_users: 50, amount_lost: 125000 },
-      { date: "2024-10-28", type: "Wash Trading Ring", description: "Coordinated wash trading ring discovered", affected_users: 0, amount_lost: 0 },
-      { date: "2024-10-15", type: "Phishing Attack", description: "Malicious listing redirecting to phishing site", affected_users: 12, amount_lost: 45000 }
-    ] : [],
-    safety_features: [
-      { feature: "Verified Collections", implemented: true },
-      { feature: "Royalty Enforcement", implemented: label !== "HIGH" },
-      { feature: "Spam Detection", implemented: true },
-      { feature: "Price Alerts", implemented: label === "LOW" },
-      { feature: "Stolen NFT Detection", implemented: label !== "HIGH" },
-      { feature: "2FA Required", implemented: true },
-      { feature: "Anti-Phishing Warnings", implemented: label !== "HIGH" },
-      { feature: "Collection Verification", implemented: true }
-    ]
-  }
-}
-
-function generateMockAIExplanation(marketplace: string, score: number): AIRiskExplanationData {
-  return {
-    entity_address: marketplace,
-    entity_type: "marketplace",
-    risk_score: score,
-    short_summary: `${marketplace} has ${score >= 70 ? "high" : score >= 40 ? "moderate" : "low"} marketplace risk. ${score >= 70 ? "Multiple fraud incidents and high wash trading presence." : score >= 40 ? "Some concerns around collection verification." : "Strong safety features and low fraud rates."}`,
-    analyst_summary: `Marketplace Risk Assessment for ${marketplace}:\n\n${score >= 70 ? "⚠️ This marketplace has significant fraud concerns including fake collections, wash trading, and slow incident response times. User protection features are incomplete." : score >= 40 ? "This marketplace has moderate risk levels. Collection verification is present but some gaps exist. Response to fraud incidents could be improved." : "This marketplace demonstrates strong security practices with comprehensive collection verification, low fraud rates, and quick incident response."}`,
-    risk_factors: score >= 40 ? [
-      { factor_type: "WASH_TRADING", severity: score >= 70 ? "HIGH" : "MEDIUM", evidence: [{ type: "pattern", value: "wash_trading", description: "High wash trading percentage detected" }] },
-      { factor_type: "SCAM", severity: score >= 70 ? "HIGH" : "LOW", evidence: [{ type: "pattern", value: "fake_collections", description: "Fake collections present on platform" }] }
-    ] : [],
-    recommendations: [
-      score >= 70 ? "Exercise extreme caution when using this marketplace" : "Use standard verification practices",
-      "Always verify collection authenticity before purchase",
-      "Enable all available security features"
-    ],
-    generated_at: new Date().toISOString()
-  }
-}
-
 export default function MarketplaceRiskPage() {
   const [selectedMarketplace, setSelectedMarketplace] = useState<string | null>(null)
   const [customMarketplace, setCustomMarketplace] = useState("")
   const [isScanning, setIsScanning] = useState(false)
   const [scanComplete, setScanComplete] = useState(false)
   
-  // Mock data states
   const [marketplaceData, setMarketplaceData] = useState<MarketplaceRiskData | null>(null)
   const [aiExplanation, setAiExplanation] = useState<AIRiskExplanationData | null>(null)
 
@@ -110,15 +49,39 @@ export default function MarketplaceRiskPage() {
     setIsScanning(true)
     setScanComplete(false)
     
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    const data = generateMockMarketplaceData(name)
-    setMarketplaceData(data)
-    setAiExplanation(generateMockAIExplanation(name, data.marketplace_risk_score))
-    
-    setIsScanning(false)
-    setScanComplete(true)
-    toast.success(`${name} scan complete`)
+    try {
+      // Call API to scan marketplace
+      const response = await fetch("/api/marketplace-scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ marketplace_name: name })
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to scan marketplace")
+      }
+
+      const result = await response.json()
+      
+      // Fetch the scan result
+      const scanRes = await fetch(`/api/marketplace-scan/${result.id}`)
+      if (!scanRes.ok) {
+        throw new Error("Failed to fetch scan results")
+      }
+
+      const scanData = await scanRes.json()
+      setMarketplaceData(scanData.marketplace_risk)
+      setAiExplanation(scanData.ai_explanation)
+      
+      setScanComplete(true)
+      toast.success(`${name} scan complete`)
+    } catch (error) {
+      console.error("Scan error:", error)
+      toast.error("Failed to scan marketplace")
+      setIsScanning(false)
+    } finally {
+      setIsScanning(false)
+    }
   }
 
   const handleCustomScan = () => {
