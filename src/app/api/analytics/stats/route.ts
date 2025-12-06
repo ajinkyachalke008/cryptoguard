@@ -175,11 +175,11 @@ export async function GET(request: NextRequest) {
     ];
 
     const top_risks = riskTypes.map(risk => {
-      const count = Math.round(total_scans * risk.basePercentage);
-      const percentage = total_scans > 0 ? Math.round((count / total_scans) * 100) : 0;
+      const riskCount = Math.round(total_scans * risk.basePercentage);
+      const percentage = total_scans > 0 ? Math.round((riskCount / total_scans) * 100) : 0;
       return {
         type: risk.type,
-        count,
+        count: riskCount,
         percentage
       };
     }).sort((a, b) => b.count - a.count);
