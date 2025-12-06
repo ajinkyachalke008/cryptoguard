@@ -2,19 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { reports } from '@/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
-import { getCurrentUser } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    // Authentication check
-    const user = await getCurrentUser(request);
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Authentication required', code: 'UNAUTHORIZED' },
-        { status: 401 }
-      );
-    }
-
     const { searchParams } = new URL(request.url);
 
     // Pagination parameters
@@ -25,8 +15,8 @@ export async function GET(request: NextRequest) {
     const reportType = searchParams.get('report_type');
     const blockchain = searchParams.get('blockchain');
 
-    // Build where conditions
-    const conditions = [eq(reports.userId, user.id)];
+    // Build where conditions (user_id = 1)
+    const conditions = [eq(reports.userId, 1)];
 
     if (reportType) {
       conditions.push(eq(reports.reportType, reportType));
@@ -58,7 +48,7 @@ export async function GET(request: NextRequest) {
     // Parse report_data JSON for each report
     const reportsWithParsedData = reportsList.map(report => ({
       ...report,
-      reportData: report.reportData ? JSON.parse(report.reportData) : null
+      reportData: report.reportData ? JSON.parse(report.reportData as string) : null
     }));
 
     // Calculate pagination metadata
