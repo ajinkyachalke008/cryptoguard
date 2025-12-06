@@ -31,12 +31,6 @@ interface ChatMessage {
   role: "user" | "assistant"
   content: string
   timestamp: string
-  type?: "text" | "wallet_summary" | "transaction_list" | "risk_alert"
-  metadata?: {
-    wallet?: string
-    risk_score?: number
-    transactions?: { hash: string; amount: number; status: string }[]
-  }
 }
 
 const suggestedQuestions = [
@@ -57,292 +51,6 @@ const exampleTopics = [
   { icon: FileText, label: "Compliance", query: "What is OFAC sanctions screening?" }
 ]
 
-// Enhanced mock AI response generator
-function generateMockResponse(question: string): Promise<ChatMessage> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const lowerQuestion = question.toLowerCase()
-      let content = ""
-      let type: "text" | "risk_alert" = "text"
-
-      if (lowerQuestion.includes("wallet") && (lowerQuestion.includes("risk") || lowerQuestion.includes("analyze") || lowerQuestion.includes("0x"))) {
-        type = "risk_alert"
-        content = `🔍 **Wallet Risk Analysis**
-
-Based on my analysis, here are the key risk factors I typically evaluate:
-
-**1. Transaction History**
-- Volume and frequency of transactions
-- Interaction with known malicious addresses
-- Unusual patterns (rapid transfers, round amounts)
-
-**2. Counterparty Risk**
-- Connections to mixers (Tornado Cash, etc.)
-- Interactions with sanctioned addresses
-- Links to known scam wallets
-
-**3. DeFi Exposure**
-- Interaction with unaudited protocols
-- Exposure to exploited contracts
-- Rug pull token holdings
-
-**4. Compliance Flags**
-- OFAC/SDN list matches
-- PEP connections
-- High-risk jurisdiction exposure
-
-Would you like me to analyze a specific wallet address?`
-      } else if (lowerQuestion.includes("rug pull")) {
-        content = `🚨 **Rug Pull Detection Guide**
-
-A rug pull occurs when developers abandon a project and run away with investor funds. Here's how to identify potential rug pulls:
-
-**🔴 Red Flags:**
-1. **Liquidity Not Locked** - Check if LP tokens are locked
-2. **Anonymous Team** - No verifiable team members
-3. **No Audit** - Missing security audits from reputable firms
-4. **Concentrated Ownership** - Few wallets hold majority of supply
-5. **Unlimited Mint Functions** - Contract allows infinite token creation
-6. **High Sell Fees** - Unusual tax on selling
-
-**✅ Safety Checks:**
-- Verify liquidity lock on platforms like Unicrypt
-- Check holder distribution on Etherscan
-- Review smart contract for dangerous functions
-- Research team backgrounds
-- Look for community engagement
-
-Our Protocol Risk Scanner automatically detects these patterns. Would you like to analyze a specific token?`
-      } else if (lowerQuestion.includes("wash trading")) {
-        content = `📊 **Wash Trading Detection**
-
-Wash trading involves the same entity trading with themselves to artificially inflate volume. Here's how we detect it:
-
-**Detection Methods:**
-
-1. **Circular Trading Patterns**
-   - A→B→C→A loops
-   - Rapid back-and-forth transfers
-
-2. **Volume Analysis**
-   - Few wallets dominating volume
-   - Unrealistic volume/holder ratios
-
-3. **Timing Patterns**
-   - Trades at regular intervals
-   - Immediate buy-sell sequences
-
-4. **Price Manipulation**
-   - Self-trades at inflated prices
-   - Artificial floor price maintenance
-
-**Our NFT Risk Scanner detects:**
-- 72%+ wash trading ratios in some collections
-- Circular trade patterns
-- Bot activity signatures
-
-Would you like me to check a specific NFT collection?`
-      } else if (lowerQuestion.includes("sanction") || lowerQuestion.includes("ofac")) {
-        content = `⚖️ **Sanctions Screening Explained**
-
-Sanctions screening is crucial for crypto compliance. Here's what we check:
-
-**Lists We Monitor:**
-- 🇺🇸 OFAC SDN (US Treasury)
-- 🇪🇺 EU Sanctions List  
-- 🇬🇧 UK HMT Sanctions
-- 🇺🇳 UN Consolidated List
-
-**Screening Types:**
-
-1. **Direct Match**
-   - Wallet directly on sanctions list
-   - Immediate high-risk flag
-
-2. **Cluster Exposure**
-   - Wallet received funds from sanctioned addresses
-   - Calculated exposure percentage
-
-3. **Indirect Links**
-   - 2nd or 3rd degree connections
-   - Requires investigation
-
-**Compliance Actions:**
-- Block transactions
-- File SARs (Suspicious Activity Reports)
-- Enhanced due diligence
-
-Our Wallet Scanner automatically checks all major sanctions lists. Want to screen a wallet?`
-      } else if (lowerQuestion.includes("defi") || lowerQuestion.includes("protocol") || lowerQuestion.includes("safe")) {
-        content = `🛡️ **DeFi Protocol Safety Checklist**
-
-Evaluating DeFi protocol security:
-
-**Audit Status (Critical)**
-- ✅ Multiple audits from top firms (Trail of Bits, OpenZeppelin)
-- ✅ All critical issues resolved
-- ✅ Recent audit (within 6 months)
-
-**Smart Contract Analysis**
-- Admin key management (multisig preferred)
-- Timelock on upgrades
-- No dangerous functions (unlimited mint, etc.)
-
-**Team & Governance**
-- Verified team identities
-- Decentralized governance
-- Active development
-
-**Historical Performance**
-- No previous exploits
-- Track record of security patches
-- Bug bounty program
-
-**Our Audit Scores:**
-- 90-100: Well Audited ✅
-- 70-89: Audited
-- 40-69: Caution ⚠️
-- 0-39: Unsafe ❌
-
-Try our Protocol Risk Scanner for detailed analysis!`
-      } else if (lowerQuestion.includes("cross-chain") || lowerQuestion.includes("bridge") || lowerQuestion.includes("tracking")) {
-        content = `🔗 **Cross-Chain Transaction Tracking**
-
-Following funds across blockchains:
-
-**How It Works:**
-
-1. **Bridge Detection**
-   - Monitor known bridge contracts
-   - Track wrapped asset creation
-   - Match source/destination transactions
-
-2. **Flow Visualization**
-   Origin → Bridge → Destination → DEX → Final
-
-3. **Risk Tagging**
-   Each hop is tagged with risk indicators:
-   - 🟢 Clean transfer
-   - 🟡 Risky (mixer, unknown protocol)
-   - 🔴 High risk (sanctioned, scam)
-
-**Chains We Support:**
-- Ethereum, Bitcoin, BSC
-- Polygon, Arbitrum, Solana
-- Avalanche, Base, and more
-
-**Use Cases:**
-- Trace stolen funds
-- Investigate money laundering
-- Compliance reporting
-
-Our Multi-Chain Timeline visualizes complex flows. Try a cross-chain investigation!`
-      } else if (lowerQuestion.includes("phishing") || lowerQuestion.includes("scam")) {
-        content = `🎣 **Phishing & Scam Detection**
-
-Common crypto scams and how to identify them:
-
-**Phishing Attacks:**
-- Fake wallet connection popups
-- Cloned DEX/NFT sites
-- Malicious approval requests
-
-**Warning Signs:**
-1. Unsolicited DMs about investments
-2. "Too good to be true" returns
-3. Pressure to act quickly
-4. Requests for seed phrases
-5. Suspicious smart contract approvals
-
-**Our Detection:**
-- Known phishing address database
-- Malicious contract pattern detection
-- Fake collection identification
-- Suspicious approval monitoring
-
-**Protection Tips:**
-- Verify URLs carefully
-- Use hardware wallets
-- Revoke unused approvals
-- Never share seed phrases
-
-Our scanners flag wallets with phishing connections!`
-      } else if (lowerQuestion.includes("nft") || lowerQuestion.includes("collection")) {
-        content = `🖼️ **NFT Collection Legitimacy Analysis**
-
-Evaluating NFT collections:
-
-**Authenticity Checks:**
-- Official social media verification
-- Contract deployment history
-- Creator wallet analysis
-
-**Market Health:**
-- Organic trading volume
-- Holder distribution
-- Floor price stability
-
-**Red Flags We Detect:**
-- 🚩 High wash trading ratio
-- 🚩 Fake volume inflation
-- 🚩 Copycat collections
-- 🚩 Concentrated ownership
-- 🚩 Artificial price pumping
-
-**Volume Analysis:**
-- Reported vs Real Volume
-- Bot activity detection
-- Circular trade patterns
-
-Our NFT Risk Scanner provides:
-- Wash trading percentage
-- Estimated real volume
-- Suspicious wallet identification
-
-Want to analyze a specific collection?`
-      } else {
-        content = `I understand you're asking about "${question}".
-
-Let me help you with that. Here's what I can assist with:
-
-**🔍 Risk Analysis**
-- Wallet risk scoring
-- Protocol security assessment
-- NFT collection analysis
-- Marketplace evaluation
-
-**📋 Compliance**
-- Sanctions screening (OFAC, EU, UK)
-- PEP identification
-- Transaction monitoring
-
-**🔗 Investigation**
-- Cross-chain fund tracking
-- Transaction flow visualization
-- Entity clustering
-
-**📊 Detection**
-- Wash trading identification
-- Fake volume analysis
-- Rug pull indicators
-
-What specific topic would you like to explore? You can also try:
-- "Analyze wallet 0x..."
-- "Check protocol Uniswap"
-- "Investigate NFT collection Bored Apes"`
-      }
-
-      resolve({
-        id: Date.now().toString(),
-        role: "assistant",
-        content,
-        timestamp: new Date().toISOString(),
-        type
-      })
-    }, 1500)
-  })
-}
-
 export default function AskAIPage() {
   const searchParams = useSearchParams()
   const initialQuery = searchParams.get("q") || ""
@@ -351,6 +59,7 @@ export default function AskAIPage() {
   const [input, setInput] = useState(initialQuery)
   const [isLoading, setIsLoading] = useState(false)
   const [copied, setCopied] = useState<string | null>(null)
+  const [conversationId, setConversationId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -372,8 +81,7 @@ export default function AskAIPage() {
       id: Date.now().toString(),
       role: "user",
       content: messageText,
-      timestamp: new Date().toISOString(),
-      type: "text"
+      timestamp: new Date().toISOString()
     }
 
     setMessages(prev => [...prev, userMessage])
@@ -381,10 +89,53 @@ export default function AskAIPage() {
     setIsLoading(true)
 
     try {
-      const response = await generateMockResponse(messageText)
-      setMessages(prev => [...prev, response])
-    } catch {
-      toast.error("Failed to get response")
+      // If no conversation exists, create one
+      if (!conversationId) {
+        const newConvRes = await fetch("/api/ai-chat/new", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initial_question: messageText })
+        })
+
+        if (!newConvRes.ok) {
+          throw new Error("Failed to create conversation")
+        }
+
+        const newConvData = await newConvRes.json()
+        setConversationId(newConvData.conversation_id)
+
+        const assistantMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: newConvData.response,
+          timestamp: new Date().toISOString()
+        }
+        setMessages(prev => [...prev, assistantMessage])
+      } else {
+        // Continue existing conversation
+        const continueRes = await fetch(`/api/ai-chat/${conversationId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: messageText })
+        })
+
+        if (!continueRes.ok) {
+          throw new Error("Failed to send message")
+        }
+
+        const continueData = await continueRes.json()
+
+        const assistantMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: continueData.response,
+          timestamp: new Date().toISOString()
+        }
+        setMessages(prev => [...prev, assistantMessage])
+      }
+    } catch (error) {
+      console.error("Chat error:", error)
+      toast.error("Failed to get response from AI")
     } finally {
       setIsLoading(false)
     }
@@ -399,6 +150,7 @@ export default function AskAIPage() {
 
   const handleClearChat = () => {
     setMessages([])
+    setConversationId(null)
     toast.success("Chat cleared")
   }
 
@@ -516,14 +268,7 @@ export default function AskAIPage() {
                             : "bg-black/40 border border-gray-700 text-gray-200"
                         }`}
                       >
-                        {message.type === "risk_alert" ? (
-                          <div className="flex gap-2">
-                            <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-                            <div className="whitespace-pre-wrap text-sm prose prose-invert prose-sm max-w-none">{message.content}</div>
-                          </div>
-                        ) : (
-                          <div className="whitespace-pre-wrap text-sm prose prose-invert prose-sm max-w-none">{message.content}</div>
-                        )}
+                        <div className="whitespace-pre-wrap text-sm prose prose-invert prose-sm max-w-none">{message.content}</div>
                       </div>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-gray-500">
