@@ -23,18 +23,26 @@ import {
   Download,
   Filter,
   FileText,
-  Key
+  Key,
+  Loader2
 } from "lucide-react"
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
+import { toast } from "sonner"
 
-const statsData = [
-  { name: "00:00", transactions: 245, fraud: 12 },
-  { name: "04:00", transactions: 189, fraud: 8 },
-  { name: "08:00", transactions: 421, fraud: 18 },
-  { name: "12:00", transactions: 567, fraud: 24 },
-  { name: "16:00", transactions: 489, fraud: 21 },
-  { name: "20:00", transactions: 356, fraud: 15 }
-]
+interface AnalyticsStats {
+  total_transactions: number
+  fraud_count: number
+  safe_count: number
+  total_volume: number
+  transactions_change: number
+  fraud_change: number
+}
+
+interface TrendData {
+  timestamp: string
+  transactions: number
+  fraud: number
+}
 
 const riskDistribution = [
   { name: "Safe", value: 8547, color: "#10b981" },
@@ -60,18 +68,54 @@ const topCountries = [
 
 export default function Dashboard() {
   const router = useRouter()
-  const [liveCount, setLiveCount] = useState(10582)
-  const [fraudCount, setFraudCount] = useState(234)
+  const [isLoading, setIsLoading] = useState(true)
+  const [stats, setStats] = useState<AnalyticsStats | null>(null)
+  const [trends, setTrends] = useState<TrendData[]>([])
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setLiveCount(prev => prev + Math.floor(Math.random() * 3))
-      if (Math.random() > 0.7) {
-        setFraudCount(prev => prev + 1)
-      }
-    }, 2000)
+    fetchDashboardData()
+    const interval = setInterval(fetchDashboardData, 30000) // Refresh every 30s
     return () => clearInterval(interval)
   }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      const [statsRes, trendsRes] = await Promise.all([
+        fetch("/api/analytics/stats"),
+        fetch("/api/analytics/trends?period=24h")
+      ])
+
+      if (statsRes.ok) {
+        const statsData = await statsRes.json()
+        setStats(statsData)
+      }
+
+      if (trendsRes.ok) {
+        const trendsData = await trendsRes.json()
+        setTrends(trendsData.trends || [])
+      }
+    } catch (error) {
+      console.error("Failed to fetch dashboard data:", error)
+      toast.error("Failed to load analytics data")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <NavBar />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 text-yellow-500 animate-spin mx-auto mb-4" />
+            <p className="text-gray-400">Loading dashboard...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -94,10 +138,22 @@ export default function Dashboard() {
               <Activity className="h-4 w-4 text-yellow-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-300">{liveCount.toLocaleString()}</div>
+              <div className="text-2xl font-bold text-yellow-300">
+                {stats?.total_transactions.toLocaleString() || "0"}
+              </div>
               <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                <ArrowUpRight className="h-3 w-3 text-green-400" />
-                <span className="text-green-400">12.5%</span> from last hour
+                {stats && stats.transactions_change >= 0 ? (
+                  <>
+                    <ArrowUpRight className="h-3 w-3 text-green-400" />
+                    <span className="text-green-400">{stats.transactions_change.toFixed(1)}%</span>
+                  </>
+                ) : (
+                  <>
+                    <ArrowDownRight className="h-3 w-3 text-red-400" />
+                    <span className="text-red-400">{Math.abs(stats?.transactions_change || 0).toFixed(1)}%</span>
+                  </>
+                )}
+                from last hour
               </p>
             </CardContent>
           </Card>
@@ -108,10 +164,22 @@ export default function Dashboard() {
               <XCircle className="h-4 w-4 text-red-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-400">{fraudCount}</div>
+              <div className="text-2xl font-bold text-red-400">
+                {stats?.fraud_count.toLocaleString() || "0"}
+              </div>
               <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                <ArrowDownRight className="h-3 w-3 text-green-400" />
-                <span className="text-green-400">2.3%</span> from last hour
+                {stats && stats.fraud_change <= 0 ? (
+                  <>
+                    <ArrowDownRight className="h-3 w-3 text-green-400" />
+                    <span className="text-green-400">{Math.abs(stats.fraud_change).toFixed(1)}%</span>
+                  </>
+                ) : (
+                  <>
+                    <ArrowUpRight className="h-3 w-3 text-red-400" />
+                    <span className="text-red-400">{stats?.fraud_change.toFixed(1)}%</span>
+                  </>
+                )}
+                from last hour
               </p>
             </CardContent>
           </Card>
@@ -122,9 +190,14 @@ export default function Dashboard() {
               <CheckCircle2 className="h-4 w-4 text-green-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-400">8,547</div>
+              <div className="text-2xl font-bold text-green-400">
+                {stats?.safe_count.toLocaleString() || "0"}
+              </div>
               <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                <span className="text-yellow-400">80.8%</span> success rate
+                <span className="text-yellow-400">
+                  {stats ? ((stats.safe_count / stats.total_transactions) * 100).toFixed(1) : "0"}%
+                </span>
+                success rate
               </p>
             </CardContent>
           </Card>
@@ -135,7 +208,9 @@ export default function Dashboard() {
               <DollarSign className="h-4 w-4 text-yellow-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-300">$2.4M</div>
+              <div className="text-2xl font-bold text-yellow-300">
+                ${((stats?.total_volume || 0) / 1000000).toFixed(1)}M
+              </div>
               <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
                 <ArrowUpRight className="h-3 w-3 text-green-400" />
                 <span className="text-green-400">8.2%</span> from last hour
@@ -154,9 +229,17 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={statsData}>
+                <LineChart data={trends.length > 0 ? trends : [{ timestamp: "No data", transactions: 0, fraud: 0 }]}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="name" stroke="#999" />
+                  <XAxis 
+                    dataKey="timestamp" 
+                    stroke="#999"
+                    tickFormatter={(value) => {
+                      if (value === "No data") return value
+                      const date = new Date(value)
+                      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    }}
+                  />
                   <YAxis stroke="#999" />
                   <Tooltip 
                     contentStyle={{ 
