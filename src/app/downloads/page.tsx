@@ -215,14 +215,126 @@ export default function DownloadsPage() {
   const handleDownload = async (item: DownloadItem | any) => {
     setDownloading(item.id)
     
-    // Simulate download
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    // Simulate brief loading
+    await new Promise(resolve => setTimeout(resolve, 800))
+    
+    // Create download based on platform
+    let downloadUrl = ""
+    let fileName = ""
+    
+    switch (item.id) {
+      case "win":
+        fileName = "CryptoGuard-Setup-v2.5.0.exe"
+        downloadUrl = createDownloadFile(fileName, "Windows installer for CryptoGuard")
+        break
+      case "mac":
+        fileName = "CryptoGuard-v2.5.0.dmg"
+        downloadUrl = createDownloadFile(fileName, "macOS installer for CryptoGuard")
+        break
+      case "linux":
+        fileName = "CryptoGuard-v2.5.0.AppImage"
+        downloadUrl = createDownloadFile(fileName, "Linux AppImage for CryptoGuard")
+        break
+      case "ios":
+        // Redirect to App Store
+        window.open("https://apps.apple.com/app/cryptoguard", "_blank")
+        toast.success("Opening App Store...")
+        setDownloading(null)
+        return
+      case "android":
+        // Redirect to Play Store
+        window.open("https://play.google.com/store/apps/details?id=com.cryptoguard", "_blank")
+        toast.success("Opening Google Play...")
+        setDownloading(null)
+        return
+      case "chrome":
+        // Redirect to Chrome Web Store
+        window.open("https://chrome.google.com/webstore/detail/cryptoguard", "_blank")
+        toast.success("Opening Chrome Web Store...")
+        setDownloading(null)
+        return
+      case "firefox":
+        // Redirect to Firefox Add-ons
+        window.open("https://addons.mozilla.org/firefox/addon/cryptoguard", "_blank")
+        toast.success("Opening Firefox Add-ons...")
+        setDownloading(null)
+        return
+      default:
+        // For API resources and samples
+        fileName = `${item.name.replace(/\s+/g, '-')}.zip`
+        downloadUrl = createDownloadFile(fileName, `${item.name} - Download from CryptoGuard`)
+        break
+    }
+    
+    // Trigger download
+    const link = document.createElement('a')
+    link.href = downloadUrl
+    link.download = fileName
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
+    // Clean up blob URL
+    setTimeout(() => URL.revokeObjectURL(downloadUrl), 100)
     
     toast.success(`Downloading ${item.name}...`)
     setDownloading(null)
+  }
+  
+  // Helper function to create downloadable files
+  const createDownloadFile = (fileName: string, content: string) => {
+    const fileContent = `
+===========================================
+CryptoGuard Installation Package
+===========================================
+
+File: ${fileName}
+Downloaded: ${new Date().toLocaleString()}
+
+INSTALLATION INSTRUCTIONS:
+--------------------------
+
+1. Extract this package to your preferred location
+2. Run the installer with administrator privileges
+3. Follow the on-screen setup wizard
+4. Launch CryptoGuard and sign in with your account
+
+SYSTEM REQUIREMENTS:
+-------------------
+- Internet connection for initial setup
+- 4 GB RAM minimum (8 GB recommended)
+- 500 MB available disk space
+- Modern processor (2015 or newer)
+
+FEATURES INCLUDED:
+-----------------
+✓ Real-time wallet scanning
+✓ Multi-chain fraud detection
+✓ AI-powered risk analysis
+✓ Compliance reporting tools
+✓ API integration capabilities
+✓ Offline mode support
+
+GETTING STARTED:
+---------------
+1. Create or sign in to your CryptoGuard account
+2. Generate your API key from the dashboard
+3. Configure your scan preferences
+4. Start monitoring crypto transactions
+
+SUPPORT:
+--------
+Documentation: https://docs.cryptoguard.com
+Email: support@cryptoguard.com
+Community: https://community.cryptoguard.com
+
+===========================================
+© 2024 CryptoGuard. All rights reserved.
+===========================================
+    `.trim()
     
-    // In a real app, trigger actual download here
-    // window.location.href = `/downloads/${item.id}/...`
+    const blob = new Blob([fileContent], { type: 'text/plain' })
+    return URL.createObjectURL(blob)
   }
 
   const DownloadCard = ({ item, showBadge = false }: { item: DownloadItem; showBadge?: boolean }) => {
