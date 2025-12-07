@@ -167,7 +167,7 @@ export default function TransactionManagement() {
     if (selectedTx) {
       setFrozenAccounts(prev => new Set([...prev, selectedTx.from, selectedTx.to]))
       toast.success(`Accounts frozen successfully`, {
-        description: `Both sender and receiver accounts have been frozen for transaction ${selectedTx.id.slice(0, 8)}...`
+        description: `Both sender and receiver accounts have been frozen for transaction ${selectedTx.id}`
       })
     }
     setFreezeDialogOpen(false)
@@ -364,7 +364,7 @@ export default function TransactionManagement() {
                       <div>
                         <div className="flex items-center gap-2">
                           <Hash className="size-3 text-gray-600" />
-                          <span className="text-xs text-gray-500 font-mono tracking-wider">{tx.id.slice(0, 10)}...</span>
+                          <span className="text-xs text-gray-500 font-mono tracking-wider">{tx.id}</span>
                         </div>
                         <div className={`text-sm font-bold ${getStatusColor(tx.status)} uppercase tracking-wider`}>
                           {tx.status === "safe" ? "VERIFIED" : tx.status === "risky" ? "FLAGGED" : "THREAT"}
@@ -467,7 +467,7 @@ export default function TransactionManagement() {
               
               <div className="space-y-3 p-4 rounded-xl bg-black/40 border border-cyan-500/20">
                 {[
-                  { label: "TX-ID", value: selectedTx.id.slice(0, 16) + "..." },
+                  { label: "TX-ID", value: selectedTx.id },
                   { label: "SOURCE", value: selectedTx.from },
                   { label: "TARGET", value: selectedTx.to },
                   { label: "VALUE", value: `$${selectedTx.amount.toLocaleString()}`, highlight: true }
@@ -523,7 +523,7 @@ export default function TransactionManagement() {
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {[
-                    { label: "ID", value: selectedTx.id.slice(0, 12) + "..." },
+                    { label: "ID", value: selectedTx.id },
                     { label: "VALUE", value: `$${selectedTx.amount.toLocaleString()}` },
                     { label: "ROUTE", value: `${selectedTx.from} → ${selectedTx.to}` },
                     { label: "STATUS", value: selectedTx.status.toUpperCase(), status: true }
