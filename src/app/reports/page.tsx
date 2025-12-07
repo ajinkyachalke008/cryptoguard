@@ -71,7 +71,7 @@ const recentReports: GeneratedReport[] = [
     type: "wallet",
     format: "pdf",
     name: "Wallet_0x742d35...f44E_Report.pdf",
-    generatedAt: "2024-12-04 14:30",
+    generatedAt: "Nov 28, 2025 14:30",
     size: "2.4 MB",
     status: "ready"
   },
@@ -79,8 +79,8 @@ const recentReports: GeneratedReport[] = [
     id: "RPT-002",
     type: "alerts",
     format: "excel",
-    name: "Alerts_Dec2024.xlsx",
-    generatedAt: "2024-12-04 12:15",
+    name: "Alerts_Dec2025.xlsx",
+    generatedAt: "Nov 25, 2025 12:15",
     size: "1.8 MB",
     status: "ready"
   },
@@ -88,8 +88,8 @@ const recentReports: GeneratedReport[] = [
     id: "RPT-003",
     type: "transactions",
     format: "csv",
-    name: "Transactions_Export_20241204.csv",
-    generatedAt: "2024-12-04 10:00",
+    name: "Transactions_Export_20251122.csv",
+    generatedAt: "Nov 22, 2025 10:00",
     size: "5.2 MB",
     status: "ready"
   },
@@ -97,8 +97,8 @@ const recentReports: GeneratedReport[] = [
     id: "RPT-004",
     type: "watchlist",
     format: "pdf",
-    name: "Watchlist_Snapshot_Dec2024.pdf",
-    generatedAt: "2024-12-03 16:45",
+    name: "Watchlist_Snapshot_Dec2025.pdf",
+    generatedAt: "Nov 18, 2025 16:45",
     size: "890 KB",
     status: "ready"
   }
@@ -211,14 +211,15 @@ export default function ReportsPage() {
     // Simulate report generation
     await new Promise(resolve => setTimeout(resolve, 2500))
 
+    const now = new Date()
     const newReport: GeneratedReport = {
       id: `RPT-${Date.now()}`,
       type: config.type,
       format: config.format,
       name: config.type === "wallet" 
         ? `Wallet_${config.address?.slice(0, 8)}...${config.address?.slice(-4)}_Report${formatConfig[config.format].extension}`
-        : `${reportTypeConfig[config.type].label.replace(/\s/g, "_")}_${new Date().toISOString().split("T")[0]}${formatConfig[config.format].extension}`,
-      generatedAt: new Date().toLocaleString(),
+        : `${reportTypeConfig[config.type].label.replace(/\s/g, "_")}_${now.toISOString().split("T")[0]}${formatConfig[config.format].extension}`,
+      generatedAt: now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
       size: `${(Math.random() * 5 + 0.5).toFixed(1)} MB`,
       status: "ready"
     }
@@ -460,7 +461,7 @@ export default function ReportsPage() {
                   <div className="aspect-[8.5/11] bg-white/5 rounded-lg p-4 text-xs space-y-3">
                     <div className="flex items-center justify-between border-b border-yellow-500/30 pb-2">
                       <span className="text-yellow-400 font-bold">CRYPTOGUARD</span>
-                      <span className="text-gray-500">Generated: {new Date().toLocaleDateString()}</span>
+                      <span className="text-gray-500">Generated: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                     </div>
                     
                     <div className="text-center py-2">
