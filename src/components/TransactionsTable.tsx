@@ -22,7 +22,7 @@ export default function TransactionsTable() {
           <tbody>
             {txs.slice(0, 10).map((t) => (
               <tr key={t.id} className="border-t border-yellow-500/20">
-                <td className="py-2 pr-3 sm:pr-4 font-mono text-gray-300 whitespace-nowrap">…{t.id.slice(-8)}</td>
+                <td className="py-2 pr-3 sm:pr-4 font-mono text-gray-300 whitespace-nowrap">{t.id}</td>
                 <td className="py-2 pr-3 sm:pr-4 text-foreground whitespace-nowrap">${t.amount.toLocaleString()}</td>
                 <td className="py-2 pr-3 sm:pr-4 text-foreground whitespace-nowrap">{t.from}</td>
                 <td className="py-2 pr-3 sm:pr-4 text-foreground whitespace-nowrap">{t.to}</td>
