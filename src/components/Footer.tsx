@@ -34,7 +34,7 @@ export default function Footer() {
               <Moon className="size-4 sm:size-5" />
             )}
           </button>
-          <span className="text-[10px] sm:text-xs text-gray-400">© {new Date().getFullYear()} Cryptoguard</span>
+          <span className="text-[10px] sm:text-xs text-gray-400">© 2025 Cryptoguard</span>
         </div>
       </div>
     </footer>
