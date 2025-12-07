@@ -27,46 +27,48 @@ export function StickyCTA({ onOpenDemo, onOpenRegister }: StickyCTAProps) {
   if (!isVisible) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 animate-in slide-in-from-bottom duration-300">
-      <div className="mx-auto max-w-4xl rounded-2xl border border-yellow-500/50 bg-black/95 backdrop-blur-lg shadow-[0_-4px_40px_#ffd70033] overflow-hidden">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4">
+    <div className="fixed bottom-0 left-0 right-0 z-50 p-2 sm:p-4 animate-in slide-in-from-bottom duration-300">
+      <div className="mx-auto max-w-4xl rounded-xl sm:rounded-2xl border border-yellow-500/50 bg-black/95 backdrop-blur-lg shadow-[0_-4px_40px_#ffd70033] overflow-hidden">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4">
           {/* Content */}
-          <div className="flex items-center gap-3 text-center sm:text-left">
-            <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full bg-yellow-500 shadow-[0_0_20px_#ffd70066]">
-              <Sparkles className="size-5 text-black" />
+          <div className="flex items-center gap-2 sm:gap-3 text-center sm:text-left w-full sm:w-auto">
+            <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-yellow-500 shadow-[0_0_20px_#ffd70066] flex-shrink-0">
+              <Sparkles className="size-4 sm:size-5 text-black" />
             </div>
-            <div>
-              <p className="text-sm font-bold text-yellow-300">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs sm:text-sm font-bold text-yellow-300 truncate">
                 Ready to protect your crypto?
               </p>
-              <p className="text-xs text-gray-400">
-                Start your free trial today — no credit card required
+              <p className="text-[10px] sm:text-xs text-gray-400 truncate">
+                Start free trial — no credit card
               </p>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <Button
               onClick={onOpenDemo}
               variant="outline"
-              className="h-9 rounded-full border-yellow-500/50 px-4 text-sm text-yellow-300 hover:bg-yellow-500/10 hover:text-yellow-200"
+              className="flex-1 sm:flex-none h-8 sm:h-9 rounded-full border-yellow-500/50 px-3 sm:px-4 text-xs sm:text-sm text-yellow-300 hover:bg-yellow-500/10 hover:text-yellow-200 active:scale-95"
             >
-              Live Demo
+              <span className="hidden sm:inline">Live Demo</span>
+              <span className="sm:hidden">Demo</span>
             </Button>
             <Button
               onClick={onOpenRegister}
-              className="h-9 rounded-full bg-yellow-500 px-4 text-sm text-black font-semibold hover:bg-yellow-400 shadow-[0_0_20px_#ffd70066]"
+              className="flex-1 sm:flex-none h-8 sm:h-9 rounded-full bg-yellow-500 px-3 sm:px-4 text-xs sm:text-sm text-black font-semibold hover:bg-yellow-400 shadow-[0_0_20px_#ffd70066] active:scale-95"
             >
-              Get Started
-              <ArrowRight className="size-4 ml-1" />
+              <span className="hidden sm:inline">Get Started</span>
+              <span className="sm:hidden">Start</span>
+              <ArrowRight className="size-3 sm:size-4 ml-1" />
             </Button>
             <button
               onClick={() => setIsDismissed(true)}
-              className="p-1.5 rounded-full text-gray-500 hover:text-gray-300 hover:bg-gray-800 transition-colors"
+              className="p-1.5 rounded-full text-gray-500 hover:text-gray-300 hover:bg-gray-800 transition-colors active:scale-95"
               aria-label="Dismiss"
             >
-              <X className="size-4" />
+              <X className="size-3.5 sm:size-4" />
             </button>
           </div>
         </div>

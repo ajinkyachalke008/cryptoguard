@@ -65,15 +65,15 @@ function AnimatedCounter({ value, suffix, duration = 2000 }: { value: number; su
 
 function StatCard({ icon, value, suffix, label, duration }: StatProps) {
   return (
-    <div className="group relative flex items-center gap-3 rounded-xl border border-yellow-500/40 bg-black/60 px-4 py-3 backdrop-blur-sm shadow-[0_0_20px_#ffd70022] transition-all duration-300 hover:border-yellow-500/70 hover:shadow-[0_0_30px_#ffd70044] hover:scale-[1.02]">
-      <div className="flex items-center justify-center rounded-lg bg-gradient-to-br from-yellow-400 to-yellow-600 p-2 shadow-[0_0_15px_#ffd70066]">
-        {icon}
+    <div className="group relative flex items-center gap-2 sm:gap-3 rounded-lg sm:rounded-xl border border-yellow-500/40 bg-black/60 px-3 sm:px-4 py-2.5 sm:py-3 backdrop-blur-sm shadow-[0_0_20px_#ffd70022] transition-all duration-300 hover:border-yellow-500/70 hover:shadow-[0_0_30px_#ffd70044] active:scale-95 sm:hover:scale-[1.02]">
+      <div className="flex items-center justify-center rounded-md sm:rounded-lg bg-gradient-to-br from-yellow-400 to-yellow-600 p-1.5 sm:p-2 shadow-[0_0_15px_#ffd70066] flex-shrink-0">
+        <div className="scale-90 sm:scale-100">{icon}</div>
       </div>
-      <div>
-        <div className="text-xl font-black bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent">
+      <div className="min-w-0 flex-1">
+        <div className="text-base sm:text-xl font-black bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent truncate">
           <AnimatedCounter value={value} suffix={suffix} duration={duration} />
         </div>
-        <div className="text-xs text-gray-400 font-medium">{label}</div>
+        <div className="text-[10px] sm:text-xs text-gray-400 font-medium truncate">{label}</div>
       </div>
     </div>
   )
@@ -81,14 +81,14 @@ function StatCard({ icon, value, suffix, label, duration }: StatProps) {
 
 export function FloatingStats() {
   const stats = [
-    { icon: <Shield className="size-5 text-black" />, value: 2500000000, suffix: "", label: "Protected Volume", displayValue: "$2.5B+" },
-    { icon: <Wallet className="size-5 text-black" />, value: 50000, suffix: "+", label: "Wallets Scanned" },
-    { icon: <Activity className="size-5 text-black" />, value: 1200000, suffix: "+", label: "Transactions Analyzed" },
-    { icon: <TrendingUp className="size-5 text-black" />, value: 99, suffix: ".9%", label: "Detection Accuracy" },
+    { icon: <Shield className="size-4 sm:size-5 text-black" />, value: 2500000000, suffix: "", label: "Protected Volume", displayValue: "$2.5B+" },
+    { icon: <Wallet className="size-4 sm:size-5 text-black" />, value: 50000, suffix: "+", label: "Wallets Scanned" },
+    { icon: <Activity className="size-4 sm:size-5 text-black" />, value: 1200000, suffix: "+", label: "Transactions Analyzed" },
+    { icon: <TrendingUp className="size-4 sm:size-5 text-black" />, value: 99, suffix: ".9%", label: "Detection Accuracy" },
   ]
 
   return (
-    <div className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
+    <div className="mt-6 sm:mt-8 lg:mt-10 grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 max-w-4xl mx-auto px-2">
       {stats.map((stat, idx) => (
         <StatCard
           key={idx}
