@@ -53,7 +53,7 @@ const desktopApps: DownloadItem[] = [
     version: "v2.5.0",
     size: "156 MB",
     platform: "Windows 10/11 (64-bit)",
-    releaseDate: "Dec 4, 2024",
+    releaseDate: "Nov 28, 2025",
     downloads: "24.5K",
     icon: Monitor,
     featured: true
@@ -65,7 +65,7 @@ const desktopApps: DownloadItem[] = [
     version: "v2.5.0",
     size: "142 MB",
     platform: "macOS 12+ (Universal)",
-    releaseDate: "Dec 4, 2024",
+    releaseDate: "Nov 28, 2025",
     downloads: "18.2K",
     icon: Apple,
     featured: true
@@ -77,7 +77,7 @@ const desktopApps: DownloadItem[] = [
     version: "v2.5.0",
     size: "168 MB",
     platform: "Ubuntu/Debian/Fedora",
-    releaseDate: "Dec 4, 2024",
+    releaseDate: "Nov 28, 2025",
     downloads: "9.8K",
     icon: Boxes
   }
@@ -91,7 +91,7 @@ const mobileApps: DownloadItem[] = [
     version: "v1.8.2",
     size: "89 MB",
     platform: "iOS 15.0 or later",
-    releaseDate: "Dec 2, 2024",
+    releaseDate: "Nov 22, 2025",
     downloads: "45.3K",
     icon: Smartphone,
     featured: true
@@ -103,7 +103,7 @@ const mobileApps: DownloadItem[] = [
     version: "v1.8.1",
     size: "72 MB",
     platform: "Android 9.0+",
-    releaseDate: "Dec 1, 2024",
+    releaseDate: "Nov 18, 2025",
     downloads: "62.7K",
     icon: Smartphone,
     featured: true
@@ -118,7 +118,7 @@ const browserExtensions: DownloadItem[] = [
     version: "v3.1.4",
     size: "4.2 MB",
     platform: "Chrome/Edge/Brave",
-    releaseDate: "Dec 5, 2024",
+    releaseDate: "Dec 1, 2025",
     downloads: "127.5K",
     icon: Chrome,
     featured: true
@@ -130,7 +130,7 @@ const browserExtensions: DownloadItem[] = [
     version: "v3.1.2",
     size: "4.5 MB",
     platform: "Firefox 90+",
-    releaseDate: "Dec 3, 2024",
+    releaseDate: "Nov 25, 2025",
     downloads: "34.8K",
     icon: Globe
   }
@@ -329,7 +329,7 @@ Email: support@cryptoguard.com
 Community: https://community.cryptoguard.com
 
 ===========================================
-© 2024 CryptoGuard. All rights reserved.
+© 2025 CryptoGuard. All rights reserved.
 ===========================================
     `.trim()
     
