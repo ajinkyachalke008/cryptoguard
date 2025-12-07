@@ -120,7 +120,7 @@ Email: support@cryptoguard.com
 Community: https://community.cryptoguard.com
 
 ===========================================
-© 2024 CryptoGuard. All rights reserved.
+© 2025 CryptoGuard. All rights reserved.
 ===========================================
     `.trim()
     
