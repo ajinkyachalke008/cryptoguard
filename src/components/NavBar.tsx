@@ -28,7 +28,8 @@ import {
   Image,
   Store,
   MessageSquare,
-  ChevronDown
+  ChevronDown,
+  TrendingUp
 } from "lucide-react"
 
 const mainNavItems = [
@@ -46,6 +47,7 @@ const scannerItems = [
 
 const toolItems = [
   { href: "/watchlist", label: "Watchlist", icon: Eye },
+  { href: "/crypto-watchlist", label: "Crypto Watchlist", icon: TrendingUp },
   { href: "/alerts", label: "Alerts", icon: Bell },
   { href: "/graph", label: "Graph Explorer", icon: Network },
   { href: "/reports", label: "Reports", icon: Download },
