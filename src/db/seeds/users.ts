@@ -5,39 +5,39 @@ async function main() {
     const sampleUsers = [
         {
             email: 'admin@cryptoguard.io',
-            passwordHash: '$2b$10$rKJ8F3xE9mN2pQ7wV5yL.eHzX4cT6bA9sD1fG8hK2jL3mN4oP5qR6',
+            passwordHash: '$2b$10$YQZ8kR9vJ3mK4pL7nX2wEeB5tH6gF8dC1aS9wQ3mK4pL7nX2wEeB5t',
             role: 'admin',
-            createdAt: new Date('2024-01-15T08:30:00Z').toISOString(),
-            updatedAt: new Date('2024-01-15T08:30:00Z').toISOString(),
+            createdAt: new Date('2024-10-15T09:30:00.000Z').toISOString(),
+            updatedAt: new Date('2024-12-20T14:45:00.000Z').toISOString(),
         },
         {
             email: 'analyst@cryptoguard.io',
-            passwordHash: '$2b$10$sL4mH6yG1pR9tX3wZ8aM.fJzY5dU7cB0vE2gI9kM3nO4pQ6rS7tU8',
+            passwordHash: '$2b$10$mK4pL7nX2wEeB5tH6gF8dC1aS9wQ3mK4pL7nX2wEeB5tH6gF8dC1a',
             role: 'user',
-            createdAt: new Date('2024-02-01T10:15:00Z').toISOString(),
-            updatedAt: new Date('2024-02-01T10:15:00Z').toISOString(),
+            createdAt: new Date('2024-11-02T11:15:00.000Z').toISOString(),
+            updatedAt: new Date('2024-12-18T16:20:00.000Z').toISOString(),
         },
         {
             email: 'security@cryptoguard.io',
-            passwordHash: '$2b$10$tM5nI7zH2qS0uY4xA9bN.gKaZ6eV8dC1wF3hJ0lN4oP5qR7sT8uV9',
+            passwordHash: '$2b$10$pL7nX2wEeB5tH6gF8dC1aS9wQ3mK4pL7nX2wEeB5tH6gF8dC1aS9w',
             role: 'user',
-            createdAt: new Date('2024-02-10T14:45:00Z').toISOString(),
-            updatedAt: new Date('2024-02-10T14:45:00Z').toISOString(),
+            createdAt: new Date('2024-11-10T08:45:00.000Z').toISOString(),
+            updatedAt: new Date('2024-12-19T10:30:00.000Z').toISOString(),
         },
         {
             email: 'monitor@cryptoguard.io',
-            passwordHash: '$2b$10$uN6oJ8aI3rT1vZ5yB0cO.hLbA7fW9eD2xG4iK1mO5pQ6rS8tU9vW0',
+            passwordHash: '$2b$10$X2wEeB5tH6gF8dC1aS9wQ3mK4pL7nX2wEeB5tH6gF8dC1aS9wQ3mK',
             role: 'user',
-            createdAt: new Date('2024-03-05T09:20:00Z').toISOString(),
-            updatedAt: new Date('2024-03-05T09:20:00Z').toISOString(),
+            createdAt: new Date('2024-11-18T13:20:00.000Z').toISOString(),
+            updatedAt: new Date('2024-12-21T09:15:00.000Z').toISOString(),
         },
         {
             email: 'auditor@cryptoguard.io',
-            passwordHash: '$2b$10$vO7pK9bJ4sU2wA6zC1dP.iMcB8gX0fE3yH5jL2nP6qR7sT9uV0wX1',
+            passwordHash: '$2b$10$EeB5tH6gF8dC1aS9wQ3mK4pL7nX2wEeB5tH6gF8dC1aS9wQ3mK4pL',
             role: 'user',
-            createdAt: new Date('2024-03-15T11:30:00Z').toISOString(),
-            updatedAt: new Date('2024-03-15T11:30:00Z').toISOString(),
-        },
+            createdAt: new Date('2024-11-25T15:00:00.000Z').toISOString(),
+            updatedAt: new Date('2024-12-22T11:45:00.000Z').toISOString(),
+        }
     ];
 
     await db.insert(users).values(sampleUsers);
