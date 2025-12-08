@@ -174,6 +174,27 @@
       text-shadow: 0 0 16px currentColor, 0 0 32px currentColor, 0 0 48px rgba(255,215,0,1), 0 0 80px rgba(255,215,0,0.8);
     }
   }
+
+  @keyframes scan-line {
+    0% {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.25;
+    }
+    50% {
+      transform: translateY(0%);
+      opacity: 0.25;
+    }
+    90% {
+      opacity: 0.25;
+    }
+    100% {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+  }
 }
 
 /* Hide Next.js error overlay portal */
