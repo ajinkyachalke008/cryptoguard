@@ -10,7 +10,7 @@ export const users = sqliteTable('users', {
   updatedAt: text('updated_at').notNull(),
 });
 
-// Wallet scans table
+// Wallet scans table - renamed fields to match new schema
 export const walletScans = sqliteTable('wallet_scans', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   userId: integer('user_id').references(() => users.id),
