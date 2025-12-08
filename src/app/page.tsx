@@ -139,6 +139,9 @@ Community: https://community.cryptoguard.com
           {/* Animated shader-esque gradient + particles */}
           <div className="absolute inset-0 bg-[radial-gradient(1200px_600px_at_50%_-20%,rgba(255,215,0,0.15),transparent_60%),radial-gradient(800px_400px_at_80%_30%,rgba(255,215,0,0.10),transparent_60%),linear-gradient(180deg,transparent,rgba(0,0,0,0.8))]" />
           <NeonParticles />
+          
+          {/* Radial focus glow behind title */}
+          <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#FFC623] opacity-20 blur-[120px] rounded-full pointer-events-none" />
         </div>
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 lg:pt-20 pb-10 sm:pb-12 text-center">
@@ -148,10 +151,37 @@ Community: https://community.cryptoguard.com
             </span>
           </div>
 
-          <h1 className="mx-auto max-w-4xl text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight px-2">
-            <span className="block bg-[linear-gradient(180deg,#fff7cc_0%,#ffd700_22%,#b58100_50%,#ffd700_78%,#fff7cc_100%)] bg-clip-text text-transparent font-black tracking-tight [text-shadow:0_1px_0_rgba(0,0,0,0.45),0_-1px_0_rgba(255,255,255,0.2),0_0_4px_rgba(255,215,0,0.6),0_0_8px_rgba(255,215,0,0.4),0_0_12px_rgba(255,215,0,0.5),0_0_16px_rgba(255,215,0,0.3)]">
-              Cryptoguard
+          {/* Enhanced Premium Hero Title */}
+          <h1 className="mx-auto max-w-4xl px-2 mb-2">
+            <span className="relative inline-block text-[30px] sm:text-[40px] md:text-[52px] lg:text-[64px] font-black tracking-[-0.02em] leading-[1.05] sm:leading-[1.1]">
+              {/* Main text with metallic gradient */}
+              <span className="relative inline-block bg-[linear-gradient(180deg,#B8860B_0%,#FFD53A_45%,#8A6A12_100%)] bg-clip-text text-transparent [text-shadow:0_10px_22px_rgba(0,0,0,0.7)]" style={{
+                filter: 'drop-shadow(0 0 24px rgba(255, 213, 58, 0.45)) drop-shadow(0 0 12px rgba(255, 235, 138, 0.25))'
+              }}>
+                {/* Specular highlight overlay */}
+                <span className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,246,208,0.55)_0%,transparent_30%)] bg-clip-text [-webkit-text-fill-color:transparent] pointer-events-none" style={{
+                  WebkitMaskImage: 'linear-gradient(180deg, white 0%, transparent 30%)',
+                  maskImage: 'linear-gradient(180deg, white 0%, transparent 30%)'
+                }}>
+                  Cryptoguard
+                </span>
+                
+                {/* Scan line animation */}
+                <span className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <span className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-yellow-300/25 to-transparent animate-[scan-line_4s_ease-in-out_infinite]" />
+                </span>
+                
+                {/* Main text */}
+                Cryptoguard
+              </span>
+              
+              {/* Subtle noise texture overlay */}
+              <span className="absolute inset-0 opacity-[0.08] pointer-events-none mix-blend-overlay" style={{
+                backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'3.5\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")',
+                backgroundSize: '200px 200px'
+              }} />
             </span>
+            
             <span className="mt-2 block text-[oklch(0.86_0.16_100)] drop-shadow-[0_0_20px_#ffd70080] text-xl sm:text-2xl md:text-3xl lg:text-4xl">
               <TypeWriter 
                 words={[
@@ -166,6 +196,7 @@ Community: https://community.cryptoguard.com
               />
             </span>
           </h1>
+          
           <p className="mx-auto mt-3 sm:mt-4 max-w-2xl text-balance text-xs sm:text-sm lg:text-base text-gray-300 px-4">
             Monitor global crypto transactions in real-time, identify risky flows, and stop fraud with a hybrid AI engine.
           </p>
