@@ -1,11 +1,12 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Mic, Sparkles, Sun, Moon, Menu, X } from "lucide-react"
+import { Mic, Sparkles, Sun, Moon, Menu, X, LogOut, User } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { RegistrationModal } from "./RegistrationModal"
+import { useAuth } from "@/contexts/AuthContext"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,6 +58,7 @@ const toolItems = [
 
 export default function NavBar() {
   const { theme, setTheme } = useTheme()
+  const { user, logout, isAuthenticated } = useAuth()
   const [open, setOpen] = useState(false)
   const [askOpen, setAskOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -145,7 +147,6 @@ export default function NavBar() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Tools - show first 4, then Downloads */}
           {toolItems.slice(0, 4).map((item) => {
             const isActive = isPathActive(item.href)
             const Icon = item.icon
@@ -167,7 +168,6 @@ export default function NavBar() {
             )
           })}
           
-          {/* Downloads Button - Highlighted */}
           <Button
             variant="ghost"
             size="sm"
@@ -193,13 +193,59 @@ export default function NavBar() {
           >
             <MessageSquare className="size-4 mr-2" /> Ask AI
           </Button>
-          <Button
-            size="sm"
-            className="hidden sm:flex bg-yellow-500 hover:bg-yellow-400 text-black shadow-[0_0_20px_#ffd70066] font-semibold"
-            onClick={() => setOpen(true)}
-          >
-            Register
-          </Button>
+          
+          {/* Auth Buttons */}
+          {isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  size="sm"
+                  className="hidden sm:flex bg-yellow-500 hover:bg-yellow-400 text-black shadow-[0_0_20px_#ffd70066] font-semibold"
+                >
+                  <User className="size-4 mr-2" />
+                  {user?.email.split('@')[0]}
+                  <ChevronDown className="size-3 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-48 bg-black/95 border-yellow-500/30 backdrop-blur-sm">
+                <DropdownMenuLabel className="text-yellow-400">{user?.email}</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-yellow-500/20" />
+                <DropdownMenuItem
+                  onClick={() => router.push("/dashboard")}
+                  className="cursor-pointer text-gray-300 hover:text-yellow-300 hover:bg-yellow-500/10"
+                >
+                  <LayoutDashboard className="size-4 mr-2" />
+                  Dashboard
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={logout}
+                  className="cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                >
+                  <LogOut className="size-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                className="hidden sm:flex border-yellow-500/50 text-yellow-300 hover:text-yellow-200"
+                onClick={() => router.push("/login")}
+              >
+                Login
+              </Button>
+              <Button
+                size="sm"
+                className="hidden sm:flex bg-yellow-500 hover:bg-yellow-400 text-black shadow-[0_0_20px_#ffd70066] font-semibold"
+                onClick={() => setOpen(true)}
+              >
+                Register
+              </Button>
+            </>
+          )}
+          
           <Button
             variant="ghost"
             size="sm"
@@ -250,7 +296,6 @@ export default function NavBar() {
               )
             })}
 
-            {/* Scanner Section */}
             <div className="pt-2">
               <p className="text-xs text-gray-500 px-3 py-2 font-semibold">SCANNERS</p>
               {scannerItems.map((item) => {
@@ -277,7 +322,6 @@ export default function NavBar() {
               })}
             </div>
 
-            {/* Tools Section */}
             <div className="pt-2">
               <p className="text-xs text-gray-500 px-3 py-2 font-semibold">TOOLS</p>
               {toolItems.map((item) => {
@@ -304,11 +348,11 @@ export default function NavBar() {
               })}
             </div>
 
-            <div className="pt-2 flex gap-2">
+            <div className="pt-2 flex flex-col gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1 border-yellow-500/50 text-yellow-300"
+                className="w-full border-yellow-500/50 text-yellow-300"
                 onClick={() => {
                   router.push("/ask-ai")
                   setMobileMenuOpen(false)
@@ -316,16 +360,59 @@ export default function NavBar() {
               >
                 <MessageSquare className="size-4 mr-2" /> Ask AI
               </Button>
-              <Button
-                size="sm"
-                className="flex-1 bg-yellow-500 text-black"
-                onClick={() => {
-                  setOpen(true)
-                  setMobileMenuOpen(false)
-                }}
-              >
-                Register
-              </Button>
+              
+              {isAuthenticated ? (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full border-yellow-500/50 text-yellow-300"
+                    onClick={() => {
+                      router.push("/dashboard")
+                      setMobileMenuOpen(false)
+                    }}
+                  >
+                    <User className="size-4 mr-2" />
+                    {user?.email}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full border-red-500/50 text-red-400"
+                    onClick={() => {
+                      logout()
+                      setMobileMenuOpen(false)
+                    }}
+                  >
+                    <LogOut className="size-4 mr-2" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full border-yellow-500/50 text-yellow-300"
+                    onClick={() => {
+                      router.push("/login")
+                      setMobileMenuOpen(false)
+                    }}
+                  >
+                    Login
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="w-full bg-yellow-500 text-black"
+                    onClick={() => {
+                      setOpen(true)
+                      setMobileMenuOpen(false)
+                    }}
+                  >
+                    Register
+                  </Button>
+                </>
+              )}
             </div>
           </nav>
         </div>

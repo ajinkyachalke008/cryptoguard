@@ -5,38 +5,35 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
-import { toast } from "sonner"
+import { useAuth } from "@/contexts/AuthContext"
 
 export function RegistrationModal({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const { register } = useAuth()
   const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    organization: '',
+    password: '',
+    confirmPassword: ''
+  })
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    
+    if (formData.password !== formData.confirmPassword) {
+      return
+    }
+
     setLoading(true)
-    const fd = new FormData(e.currentTarget)
-    const body = Object.fromEntries(fd.entries())
     
     try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      })
-      
-      const data = await res.json()
-      
-      if (!res.ok) {
-        toast.error(data.error || "Registration failed. Please try again.")
-        return
-      }
-      
-      toast.success("🎉 Account created successfully! Welcome to CryptoGuard.")
+      await register(formData.email, formData.password, formData.name, formData.organization)
       onOpenChange(false)
-      
       // Reset form
-      e.currentTarget.reset()
+      setFormData({ name: '', email: '', organization: '', password: '', confirmPassword: '' })
     } catch (error) {
-      toast.error("Network error. Please check your connection and try again.")
+      // Error handled in context
     } finally {
       setLoading(false)
     }
@@ -56,7 +53,9 @@ export function RegistrationModal({ open, onOpenChange }: { open: boolean; onOpe
             <Label htmlFor="name" className="text-gray-300">Name</Label>
             <Input 
               id="name" 
-              name="name" 
+              name="name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required 
               placeholder="John Doe"
               className="bg-black/40 border-yellow-500/30 focus:border-yellow-500/60" 
@@ -67,7 +66,9 @@ export function RegistrationModal({ open, onOpenChange }: { open: boolean; onOpe
             <Input 
               id="email" 
               type="email" 
-              name="email" 
+              name="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required 
               placeholder="john@example.com"
               className="bg-black/40 border-yellow-500/30 focus:border-yellow-500/60" 
@@ -77,7 +78,9 @@ export function RegistrationModal({ open, onOpenChange }: { open: boolean; onOpe
             <Label htmlFor="org" className="text-gray-300">Organization (Optional)</Label>
             <Input 
               id="org" 
-              name="organization" 
+              name="organization"
+              value={formData.organization}
+              onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
               placeholder="Your Company"
               className="bg-black/40 border-yellow-500/30 focus:border-yellow-500/60" 
             />
@@ -87,7 +90,9 @@ export function RegistrationModal({ open, onOpenChange }: { open: boolean; onOpe
             <Input 
               id="pw" 
               type="password" 
-              name="password" 
+              name="password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required 
               placeholder="••••••••"
               minLength={8}
@@ -95,9 +100,26 @@ export function RegistrationModal({ open, onOpenChange }: { open: boolean; onOpe
             />
             <p className="text-xs text-gray-500">Minimum 8 characters</p>
           </div>
+          <div className="grid gap-2">
+            <Label htmlFor="confirmPw" className="text-gray-300">Confirm Password</Label>
+            <Input 
+              id="confirmPw" 
+              type="password" 
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+              required 
+              placeholder="••••••••"
+              minLength={8}
+              className="bg-black/40 border-yellow-500/30 focus:border-yellow-500/60" 
+            />
+            {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+              <p className="text-xs text-red-400">Passwords do not match</p>
+            )}
+          </div>
           <Button 
             type="submit" 
-            disabled={loading} 
+            disabled={loading || formData.password !== formData.confirmPassword} 
             className="bg-yellow-500 text-black hover:bg-yellow-400 font-semibold shadow-[0_0_24px_#ffd70066] transition-all hover:shadow-[0_0_32px_#ffd70088]"
           >
             {loading ? "Creating Account..." : "Create Account"}
