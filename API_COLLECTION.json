@@ -1,0 +1,654 @@
+{
+  "info": {
+    "name": "CryptoGuard API Collection",
+    "description": "Complete API collection for CryptoGuard fraud detection platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "2.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePass123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Register a new user account"
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response.token) {",
+                  "    pm.collectionVariables.set('authToken', response.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePass123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login and receive JWT token"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Wallet Scanning",
+      "item": [
+        {
+          "name": "Scan Wallet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"walletAddress\": \"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb\",\n  \"chain\": \"eth\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/wallet-scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "wallet-scan"]
+            },
+            "description": "Scan a wallet address for fraud risk"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Scan History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/wallet-scan/history?limit=20&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "wallet-scan", "history"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Get user's wallet scan history"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Scan by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/wallet-scan/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "wallet-scan", "1"]
+            },
+            "description": "Get specific wallet scan by ID"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transaction Scanning",
+      "item": [
+        {
+          "name": "Scan Transaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"txHash\": \"0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abc\",\n  \"chain\": \"eth\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/transaction-scans",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transaction-scans"]
+            },
+            "description": "Scan a transaction hash for fraud risk"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Protocol Scanning",
+      "item": [
+        {
+          "name": "Scan Protocol",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"protocolName\": \"UniswapV3\",\n  \"contractAddress\": \"0x1F98431c8aD98523631AE4a59f267346ea31F984\",\n  \"blockchain\": \"ethereum\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/protocol-scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "protocol-scan"]
+            },
+            "description": "Analyze DeFi protocol risk"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Protocol Scan History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/protocol-scan/history",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "protocol-scan", "history"]
+            },
+            "description": "Get protocol scan history"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "NFT Scanning",
+      "item": [
+        {
+          "name": "Scan NFT Collection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"collectionName\": \"Bored Ape Yacht Club\",\n  \"contractAddress\": \"0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/nft-scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "nft-scan"]
+            },
+            "description": "Scan NFT collection for wash trading and fake volume"
+          },
+          "response": []
+        },
+        {
+          "name": "Get NFT Scan History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/nft-scan/history",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "nft-scan", "history"]
+            },
+            "description": "Get NFT scan history"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Marketplace Scanning",
+      "item": [
+        {
+          "name": "Scan Marketplace",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marketplaceName\": \"OpenSea\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/marketplace-scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "marketplace-scan"]
+            },
+            "description": "Analyze marketplace risk profile"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Alerts",
+      "item": [
+        {
+          "name": "Get Alerts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/alerts?severity=high&status=active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "alerts"],
+              "query": [
+                {
+                  "key": "severity",
+                  "value": "high"
+                },
+                {
+                  "key": "status",
+                  "value": "active"
+                }
+              ]
+            },
+            "description": "Get filtered alerts"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Alert Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"resolved\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/alerts/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "alerts", "1"]
+            },
+            "description": "Update alert status (resolve/dismiss)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Watchlist",
+      "item": [
+        {
+          "name": "Get Watchlist",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/watchlist",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watchlist"]
+            },
+            "description": "Get user's watchlist"
+          },
+          "response": []
+        },
+        {
+          "name": "Add to Watchlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"walletAddress\": \"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb\",\n  \"blockchain\": \"ethereum\",\n  \"label\": \"Suspicious Wallet\",\n  \"riskThreshold\": 70\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/watchlist",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watchlist"]
+            },
+            "description": "Add address to watchlist"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete from Watchlist",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/watchlist/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "watchlist", "1"]
+            },
+            "description": "Remove address from watchlist"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Generate Report",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reportType\": \"wallet_analysis\",\n  \"entityAddress\": \"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb\",\n  \"blockchain\": \"ethereum\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "generate"]
+            },
+            "description": "Generate compliance report"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Reports",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports"]
+            },
+            "description": "Get user's reports"
+          },
+          "response": []
+        },
+        {
+          "name": "Download Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/1/download",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "1", "download"]
+            },
+            "description": "Download report PDF"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "AI Chat",
+      "item": [
+        {
+          "name": "Start New Conversation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contextType\": \"wallet\",\n  \"contextData\": {\n    \"address\": \"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai-chat/new",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai-chat", "new"]
+            },
+            "description": "Start a new AI conversation"
+          },
+          "response": []
+        },
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"What are the main risks with this wallet?\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai-chat/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai-chat", "1"]
+            },
+            "description": "Send message in conversation"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Analytics",
+      "item": [
+        {
+          "name": "Get Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/stats?period=30d",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "stats"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "30d",
+                  "description": "7d, 30d, or 90d"
+                }
+              ]
+            },
+            "description": "Get platform statistics (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Trends",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics/trends?period=7d&metric=risk_score",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics", "trends"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "7d",
+                  "description": "7d, 30d, or 90d"
+                },
+                {
+                  "key": "metric",
+                  "value": "risk_score",
+                  "description": "risk_score, scans, or alerts"
+                }
+              ]
+            },
+            "description": "Get trend analysis (Admin only)"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
