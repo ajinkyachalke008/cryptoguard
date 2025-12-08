@@ -4,8 +4,10 @@ import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core';
 export const users = sqliteTable('users', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   email: text('email').notNull().unique(),
-  name: text('name').notNull(),
+  passwordHash: text('password_hash').notNull(),
+  role: text('role').notNull().default('user'),
   createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
 });
 
 // Wallet scans table
@@ -13,13 +15,41 @@ export const walletScans = sqliteTable('wallet_scans', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   userId: integer('user_id').references(() => users.id),
   walletAddress: text('wallet_address').notNull(),
-  blockchain: text('blockchain').notNull(),
+  chain: text('chain').notNull(),
+  rawData: text('raw_data', { mode: 'json' }),
   riskScore: integer('risk_score').notNull(),
-  scanType: text('scan_type').notNull(),
-  sanctionsStatus: text('sanctions_status'),
-  pepRiskLevel: text('pep_risk_level'),
+  riskLevel: text('risk_level').notNull(),
+  tags: text('tags', { mode: 'json' }),
+  aiExplanation: text('ai_explanation'),
+  ruleBasedFlags: text('rule_based_flags', { mode: 'json' }),
   createdAt: text('created_at').notNull(),
-  scanData: text('scan_data', { mode: 'json' }),
+});
+
+// Transaction scans table
+export const transactionScans = sqliteTable('transaction_scans', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').references(() => users.id),
+  txHash: text('tx_hash').notNull(),
+  chain: text('chain').notNull(),
+  rawData: text('raw_data', { mode: 'json' }),
+  riskScore: integer('risk_score').notNull(),
+  riskLevel: text('risk_level').notNull(),
+  tags: text('tags', { mode: 'json' }),
+  aiExplanation: text('ai_explanation'),
+  ruleBasedFlags: text('rule_based_flags', { mode: 'json' }),
+  createdAt: text('created_at').notNull(),
+});
+
+// Scan logs table
+export const scanLogs = sqliteTable('scan_logs', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  type: text('type').notNull(),
+  identifier: text('identifier').notNull(),
+  userId: integer('user_id').references(() => users.id),
+  status: text('status').notNull(),
+  errorMessage: text('error_message'),
+  durationMs: integer('duration_ms').notNull(),
+  createdAt: text('created_at').notNull(),
 });
 
 // Protocol scans table
