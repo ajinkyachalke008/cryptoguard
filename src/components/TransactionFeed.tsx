@@ -35,6 +35,19 @@ export default function TransactionFeed() {
     })
   }
 
+  // Generate realistic transaction times (slightly staggered from current time)
+  const getTransactionTime = (index: number) => {
+    const now = new Date()
+    // Subtract seconds based on index to simulate recent transactions
+    const txTime = new Date(now.getTime() - (index * 3000)) // 3 seconds apart
+    return txTime.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit',
+      hour12: false 
+    })
+  }
+
   return (
     <div className="rounded-lg sm:rounded-xl border border-yellow-500/40 bg-black/60 p-3 sm:p-4 backdrop-blur shadow-[0_0_30px_#ffd70033]">
       <div className="flex items-center justify-between mb-2 sm:mb-3">
@@ -60,7 +73,7 @@ export default function TransactionFeed() {
         </div>
       </div>
       <div className="max-h-64 overflow-y-auto space-y-2 pr-1 sm:pr-2 custom-scrollbar">
-        {txs.map((t) => (
+        {txs.map((t, index) => (
           <div
             key={t.id}
             className={cn(
@@ -71,11 +84,19 @@ export default function TransactionFeed() {
             )}
           >
             <div className="flex-1 min-w-0 mr-2">
-              <div className="text-foreground font-medium truncate">
-                {t.from} → {t.to}
+              <div className="flex items-center gap-2 mb-0.5">
+                <div className="text-foreground font-medium truncate">
+                  {t.from} → {t.to}
+                </div>
               </div>
-              <div className="text-gray-400 text-[10px] sm:text-xs truncate">
-                Tx {t.id.slice(-6)} · ${t.amount.toLocaleString()}
+              <div className="flex items-center gap-2 text-gray-400 text-[10px] sm:text-xs">
+                <span className="truncate">
+                  Tx {t.id.slice(-6)} · ${t.amount.toLocaleString()}
+                </span>
+                <span className="flex items-center gap-1 text-yellow-300/80 font-mono shrink-0">
+                  <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                  {getTransactionTime(index)}
+                </span>
               </div>
             </div>
             <Badge
