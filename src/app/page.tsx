@@ -19,7 +19,6 @@ import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Sparkles, Zap, Download, Monitor, Smartphone, Chrome, ArrowRight } from "lucide-react"
-import { RegistrationModal } from "@/components/RegistrationModal"
 import { LiveDemoModal } from "@/components/LiveDemoModal"
 import { TypeWriter } from "@/components/TypeWriter"
 import { FloatingStats } from "@/components/FloatingStats"
@@ -39,7 +38,6 @@ const GlobeDemo = dynamic(() => import("@/components/GlobeDemo"), {
 })
 
 export default function Home() {
-  const [regOpen, setRegOpen] = useState(false)
   const [demoOpen, setDemoOpen] = useState(false)
   const [downloading, setDownloading] = useState<string | null>(null)
   const router = useRouter()
