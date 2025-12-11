@@ -18,7 +18,6 @@ import {
   Globe,
   Activity,
   BarChart3,
-  X
 } from "lucide-react"
 import { MiniSparkline } from "./MiniSparkline"
 import type { CryptoData } from "@/lib/types/crypto"
@@ -57,8 +56,8 @@ export function CryptoDetailModal({
       )
       const data = await response.json()
       setDetailData(data)
-    } catch (error) {
-      console.error("Failed to fetch detail data:", error)
+    } catch {
+      setDetailData(null)
     } finally {
       setLoading(false)
     }
