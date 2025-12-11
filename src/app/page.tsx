@@ -2,10 +2,10 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import dynamic from "next/dynamic"
 import NavBar from "@/components/NavBar"
 import NeonParticles from "@/components/NeonParticles"
 import CursorTrail from "@/components/CursorTrail"
-import GlobeDemo from "@/components/GlobeDemo"
 import { GlobeLegend } from "@/components/GlobeLegend"
 import TransactionFeed from "@/components/TransactionFeed"
 import Analytics from "@/components/Analytics"
@@ -27,6 +27,15 @@ import { TryItDemo } from "@/components/TryItDemo"
 import { PricingSection } from "@/components/PricingSection"
 import { FAQSection } from "@/components/FAQSection"
 import { StickyCTA } from "@/components/StickyCTA"
+
+const GlobeDemo = dynamic(() => import("@/components/GlobeDemo"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[600px] w-full rounded-xl bg-black/40 backdrop-blur-sm border border-yellow-500/30 shadow-[0_0_40px_#ffd70033] flex items-center justify-center">
+      <div className="w-16 h-16 rounded-full border-4 border-yellow-500/30 border-t-yellow-500 animate-spin" />
+    </div>
+  ),
+})
 
 export default function Home() {
   const [regOpen, setRegOpen] = useState(false)
