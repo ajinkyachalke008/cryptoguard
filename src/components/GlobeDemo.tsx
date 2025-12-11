@@ -1,6 +1,5 @@
 "use client"
 
-import dynamic from "next/dynamic"
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import { useTransactions, COUNTRIES, TxStatus, Tx } from "@/hooks/useTransactions"
 import { Button } from "@/components/ui/button"
@@ -26,10 +25,6 @@ import {
   Search,
   Camera,
   Download,
-  Rewind,
-  FastForward,
-  SkipBack,
-  SkipForward,
   Clock,
   Sparkles,
   Wifi,
@@ -90,6 +85,7 @@ function GlobeDemoComponent() {
   const mountRef = useRef<HTMLDivElement>(null)
   const { txs } = useTransactions()
   const [mounted, setMounted] = useState(false)
+  const [webglSupported, setWebglSupported] = useState(true)
   const [filter, setFilter] = useState<FilterType>("all")
   const [chainFilter, setChainFilter] = useState<string>("all")
   const [isPlaying, setIsPlaying] = useState(true)
@@ -107,6 +103,7 @@ function GlobeDemoComponent() {
   const [fraudBursts, setFraudBursts] = useState<FraudBurst[]>([])
   const [isMobile, setIsMobile] = useState(false)
   const [showControls, setShowControls] = useState(true)
+  const [globeInitialized, setGlobeInitialized] = useState(false)
 
   const globeRef = useRef<any>(null)
   const rendererRef = useRef<any>(null)
@@ -121,6 +118,8 @@ function GlobeDemoComponent() {
   const burstMeshesRef = useRef<any[]>([])
   const arcLinesRef = useRef<any[]>([])
   const energyRingsRef = useRef<any[]>([])
+  const rafRef = useRef<number>(0)
+  const cleanupRef = useRef<(() => void) | null>(null)
 
   useEffect(() => {
     isPlayingRef.current = isPlaying
@@ -131,6 +130,10 @@ function GlobeDemoComponent() {
     setMounted(true)
     if (typeof window !== 'undefined') {
       setIsMobile(window.innerWidth < 768)
+      const canvas = document.createElement('canvas')
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+      setWebglSupported(!!gl)
+      
       const handleResize = () => setIsMobile(window.innerWidth < 768)
       window.addEventListener("resize", handleResize)
       return () => window.removeEventListener("resize", handleResize)
@@ -240,291 +243,383 @@ function GlobeDemoComponent() {
   }, [filteredTxs])
 
   useEffect(() => {
-    if (!mounted || !mountRef.current) return
+    if (!mounted || !mountRef.current || !webglSupported || globeInitialized) return
+
+    let isCleanedUp = false
+    let animationId = 0
 
     const initGlobe = async () => {
-      const THREE = await import("three")
-      const ThreeGlobeModule = await import("three-globe")
-      const ThreeGlobe = ThreeGlobeModule.default
+      if (isCleanedUp) return
 
-      const container = mountRef.current!
-      const width = container.clientWidth
-      const height = container.clientHeight
+      try {
+        const THREE = await import("three")
+        const ThreeGlobeModule = await import("three-globe")
+        const ThreeGlobe = ThreeGlobeModule.default
 
-      const maxActiveArcs = isMobile ? 300 : 1200
-      const particlesPerArc = isMobile ? 4 : 12
+        if (isCleanedUp || !mountRef.current) return
 
-      const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, alpha: true })
-      renderer.setSize(width, height)
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2))
-      renderer.toneMapping = THREE.ACESFilmicToneMapping
-      renderer.toneMappingExposure = 1.2
-      container.appendChild(renderer.domElement)
-      rendererRef.current = renderer
+        const container = mountRef.current
+        const width = container.clientWidth
+        const height = container.clientHeight
 
-      const scene = new THREE.Scene()
-      sceneRef.current = scene
+        const canvas = document.createElement('canvas')
+        container.appendChild(canvas)
 
-      const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000)
-      camera.position.z = 280
-      cameraRef.current = camera
-
-      const textureUrl = dayNight === "night" || (dayNight === "auto" && new Date().getHours() >= 18)
-        ? "https://unpkg.com/three-globe/example/img/earth-night.jpg"
-        : "https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
-
-      const globe = new (ThreeGlobe as any)()
-        .globeImageUrl(textureUrl)
-        .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png")
-        .showAtmosphere(true)
-        .atmosphereColor(dayNight === "night" ? "#FFD700" : "#87CEEB")
-        .atmosphereAltitude(isMobile ? 0.1 : 0.18)
-
-      globeRef.current = globe
-      scene.add(globe as unknown as THREE.Object3D)
-
-      const ambient = new THREE.AmbientLight(0xffffff, dayNight === "night" ? 0.3 : 0.6)
-      scene.add(ambient)
-      
-      const sunLight = new THREE.DirectionalLight(0xffffff, dayNight === "night" ? 0.5 : 1.0)
-      sunLight.position.set(200, 100, 200)
-      scene.add(sunLight)
-      sunRef.current = sunLight
-
-      const pointLight = new THREE.PointLight(0xffd700, 0.5)
-      pointLight.position.set(-200, 100, -200)
-      scene.add(pointLight)
-
-      if (!isMobile) {
-        const atmosphereGeometry = new THREE.SphereGeometry(102, 64, 64)
-        const atmosphereMaterial = new THREE.ShaderMaterial({
-          vertexShader: `
-            varying vec3 vNormal;
-            varying vec3 vPosition;
-            void main() {
-              vNormal = normalize(normalMatrix * normal);
-              vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
-              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-          `,
-          fragmentShader: `
-            varying vec3 vNormal;
-            varying vec3 vPosition;
-            void main() {
-              vec3 viewDir = normalize(-vPosition);
-              float rim = 1.0 - max(0.0, dot(vNormal, viewDir));
-              rim = pow(rim, 3.0);
-              vec3 atmosphereColor = mix(vec3(0.1, 0.4, 1.0), vec3(1.0, 0.84, 0.0), rim * 0.3);
-              gl_FragColor = vec4(atmosphereColor, rim * 0.4);
-            }
-          `,
-          transparent: true,
-          side: THREE.BackSide,
-          blending: THREE.AdditiveBlending,
-        })
-        const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial)
-        scene.add(atmosphere)
-        atmosphereRef.current = atmosphere
-      }
-
-      const hotspotsGroup = new THREE.Group()
-      hotspotsGroup.name = "hotspots"
-      scene.add(hotspotsGroup)
-
-      const arcParticlesGroup = new THREE.Group()
-      arcParticlesGroup.name = "arcParticles"
-      scene.add(arcParticlesGroup)
-
-      const burstsGroup = new THREE.Group()
-      burstsGroup.name = "bursts"
-      scene.add(burstsGroup)
-
-      const energyLinesGroup = new THREE.Group()
-      energyLinesGroup.name = "energyLines"
-      scene.add(energyLinesGroup)
-
-      let raf = 0
-      let time = 0
-      const animate = () => {
-        raf = requestAnimationFrame(animate)
-        time += 0.016
-
-        if (autoRotateRef.current && isPlayingRef.current) {
-          ;(globe as any).rotation.y += 0.002 * playbackSpeed
+        let renderer: any
+        try {
+          renderer = new THREE.WebGLRenderer({ 
+            canvas,
+            antialias: !isMobile, 
+            alpha: true,
+            powerPreference: "high-performance",
+            failIfMajorPerformanceCaveat: false
+          })
+        } catch (e) {
+          console.warn("WebGL renderer creation failed, using fallback")
+          setWebglSupported(false)
+          return
         }
 
-        if (sunRef.current && dayNight === "auto") {
-          const sunAngle = time * 0.05
-          sunRef.current.position.x = Math.cos(sunAngle) * 300
-          sunRef.current.position.z = Math.sin(sunAngle) * 300
+        if (!renderer.getContext()) {
+          console.warn("WebGL context not available")
+          setWebglSupported(false)
+          return
         }
 
-        hotspotsRef.current.forEach((hotspot, i) => {
-          if (hotspot.ring) {
-            const pulse = 1 + Math.sin(time * 2 + i * 0.5) * 0.2
-            hotspot.ring.scale.setScalar(pulse)
-            hotspot.ring.material.opacity = 0.3 + Math.sin(time * 3 + i) * 0.2
-          }
-          if (hotspot.beacon) {
-            hotspot.beacon.material.opacity = 0.5 + Math.sin(time * 4 + i) * 0.3
-          }
-          if (hotspot.strengthRing) {
-            hotspot.strengthRing.rotation.z = time * 0.5
-            hotspot.strengthRing.material.opacity = 0.2 + Math.sin(time * 2) * 0.1
-          }
+        renderer.setSize(width, height)
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2))
+        renderer.toneMapping = THREE.ACESFilmicToneMapping
+        renderer.toneMappingExposure = 1.2
+        rendererRef.current = renderer
+
+        canvas.addEventListener('webglcontextlost', (e) => {
+          e.preventDefault()
+          console.warn("WebGL context lost")
+          cancelAnimationFrame(animationId)
         })
 
-        arcParticlesRef.current.forEach((particle) => {
-          if (particle.mesh && particle.startPos && particle.endPos && particle.controlPoint) {
-            particle.progress += particle.speed * playbackSpeed
-            if (particle.progress > 1) particle.progress = 0
-            
-            const t = particle.progress
-            const oneMinusT = 1 - t
-            
-            const pos = new THREE.Vector3()
-            pos.x = oneMinusT * oneMinusT * particle.startPos.x + 2 * oneMinusT * t * particle.controlPoint.x + t * t * particle.endPos.x
-            pos.y = oneMinusT * oneMinusT * particle.startPos.y + 2 * oneMinusT * t * particle.controlPoint.y + t * t * particle.endPos.y
-            pos.z = oneMinusT * oneMinusT * particle.startPos.z + 2 * oneMinusT * t * particle.controlPoint.z + t * t * particle.endPos.z
-            
-            particle.mesh.position.copy(pos)
-            
-            const fadeIn = Math.min(1, t * 5)
-            const fadeOut = Math.min(1, (1 - t) * 5)
-            particle.mesh.material.opacity = fadeIn * fadeOut * 0.9
-            
-            const scale = 0.8 + Math.sin(t * Math.PI) * 0.4
-            particle.mesh.scale.setScalar(scale)
+        canvas.addEventListener('webglcontextrestored', () => {
+          console.log("WebGL context restored")
+        })
 
-            if (particle.trail && particle.trail.length > 0) {
-              particle.trail.forEach((trailMesh: any, idx: number) => {
-                const trailT = Math.max(0, t - (idx + 1) * 0.02)
-                const trailOneMinusT = 1 - trailT
-                trailMesh.position.x = trailOneMinusT * trailOneMinusT * particle.startPos.x + 2 * trailOneMinusT * trailT * particle.controlPoint.x + trailT * trailT * particle.endPos.x
-                trailMesh.position.y = trailOneMinusT * trailOneMinusT * particle.startPos.y + 2 * trailOneMinusT * trailT * particle.controlPoint.y + trailT * trailT * particle.endPos.y
-                trailMesh.position.z = trailOneMinusT * trailOneMinusT * particle.startPos.z + 2 * trailOneMinusT * trailT * particle.controlPoint.z + trailT * trailT * particle.endPos.z
-                trailMesh.material.opacity = Math.max(0, (fadeIn * fadeOut * 0.5) * (1 - idx * 0.15))
-                trailMesh.scale.setScalar(scale * (1 - idx * 0.1))
-              })
+        const scene = new THREE.Scene()
+        sceneRef.current = scene
+
+        const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000)
+        camera.position.z = 280
+        cameraRef.current = camera
+
+        const textureUrl = dayNight === "night" || (dayNight === "auto" && new Date().getHours() >= 18)
+          ? "https://unpkg.com/three-globe/example/img/earth-night.jpg"
+          : "https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
+
+        const globe = new (ThreeGlobe as any)()
+          .globeImageUrl(textureUrl)
+          .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png")
+          .showAtmosphere(true)
+          .atmosphereColor(dayNight === "night" ? "#FFD700" : "#87CEEB")
+          .atmosphereAltitude(isMobile ? 0.1 : 0.18)
+
+        globeRef.current = globe
+        scene.add(globe as unknown as THREE.Object3D)
+
+        const ambient = new THREE.AmbientLight(0xffffff, dayNight === "night" ? 0.3 : 0.6)
+        scene.add(ambient)
+        
+        const sunLight = new THREE.DirectionalLight(0xffffff, dayNight === "night" ? 0.5 : 1.0)
+        sunLight.position.set(200, 100, 200)
+        scene.add(sunLight)
+        sunRef.current = sunLight
+
+        const pointLight = new THREE.PointLight(0xffd700, 0.5)
+        pointLight.position.set(-200, 100, -200)
+        scene.add(pointLight)
+
+        if (!isMobile) {
+          const atmosphereGeometry = new THREE.SphereGeometry(102, 64, 64)
+          const atmosphereMaterial = new THREE.ShaderMaterial({
+            vertexShader: `
+              varying vec3 vNormal;
+              varying vec3 vPosition;
+              void main() {
+                vNormal = normalize(normalMatrix * normal);
+                vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              }
+            `,
+            fragmentShader: `
+              varying vec3 vNormal;
+              varying vec3 vPosition;
+              void main() {
+                vec3 viewDir = normalize(-vPosition);
+                float rim = 1.0 - max(0.0, dot(vNormal, viewDir));
+                rim = pow(rim, 3.0);
+                vec3 atmosphereColor = mix(vec3(0.1, 0.4, 1.0), vec3(1.0, 0.84, 0.0), rim * 0.3);
+                gl_FragColor = vec4(atmosphereColor, rim * 0.4);
+              }
+            `,
+            transparent: true,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending,
+          })
+          const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial)
+          scene.add(atmosphere)
+          atmosphereRef.current = atmosphere
+        }
+
+        const hotspotsGroup = new THREE.Group()
+        hotspotsGroup.name = "hotspots"
+        scene.add(hotspotsGroup)
+
+        const arcParticlesGroup = new THREE.Group()
+        arcParticlesGroup.name = "arcParticles"
+        scene.add(arcParticlesGroup)
+
+        const burstsGroup = new THREE.Group()
+        burstsGroup.name = "bursts"
+        scene.add(burstsGroup)
+
+        const energyLinesGroup = new THREE.Group()
+        energyLinesGroup.name = "energyLines"
+        scene.add(energyLinesGroup)
+
+        let time = 0
+        let lastTime = performance.now()
+        
+        const animate = () => {
+          if (isCleanedUp) return
+          animationId = requestAnimationFrame(animate)
+          
+          const currentTime = performance.now()
+          const deltaTime = (currentTime - lastTime) / 1000
+          lastTime = currentTime
+          time += deltaTime
+
+          if (autoRotateRef.current && isPlayingRef.current && globe) {
+            const rotationSpeed = 0.15 * playbackSpeed * deltaTime
+            ;(globe as any).rotation.y += rotationSpeed
+          }
+
+          if (sunRef.current && dayNight === "auto") {
+            const sunAngle = time * 0.05
+            sunRef.current.position.x = Math.cos(sunAngle) * 300
+            sunRef.current.position.z = Math.sin(sunAngle) * 300
+          }
+
+          hotspotsRef.current.forEach((hotspot, i) => {
+            if (hotspot.ring) {
+              const pulse = 1 + Math.sin(time * 2 + i * 0.5) * 0.2
+              hotspot.ring.scale.setScalar(pulse)
+              hotspot.ring.material.opacity = 0.3 + Math.sin(time * 3 + i) * 0.2
             }
-          }
-        })
-
-        energyRingsRef.current.forEach((ring, i) => {
-          if (ring.mesh) {
-            ring.progress += 0.008 * playbackSpeed
-            if (ring.progress > 1) {
-              ring.progress = 0
+            if (hotspot.beacon) {
+              hotspot.beacon.material.opacity = 0.5 + Math.sin(time * 4 + i) * 0.3
             }
-            const scale = 1 + ring.progress * 3
-            ring.mesh.scale.setScalar(scale)
-            ring.mesh.material.opacity = Math.max(0, 0.6 * (1 - ring.progress))
-          }
-        })
-
-        burstMeshesRef.current.forEach((burst, i) => {
-          if (burst.mesh) {
-            const age = (Date.now() - burst.timestamp) / 1000
-            if (age < 3) {
-              const scale = 1 + age * 5
-              burst.mesh.scale.setScalar(scale)
-              burst.mesh.material.opacity = Math.max(0, 0.8 - age * 0.3)
-            } else {
-              burst.mesh.visible = false
+            if (hotspot.strengthRing) {
+              hotspot.strengthRing.rotation.z = time * 0.5
+              hotspot.strengthRing.material.opacity = 0.2 + Math.sin(time * 2) * 0.1
             }
+          })
+
+          arcParticlesRef.current.forEach((particle) => {
+            if (particle.mesh && particle.startPos && particle.endPos && particle.controlPoint) {
+              particle.progress += particle.speed * playbackSpeed * deltaTime * 60
+              if (particle.progress > 1) particle.progress = 0
+              
+              const t = particle.progress
+              const oneMinusT = 1 - t
+              
+              const pos = new THREE.Vector3()
+              pos.x = oneMinusT * oneMinusT * particle.startPos.x + 2 * oneMinusT * t * particle.controlPoint.x + t * t * particle.endPos.x
+              pos.y = oneMinusT * oneMinusT * particle.startPos.y + 2 * oneMinusT * t * particle.controlPoint.y + t * t * particle.endPos.y
+              pos.z = oneMinusT * oneMinusT * particle.startPos.z + 2 * oneMinusT * t * particle.controlPoint.z + t * t * particle.endPos.z
+              
+              particle.mesh.position.copy(pos)
+              
+              const fadeIn = Math.min(1, t * 5)
+              const fadeOut = Math.min(1, (1 - t) * 5)
+              particle.mesh.material.opacity = fadeIn * fadeOut * 0.9
+              
+              const scale = 0.8 + Math.sin(t * Math.PI) * 0.4
+              particle.mesh.scale.setScalar(scale)
+
+              if (particle.trail && particle.trail.length > 0) {
+                particle.trail.forEach((trailMesh: any, idx: number) => {
+                  const trailT = Math.max(0, t - (idx + 1) * 0.02)
+                  const trailOneMinusT = 1 - trailT
+                  trailMesh.position.x = trailOneMinusT * trailOneMinusT * particle.startPos.x + 2 * trailOneMinusT * trailT * particle.controlPoint.x + trailT * trailT * particle.endPos.x
+                  trailMesh.position.y = trailOneMinusT * trailOneMinusT * particle.startPos.y + 2 * trailOneMinusT * trailT * particle.controlPoint.y + trailT * trailT * particle.endPos.y
+                  trailMesh.position.z = trailOneMinusT * trailOneMinusT * particle.startPos.z + 2 * trailOneMinusT * trailT * particle.controlPoint.z + trailT * trailT * particle.endPos.z
+                  trailMesh.material.opacity = Math.max(0, (fadeIn * fadeOut * 0.5) * (1 - idx * 0.15))
+                  trailMesh.scale.setScalar(scale * (1 - idx * 0.1))
+                })
+              }
+            }
+          })
+
+          energyRingsRef.current.forEach((ring) => {
+            if (ring.mesh) {
+              ring.progress += 0.008 * playbackSpeed * deltaTime * 60
+              if (ring.progress > 1) {
+                ring.progress = 0
+              }
+              const scale = 1 + ring.progress * 3
+              ring.mesh.scale.setScalar(scale)
+              ring.mesh.material.opacity = Math.max(0, 0.6 * (1 - ring.progress))
+            }
+          })
+
+          burstMeshesRef.current.forEach((burst) => {
+            if (burst.mesh) {
+              const age = (Date.now() - burst.timestamp) / 1000
+              if (age < 3) {
+                const scale = 1 + age * 5
+                burst.mesh.scale.setScalar(scale)
+                burst.mesh.material.opacity = Math.max(0, 0.8 - age * 0.3)
+              } else {
+                burst.mesh.visible = false
+              }
+            }
+          })
+
+          try {
+            renderer.render(scene, camera)
+          } catch (e) {
+            console.warn("Render error:", e)
           }
-        })
+        }
+        animate()
+        rafRef.current = animationId
 
-        renderer.render(scene, camera)
-      }
-      animate()
+        const onResize = () => {
+          if (!container || isCleanedUp) return
+          const w = container.clientWidth
+          const h = container.clientHeight
+          renderer.setSize(w, h)
+          camera.aspect = w / h
+          camera.updateProjectionMatrix()
+        }
+        window.addEventListener("resize", onResize)
 
-      const onResize = () => {
-        const w = container.clientWidth
-        const h = container.clientHeight
-        renderer.setSize(w, h)
-        camera.aspect = w / h
-        camera.updateProjectionMatrix()
-      }
-      window.addEventListener("resize", onResize)
-
-      let isDragging = false
-      let prevX = 0
-      let prevY = 0
-      container.addEventListener("mousedown", (e) => {
-        isDragging = true
-        prevX = e.clientX
-        prevY = e.clientY
-        autoRotateRef.current = false
-      })
-      window.addEventListener("mouseup", () => {
-        isDragging = false
-        setTimeout(() => { if (isPlayingRef.current) autoRotateRef.current = true }, 3000)
-      })
-      window.addEventListener("mousemove", (e) => {
-        if (isDragging) {
-          const deltaX = (e.clientX - prevX) * 0.005
-          const deltaY = (e.clientY - prevY) * 0.005
+        let isDragging = false
+        let prevX = 0
+        let prevY = 0
+        
+        const onMouseDown = (e: MouseEvent) => {
+          isDragging = true
           prevX = e.clientX
           prevY = e.clientY
-          ;(globe as any).rotation.y += deltaX
-          ;(globe as any).rotation.x += deltaY
-          ;(globe as any).rotation.x = Math.max(-0.5, Math.min(0.5, (globe as any).rotation.x))
+          autoRotateRef.current = false
         }
-      })
-
-      container.addEventListener("wheel", (e) => {
-        e.preventDefault()
-        const zoomSpeed = 0.1
-        camera.position.z += e.deltaY * zoomSpeed
-        camera.position.z = Math.max(150, Math.min(500, camera.position.z))
-      }, { passive: false })
-
-      let touchStartDist = 0
-      container.addEventListener("touchstart", (e) => {
-        if (e.touches.length === 2) {
-          touchStartDist = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-          )
+        
+        const onMouseUp = () => {
+          isDragging = false
+          setTimeout(() => { if (isPlayingRef.current) autoRotateRef.current = true }, 3000)
         }
-      })
-      container.addEventListener("touchmove", (e) => {
-        if (e.touches.length === 2) {
-          const dist = Math.hypot(
-            e.touches[0].clientX - e.touches[1].clientX,
-            e.touches[0].clientY - e.touches[1].clientY
-          )
-          const delta = (touchStartDist - dist) * 0.5
-          camera.position.z = Math.max(150, Math.min(500, camera.position.z + delta))
-          touchStartDist = dist
+        
+        const onMouseMove = (e: MouseEvent) => {
+          if (isDragging && globe) {
+            const deltaX = (e.clientX - prevX) * 0.005
+            const deltaY = (e.clientY - prevY) * 0.005
+            prevX = e.clientX
+            prevY = e.clientY
+            ;(globe as any).rotation.y += deltaX
+            ;(globe as any).rotation.x += deltaY
+            ;(globe as any).rotation.x = Math.max(-0.5, Math.min(0.5, (globe as any).rotation.x))
+          }
         }
-      })
 
-      fetch("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
-        .then((r) => r.json())
-        .then((geojson) => {
-          globe
-            .polygonsData(geojson.features)
-            .polygonStrokeColor(() => "#FFD70066")
-            .polygonSideColor(() => "rgba(255,215,0,0.08)")
-            .polygonAltitude(() => 0.006)
-        })
-        .catch(() => {})
+        container.addEventListener("mousedown", onMouseDown)
+        window.addEventListener("mouseup", onMouseUp)
+        window.addEventListener("mousemove", onMouseMove)
 
-      return () => {
-        cancelAnimationFrame(raf)
-        window.removeEventListener("resize", onResize)
-        container.innerHTML = ""
-        renderer.dispose()
+        const onWheel = (e: WheelEvent) => {
+          e.preventDefault()
+          const zoomSpeed = 0.1
+          camera.position.z += e.deltaY * zoomSpeed
+          camera.position.z = Math.max(150, Math.min(500, camera.position.z))
+        }
+        container.addEventListener("wheel", onWheel, { passive: false })
+
+        let touchStartDist = 0
+        const onTouchStart = (e: TouchEvent) => {
+          if (e.touches.length === 2) {
+            touchStartDist = Math.hypot(
+              e.touches[0].clientX - e.touches[1].clientX,
+              e.touches[0].clientY - e.touches[1].clientY
+            )
+          }
+        }
+        const onTouchMove = (e: TouchEvent) => {
+          if (e.touches.length === 2) {
+            const dist = Math.hypot(
+              e.touches[0].clientX - e.touches[1].clientX,
+              e.touches[0].clientY - e.touches[1].clientY
+            )
+            const delta = (touchStartDist - dist) * 0.5
+            camera.position.z = Math.max(150, Math.min(500, camera.position.z + delta))
+            touchStartDist = dist
+          }
+        }
+        container.addEventListener("touchstart", onTouchStart)
+        container.addEventListener("touchmove", onTouchMove)
+
+        fetch("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
+          .then((r) => r.json())
+          .then((geojson) => {
+            if (!isCleanedUp && globe) {
+              globe
+                .polygonsData(geojson.features)
+                .polygonStrokeColor(() => "#FFD70066")
+                .polygonSideColor(() => "rgba(255,215,0,0.08)")
+                .polygonAltitude(() => 0.006)
+            }
+          })
+          .catch(() => {})
+
+        setGlobeInitialized(true)
+
+        cleanupRef.current = () => {
+          isCleanedUp = true
+          cancelAnimationFrame(animationId)
+          window.removeEventListener("resize", onResize)
+          window.removeEventListener("mouseup", onMouseUp)
+          window.removeEventListener("mousemove", onMouseMove)
+          container.removeEventListener("mousedown", onMouseDown)
+          container.removeEventListener("wheel", onWheel)
+          container.removeEventListener("touchstart", onTouchStart)
+          container.removeEventListener("touchmove", onTouchMove)
+          
+          if (renderer) {
+            renderer.dispose()
+            renderer.forceContextLoss()
+          }
+          
+          if (container && canvas && canvas.parentNode === container) {
+            container.removeChild(canvas)
+          }
+          
+          globeRef.current = null
+          sceneRef.current = null
+          cameraRef.current = null
+          rendererRef.current = null
+          setGlobeInitialized(false)
+        }
+
+      } catch (error) {
+        console.error("Globe initialization error:", error)
+        setWebglSupported(false)
       }
     }
 
-    const cleanup = initGlobe()
+    initGlobe()
+
     return () => {
-      cleanup.then((fn) => fn?.())
+      if (cleanupRef.current) {
+        cleanupRef.current()
+      }
     }
-  }, [mounted, isMobile, dayNight])
+  }, [mounted, isMobile, dayNight, webglSupported, globeInitialized])
 
   useEffect(() => {
     const globe = globeRef.current as any
@@ -843,9 +938,9 @@ function GlobeDemoComponent() {
       .arcColor((d: any) => d.color)
       .arcStroke((d: any) => 0.4 + Math.sqrt(d.amount) * 0.015 + d.riskScore * 0.3)
       .arcAltitude((d: any) => 0.12 + d.riskScore * 0.3)
-      .arcDashLength(0.5)
-      .arcDashGap(0.1)
-      .arcDashAnimateTime((d: any) => (1800 - d.riskScore * 800) / playbackSpeed)
+      .arcDashLength(0.6)
+      .arcDashGap(0.15)
+      .arcDashAnimateTime((d: any) => (2200 - d.riskScore * 1000) / playbackSpeed)
   }, [filteredTxs, isMobile, chainFilter, playbackSpeed])
 
   useEffect(() => {
@@ -946,6 +1041,39 @@ function GlobeDemoComponent() {
     return (
       <div className="relative h-[600px] w-full rounded-xl bg-black/40 backdrop-blur-sm border border-yellow-500/30 shadow-[0_0_40px_#ffd70033] flex items-center justify-center">
         <div className="w-16 h-16 rounded-full border-4 border-yellow-500/30 border-t-yellow-500 animate-spin" />
+      </div>
+    )
+  }
+
+  if (!webglSupported) {
+    return (
+      <div className="relative h-[600px] w-full rounded-xl bg-black/40 backdrop-blur-sm border border-yellow-500/30 shadow-[0_0_40px_#ffd70033] flex flex-col items-center justify-center gap-4 p-6">
+        <Globe2 className="w-16 h-16 text-yellow-500/50" />
+        <div className="text-center">
+          <h3 className="text-lg font-semibold text-yellow-300 mb-2">3D Globe Unavailable</h3>
+          <p className="text-sm text-gray-400 max-w-md">
+            WebGL is not supported or has been disabled in your browser. 
+            Please enable hardware acceleration or try a different browser to view the interactive globe.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+          <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-center">
+            <div className="text-xl font-bold text-green-400">{filteredTxs.filter(t => t.status === "safe").length}</div>
+            <div className="text-[10px] text-gray-400">Safe</div>
+          </div>
+          <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/20 text-center">
+            <div className="text-xl font-bold text-orange-400">{filteredTxs.filter(t => t.status === "risky").length}</div>
+            <div className="text-[10px] text-gray-400">Risky</div>
+          </div>
+          <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-center">
+            <div className="text-xl font-bold text-red-400">{filteredTxs.filter(t => t.status === "fraud").length}</div>
+            <div className="text-[10px] text-gray-400">Fraud</div>
+          </div>
+          <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-center">
+            <div className="text-xl font-bold text-yellow-400">{filteredTxs.length}</div>
+            <div className="text-[10px] text-gray-400">Total</div>
+          </div>
+        </div>
       </div>
     )
   }
@@ -1337,7 +1465,7 @@ function GlobeDemoComponent() {
                 <div>
                   <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-1.5">Top Counterparts</div>
                   <div className="space-y-1">
-                    {selectedCountry.topCounterparts.map((cp, i) => (
+                    {selectedCountry.topCounterparts.map((cp) => (
                       <div key={cp.name} className="flex items-center justify-between text-[11px]">
                         <span className="text-gray-300">{cp.name}</span>
                         <span className="text-yellow-400 font-medium">{cp.count} txs</span>
