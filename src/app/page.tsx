@@ -429,16 +429,12 @@ Community: https://community.cryptoguard.com
 
       <Footer />
 
-      {/* Registration Modal (hero trigger) */}
-      <RegistrationModal open={regOpen} onOpenChange={setRegOpen} />
-      
       {/* Live Demo Modal */}
       <LiveDemoModal open={demoOpen} onOpenChange={setDemoOpen} />
 
       {/* Sticky CTA Bar */}
       <StickyCTA 
         onOpenDemo={() => setDemoOpen(true)}
-        onOpenRegister={() => setRegOpen(true)}
       />
     </div>
   )
