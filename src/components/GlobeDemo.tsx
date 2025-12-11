@@ -1,9 +1,11 @@
 "use client"
 
 import dynamic from "next/dynamic"
-import { useEffect, useRef, useState, useCallback } from "react"
-import { useTransactions, COUNTRIES, TxStatus } from "@/hooks/useTransactions"
+import { useEffect, useRef, useState, useCallback, useMemo } from "react"
+import { useTransactions, COUNTRIES, TxStatus, Tx } from "@/hooks/useTransactions"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Slider } from "@/components/ui/slider"
 import { 
   Filter, 
   Play, 
@@ -19,10 +21,25 @@ import {
   Globe2,
   Layers,
   Sun,
-  Moon
+  Moon,
+  Cloud,
+  Search,
+  Camera,
+  Download,
+  Rewind,
+  FastForward,
+  SkipBack,
+  SkipForward,
+  Clock,
+  Sparkles,
+  Wifi,
+  Eye,
+  EyeOff
 } from "lucide-react"
 
 type FilterType = "all" | "safe" | "risky" | "fraud"
+type DayNightMode = "auto" | "day" | "night"
+type PlaybackSpeed = 1 | 10 | 100
 
 interface CountryStats {
   name: string
@@ -36,6 +53,26 @@ interface CountryStats {
   totalVolume: number
   avgRiskScore: number
   topCounterparts: { name: string; count: number }[]
+  recentAlerts: { time: string; type: string; amount: number }[]
+}
+
+interface FraudBurst {
+  id: string
+  lat: number
+  lng: number
+  timestamp: number
+  intensity: number
+}
+
+const CHAIN_COLORS: Record<string, string> = {
+  BTC: "#F7931A",
+  ETH: "#627EEA",
+  SOL: "#00FFA3",
+  USDT: "#26A17B",
+  BNB: "#F3BA2F",
+  XRP: "#23292F",
+  ADA: "#0033AD",
+  MATIC: "#8247E5",
 }
 
 function GlobeDemoComponent() {
@@ -43,12 +80,22 @@ function GlobeDemoComponent() {
   const { txs } = useTransactions()
   const [mounted, setMounted] = useState(false)
   const [filter, setFilter] = useState<FilterType>("all")
+  const [chainFilter, setChainFilter] = useState<string>("all")
   const [isPlaying, setIsPlaying] = useState(true)
   const [showHeatmap, setShowHeatmap] = useState(true)
   const [showHotspots, setShowHotspots] = useState(true)
-  const [dayNight, setDayNight] = useState<"auto" | "day" | "night">("auto")
+  const [showParticles, setShowParticles] = useState(true)
+  const [dayNight, setDayNight] = useState<DayNightMode>("auto")
   const [selectedCountry, setSelectedCountry] = useState<CountryStats | null>(null)
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<typeof COUNTRIES>([])
+  const [showSearch, setShowSearch] = useState(false)
+  const [playbackSpeed, setPlaybackSpeed] = useState<PlaybackSpeed>(1)
+  const [timelinePosition, setTimelinePosition] = useState(100)
+  const [fraudBursts, setFraudBursts] = useState<FraudBurst[]>([])
+  const [isMobile, setIsMobile] = useState(false)
+  const [showControls, setShowControls] = useState(true)
 
   const globeRef = useRef<any>(null)
   const rendererRef = useRef<any>(null)
@@ -57,18 +104,81 @@ function GlobeDemoComponent() {
   const autoRotateRef = useRef(true)
   const hotspotsRef = useRef<any[]>([])
   const particlesRef = useRef<any[]>([])
+  const sunRef = useRef<any>(null)
+  const atmosphereRef = useRef<any>(null)
+  const burstMeshesRef = useRef<any[]>([])
 
   useEffect(() => {
     setMounted(true)
+    if (typeof window !== 'undefined') {
+      setIsMobile(window.innerWidth < 768)
+      const handleResize = () => setIsMobile(window.innerWidth < 768)
+      window.addEventListener("resize", handleResize)
+      return () => window.removeEventListener("resize", handleResize)
+    }
   }, [])
+
+  useEffect(() => {
+    if (searchQuery.length > 0) {
+      const results = COUNTRIES.filter(c => 
+        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.code.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      setSearchResults(results.slice(0, 8))
+    } else {
+      setSearchResults([])
+    }
+  }, [searchQuery])
+
+  useEffect(() => {
+    const newFrauds = txs.filter(t => 
+      t.status === "fraud" && 
+      Date.now() - t.timestamp < 3000
+    )
+    
+    if (newFrauds.length > 0) {
+      const bursts: FraudBurst[] = newFrauds.map(t => ({
+        id: t.id,
+        lat: t.latLngTo[0],
+        lng: t.latLngTo[1],
+        timestamp: Date.now(),
+        intensity: t.riskScore
+      }))
+      setFraudBursts(prev => [...prev, ...bursts].slice(-10))
+    }
+
+    const cleanup = setTimeout(() => {
+      setFraudBursts(prev => prev.filter(b => Date.now() - b.timestamp < 5000))
+    }, 5000)
+
+    return () => clearTimeout(cleanup)
+  }, [txs])
+
+  const filteredTxs = useMemo(() => {
+    let result = txs
+    
+    if (filter !== "all") {
+      result = result.filter(t => t.status === filter)
+    }
+    
+    if (chainFilter !== "all") {
+      result = result.filter(t => t.chain === chainFilter)
+    }
+
+    const timeThreshold = (timelinePosition / 100) * 10 * 60 * 1000
+    const now = Date.now()
+    result = result.filter(t => now - t.timestamp <= timeThreshold)
+    
+    return result
+  }, [txs, filter, chainFilter, timelinePosition])
 
   const getCountryStats = useCallback((countryName: string): CountryStats | null => {
     const country = COUNTRIES.find(c => c.name === countryName)
     if (!country) return null
 
-    const relatedTxs = txs.filter(t => t.from === countryName || t.to === countryName)
-    const outgoing = txs.filter(t => t.from === countryName)
-    const incoming = txs.filter(t => t.to === countryName)
+    const relatedTxs = filteredTxs.filter(t => t.from === countryName || t.to === countryName)
+    const outgoing = filteredTxs.filter(t => t.from === countryName)
+    const incoming = filteredTxs.filter(t => t.to === countryName)
 
     const counterpartCounts: Record<string, number> = {}
     outgoing.forEach(t => {
@@ -82,6 +192,15 @@ function GlobeDemoComponent() {
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5)
+
+    const recentAlerts = relatedTxs
+      .filter(t => t.status !== "safe")
+      .slice(0, 5)
+      .map(t => ({
+        time: new Date(t.timestamp).toLocaleTimeString(),
+        type: t.status,
+        amount: t.amount
+      }))
 
     return {
       name: country.name,
@@ -97,8 +216,9 @@ function GlobeDemoComponent() {
         ? relatedTxs.reduce((sum, t) => sum + t.riskScore, 0) / relatedTxs.length 
         : 0,
       topCounterparts,
+      recentAlerts,
     }
-  }, [txs])
+  }, [filteredTxs])
 
   useEffect(() => {
     if (!mounted || !mountRef.current) return
@@ -112,9 +232,12 @@ function GlobeDemoComponent() {
       const width = container.clientWidth
       const height = container.clientHeight
 
-      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+      const maxActiveArcs = isMobile ? 300 : 1200
+      const particlesPerArc = isMobile ? 2 : 8
+
+      const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, alpha: true })
       renderer.setSize(width, height)
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2))
       renderer.toneMapping = THREE.ACESFilmicToneMapping
       renderer.toneMappingExposure = 1.2
       container.appendChild(renderer.domElement)
@@ -127,31 +250,75 @@ function GlobeDemoComponent() {
       camera.position.z = 280
       cameraRef.current = camera
 
+      const textureUrl = dayNight === "night" || (dayNight === "auto" && new Date().getHours() >= 18)
+        ? "https://unpkg.com/three-globe/example/img/earth-night.jpg"
+        : "https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
+
       const globe = new (ThreeGlobe as any)()
-        .globeImageUrl(
-          "https://unpkg.com/three-globe/example/img/earth-night.jpg"
-        )
+        .globeImageUrl(textureUrl)
         .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png")
         .showAtmosphere(true)
-        .atmosphereColor("#FFD700")
-        .atmosphereAltitude(0.15)
+        .atmosphereColor(dayNight === "night" ? "#FFD700" : "#87CEEB")
+        .atmosphereAltitude(isMobile ? 0.1 : 0.18)
 
       globeRef.current = globe
       scene.add(globe as unknown as THREE.Object3D)
 
-      const ambient = new THREE.AmbientLight(0xffffff, 0.5)
+      const ambient = new THREE.AmbientLight(0xffffff, dayNight === "night" ? 0.3 : 0.6)
       scene.add(ambient)
-      const dir = new THREE.DirectionalLight(0xffffff, 0.8)
-      dir.position.set(200, 200, 200)
-      scene.add(dir)
+      
+      const sunLight = new THREE.DirectionalLight(0xffffff, dayNight === "night" ? 0.5 : 1.0)
+      sunLight.position.set(200, 100, 200)
+      scene.add(sunLight)
+      sunRef.current = sunLight
 
       const pointLight = new THREE.PointLight(0xffd700, 0.5)
       pointLight.position.set(-200, 100, -200)
       scene.add(pointLight)
 
+      if (!isMobile) {
+        const atmosphereGeometry = new THREE.SphereGeometry(102, 64, 64)
+        const atmosphereMaterial = new THREE.ShaderMaterial({
+          vertexShader: `
+            varying vec3 vNormal;
+            varying vec3 vPosition;
+            void main() {
+              vNormal = normalize(normalMatrix * normal);
+              vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+          `,
+          fragmentShader: `
+            varying vec3 vNormal;
+            varying vec3 vPosition;
+            void main() {
+              vec3 viewDir = normalize(-vPosition);
+              float rim = 1.0 - max(0.0, dot(vNormal, viewDir));
+              rim = pow(rim, 3.0);
+              vec3 atmosphereColor = mix(vec3(0.1, 0.4, 1.0), vec3(1.0, 0.84, 0.0), rim * 0.3);
+              gl_FragColor = vec4(atmosphereColor, rim * 0.4);
+            }
+          `,
+          transparent: true,
+          side: THREE.BackSide,
+          blending: THREE.AdditiveBlending,
+        })
+        const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial)
+        scene.add(atmosphere)
+        atmosphereRef.current = atmosphere
+      }
+
       const hotspotsGroup = new THREE.Group()
       hotspotsGroup.name = "hotspots"
       scene.add(hotspotsGroup)
+
+      const particlesGroup = new THREE.Group()
+      particlesGroup.name = "particles"
+      scene.add(particlesGroup)
+
+      const burstsGroup = new THREE.Group()
+      burstsGroup.name = "bursts"
+      scene.add(burstsGroup)
 
       let raf = 0
       let time = 0
@@ -160,16 +327,66 @@ function GlobeDemoComponent() {
         time += 0.016
 
         if (autoRotateRef.current) {
-          ;(globe as any).rotation.y += 0.001
+          ;(globe as any).rotation.y += 0.0008 * playbackSpeed
+        }
+
+        if (sunRef.current && dayNight === "auto") {
+          const sunAngle = time * 0.05
+          sunRef.current.position.x = Math.cos(sunAngle) * 300
+          sunRef.current.position.z = Math.sin(sunAngle) * 300
         }
 
         hotspotsRef.current.forEach((hotspot, i) => {
           if (hotspot.ring) {
-            hotspot.ring.scale.setScalar(1 + Math.sin(time * 2 + i) * 0.15)
+            const pulse = 1 + Math.sin(time * 2 + i * 0.5) * 0.2
+            hotspot.ring.scale.setScalar(pulse)
             hotspot.ring.material.opacity = 0.3 + Math.sin(time * 3 + i) * 0.2
           }
           if (hotspot.beacon) {
             hotspot.beacon.material.opacity = 0.5 + Math.sin(time * 4 + i) * 0.3
+          }
+          if (hotspot.strengthRing) {
+            hotspot.strengthRing.rotation.z = time * 0.5
+            hotspot.strengthRing.material.opacity = 0.2 + Math.sin(time * 2) * 0.1
+          }
+        })
+
+        particlesRef.current.forEach((particle, i) => {
+          if (particle.mesh) {
+            particle.progress += 0.005 * playbackSpeed
+            if (particle.progress > 1) particle.progress = 0
+            
+            const t = particle.progress
+            const startPos = particle.startPos
+            const endPos = particle.endPos
+            const midHeight = 120 + particle.altitude * 30
+            
+            const mid = new THREE.Vector3(
+              (startPos.x + endPos.x) / 2,
+              (startPos.y + endPos.y) / 2 + midHeight - 100,
+              (startPos.z + endPos.z) / 2
+            ).normalize().multiplyScalar(midHeight)
+            
+            const pos = new THREE.Vector3()
+            pos.x = (1-t)*(1-t)*startPos.x + 2*(1-t)*t*mid.x + t*t*endPos.x
+            pos.y = (1-t)*(1-t)*startPos.y + 2*(1-t)*t*mid.y + t*t*endPos.y
+            pos.z = (1-t)*(1-t)*startPos.z + 2*(1-t)*t*mid.z + t*t*endPos.z
+            
+            particle.mesh.position.copy(pos)
+            particle.mesh.material.opacity = Math.sin(t * Math.PI) * 0.8
+          }
+        })
+
+        burstMeshesRef.current.forEach((burst, i) => {
+          if (burst.mesh) {
+            const age = (Date.now() - burst.timestamp) / 1000
+            if (age < 3) {
+              const scale = 1 + age * 5
+              burst.mesh.scale.setScalar(scale)
+              burst.mesh.material.opacity = Math.max(0, 0.8 - age * 0.3)
+            } else {
+              burst.mesh.visible = false
+            }
           }
         })
 
@@ -218,6 +435,27 @@ function GlobeDemoComponent() {
         camera.position.z = Math.max(150, Math.min(500, camera.position.z))
       }, { passive: false })
 
+      let touchStartDist = 0
+      container.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 2) {
+          touchStartDist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          )
+        }
+      })
+      container.addEventListener("touchmove", (e) => {
+        if (e.touches.length === 2) {
+          const dist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          )
+          const delta = (touchStartDist - dist) * 0.5
+          camera.position.z = Math.max(150, Math.min(500, camera.position.z + delta))
+          touchStartDist = dist
+        }
+      })
+
       fetch("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
         .then((r) => r.json())
         .then((geojson) => {
@@ -241,7 +479,7 @@ function GlobeDemoComponent() {
     return () => {
       cleanup.then((fn) => fn?.())
     }
-  }, [mounted])
+  }, [mounted, isMobile, dayNight])
 
   useEffect(() => {
     const globe = globeRef.current as any
@@ -250,7 +488,7 @@ function GlobeDemoComponent() {
     const fraudCounts: Record<string, number> = {}
     const riskScores: Record<string, number[]> = {}
     
-    txs.forEach((t) => {
+    filteredTxs.forEach((t) => {
       if (t.status === "fraud") {
         fraudCounts[t.to] = (fraudCounts[t.to] || 0) + 1
         fraudCounts[t.from] = (fraudCounts[t.from] || 0) + 1
@@ -273,13 +511,13 @@ function GlobeDemoComponent() {
       const scores = riskScores[key] || []
       const avgRisk = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0
       
-      if (avgRisk > 0.7) return "rgba(255,46,46,0.4)"
-      if (avgRisk > 0.5) return "rgba(255,165,0,0.35)"
-      if (avgRisk > 0.3) return "rgba(255,255,102,0.3)"
-      if (avgRisk > 0) return "rgba(0,255,157,0.25)"
+      if (avgRisk > 0.7) return "rgba(255,46,46,0.5)"
+      if (avgRisk > 0.5) return "rgba(255,165,0,0.4)"
+      if (avgRisk > 0.3) return "rgba(255,255,102,0.35)"
+      if (avgRisk > 0) return "rgba(0,255,157,0.3)"
       return "rgba(255,215,0,0.08)"
     })
-  }, [txs, showHeatmap])
+  }, [filteredTxs, showHeatmap])
 
   useEffect(() => {
     const globe = globeRef.current as any
@@ -296,11 +534,12 @@ function GlobeDemoComponent() {
 
     if (!showHotspots) return
 
-    const countryActivity: Record<string, { fraud: number; risky: number; total: number }> = {}
-    txs.forEach((t) => {
+    const countryActivity: Record<string, { fraud: number; risky: number; total: number; volume: number }> = {}
+    filteredTxs.forEach((t) => {
       [t.from, t.to].forEach(country => {
-        if (!countryActivity[country]) countryActivity[country] = { fraud: 0, risky: 0, total: 0 }
+        if (!countryActivity[country]) countryActivity[country] = { fraud: 0, risky: 0, total: 0, volume: 0 }
         countryActivity[country].total++
+        countryActivity[country].volume += t.amount
         if (t.status === "fraud") countryActivity[country].fraud++
         if (t.status === "risky") countryActivity[country].risky++
       })
@@ -310,8 +549,8 @@ function GlobeDemoComponent() {
       const THREE = await import("three")
 
       COUNTRIES.forEach(country => {
-        const activity = countryActivity[country.name] || { fraud: 0, risky: 0, total: 0 }
-        if (activity.total < 5) return
+        const activity = countryActivity[country.name] || { fraud: 0, risky: 0, total: 0, volume: 0 }
+        if (activity.total < 3) return
 
         const phi = (90 - country.lat) * (Math.PI / 180)
         const theta = (country.lng + 180) * (Math.PI / 180)
@@ -337,7 +576,7 @@ function GlobeDemoComponent() {
         ring.position.set(x, y, z)
         ring.lookAt(0, 0, 0)
 
-        const beaconGeometry = new THREE.SphereGeometry(0.8, 16, 16)
+        const beaconGeometry = new THREE.SphereGeometry(0.6 + Math.min(1, activity.total / 50), 16, 16)
         const beaconMaterial = new THREE.MeshBasicMaterial({
           color,
           transparent: true,
@@ -349,64 +588,188 @@ function GlobeDemoComponent() {
         hotspotsGroup.add(ring)
         hotspotsGroup.add(beacon)
 
-        hotspotsRef.current.push({ ring, beacon, country: country.name })
+        let strengthRing = null
+        if (activity.total > 20) {
+          const strengthGeometry = new THREE.RingGeometry(3, 4, 32)
+          const strengthMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffd700,
+            transparent: true,
+            opacity: 0.3,
+            side: THREE.DoubleSide,
+          })
+          strengthRing = new THREE.Mesh(strengthGeometry, strengthMaterial)
+          strengthRing.position.set(x, y, z)
+          strengthRing.lookAt(0, 0, 0)
+          hotspotsGroup.add(strengthRing)
+        }
+
+        hotspotsRef.current.push({ ring, beacon, strengthRing, country: country.name })
       })
     }
 
     importThree()
-  }, [txs, showHotspots])
+  }, [filteredTxs, showHotspots])
+
+  useEffect(() => {
+    const scene = sceneRef.current
+    if (!scene || !showParticles) return
+
+    const particlesGroup = scene.children.find((c: any) => c.name === "particles")
+    if (!particlesGroup) return
+
+    while (particlesGroup.children.length > 0) {
+      particlesGroup.remove(particlesGroup.children[0])
+    }
+    particlesRef.current = []
+
+    const createParticles = async () => {
+      const THREE = await import("three")
+      const maxParticles = isMobile ? 50 : 200
+
+      filteredTxs.slice(0, maxParticles).forEach((tx, idx) => {
+        const fromPhi = (90 - tx.latLngFrom[0]) * (Math.PI / 180)
+        const fromTheta = (tx.latLngFrom[1] + 180) * (Math.PI / 180)
+        const toPhi = (90 - tx.latLngTo[0]) * (Math.PI / 180)
+        const toTheta = (tx.latLngTo[1] + 180) * (Math.PI / 180)
+        const radius = 101
+
+        const startPos = new THREE.Vector3(
+          -radius * Math.sin(fromPhi) * Math.cos(fromTheta),
+          radius * Math.cos(fromPhi),
+          radius * Math.sin(fromPhi) * Math.sin(fromTheta)
+        )
+        const endPos = new THREE.Vector3(
+          -radius * Math.sin(toPhi) * Math.cos(toTheta),
+          radius * Math.cos(toPhi),
+          radius * Math.sin(toPhi) * Math.sin(toTheta)
+        )
+
+        let color = 0x00ff9d
+        if (tx.riskScore >= 0.7) color = 0xff2e2e
+        else if (tx.riskScore >= 0.5) color = 0xffa500
+        else if (tx.riskScore >= 0.3) color = 0xffff66
+
+        const geometry = new THREE.SphereGeometry(0.3, 8, 8)
+        const material = new THREE.MeshBasicMaterial({
+          color,
+          transparent: true,
+          opacity: 0.8,
+        })
+        const mesh = new THREE.Mesh(geometry, material)
+        particlesGroup.add(mesh)
+
+        particlesRef.current.push({
+          mesh,
+          startPos,
+          endPos,
+          progress: (idx % 20) / 20,
+          altitude: tx.riskScore,
+        })
+      })
+    }
+
+    createParticles()
+  }, [filteredTxs, showParticles, isMobile])
+
+  useEffect(() => {
+    const scene = sceneRef.current
+    if (!scene) return
+
+    const burstsGroup = scene.children.find((c: any) => c.name === "bursts")
+    if (!burstsGroup) return
+
+    const createBursts = async () => {
+      const THREE = await import("three")
+
+      fraudBursts.forEach(burst => {
+        const existing = burstMeshesRef.current.find(b => b.id === burst.id)
+        if (existing) return
+
+        const phi = (90 - burst.lat) * (Math.PI / 180)
+        const theta = (burst.lng + 180) * (Math.PI / 180)
+        const radius = 102
+
+        const x = -radius * Math.sin(phi) * Math.cos(theta)
+        const y = radius * Math.cos(phi)
+        const z = radius * Math.sin(phi) * Math.sin(theta)
+
+        const geometry = new THREE.RingGeometry(0.5, 1, 32)
+        const material = new THREE.MeshBasicMaterial({
+          color: 0xff2e2e,
+          transparent: true,
+          opacity: 0.8,
+          side: THREE.DoubleSide,
+        })
+        const mesh = new THREE.Mesh(geometry, material)
+        mesh.position.set(x, y, z)
+        mesh.lookAt(0, 0, 0)
+        burstsGroup.add(mesh)
+
+        burstMeshesRef.current.push({
+          id: burst.id,
+          mesh,
+          timestamp: burst.timestamp,
+        })
+      })
+    }
+
+    createBursts()
+  }, [fraudBursts])
 
   useEffect(() => {
     const globe = globeRef.current as any
     if (!globe) return
 
-    const filteredTxs = filter === "all" 
-      ? txs 
-      : txs.filter(t => t.status === filter)
-
-    const getRiskColor = (riskScore: number) => {
+    const getRiskColor = (riskScore: number, chain: string) => {
+      if (chainFilter !== "all" && CHAIN_COLORS[chain]) {
+        const baseColor = CHAIN_COLORS[chain]
+        return [baseColor + "ee", baseColor + "44"]
+      }
+      
       if (riskScore >= 0.85) return ["rgba(255,46,46,0.9)", "rgba(255,46,46,0.3)"]
       if (riskScore >= 0.6) return ["rgba(255,165,0,0.9)", "rgba(255,165,0,0.3)"]
       if (riskScore >= 0.3) return ["rgba(255,255,102,0.9)", "rgba(255,255,102,0.3)"]
       return ["rgba(0,255,157,0.9)", "rgba(0,255,157,0.3)"]
     }
 
-    const arcsData = filteredTxs.slice(0, 200).map((t) => ({
+    const maxArcs = isMobile ? 100 : 300
+    const arcsData = filteredTxs.slice(0, maxArcs).map((t) => ({
       startLat: t.latLngFrom[0],
       startLng: t.latLngFrom[1],
       endLat: t.latLngTo[0],
       endLng: t.latLngTo[1],
       status: t.status,
       riskScore: t.riskScore,
-      color: getRiskColor(t.riskScore),
+      color: getRiskColor(t.riskScore, t.chain),
       amount: t.amount,
+      chain: t.chain,
     }))
 
     globe
       .arcsData(arcsData)
       .arcColor((d: any) => d.color)
-      .arcStroke((d: any) => 0.3 + Math.sqrt(d.amount) * 0.008)
-      .arcAltitude((d: any) => 0.1 + d.riskScore * 0.2)
+      .arcStroke((d: any) => 0.3 + Math.sqrt(d.amount) * 0.01)
+      .arcAltitude((d: any) => 0.1 + d.riskScore * 0.25)
       .arcDashLength(0.6)
       .arcDashGap(0.15)
-      .arcDashAnimateTime((d: any) => 2500 - d.riskScore * 1000)
-  }, [txs, filter])
+      .arcDashAnimateTime((d: any) => (2500 - d.riskScore * 1000) / playbackSpeed)
+  }, [filteredTxs, isMobile, chainFilter, playbackSpeed])
 
   useEffect(() => {
     const globe = globeRef.current as any
     if (!globe) return
 
     const countryLabels = COUNTRIES.map(country => {
-      const activity = txs.filter(t => t.from === country.name || t.to === country.name)
+      const activity = filteredTxs.filter(t => t.from === country.name || t.to === country.name)
       const fraudCount = activity.filter(t => t.status === "fraud").length
       
-      if (activity.length < 10) return null
+      if (activity.length < 8) return null
       
       return {
         lat: country.lat,
         lng: country.lng,
         text: country.name,
-        size: 0.6 + Math.min(1, activity.length / 50),
+        size: 0.6 + Math.min(1.2, activity.length / 40),
         fraud: fraudCount,
       }
     }).filter(Boolean)
@@ -420,7 +783,7 @@ function GlobeDemoComponent() {
       .labelSize((d: any) => d.size)
       .labelResolution(2)
       .labelDotRadius(0.4)
-  }, [txs])
+  }, [filteredTxs])
 
   const handleZoom = (direction: "in" | "out") => {
     const camera = cameraRef.current
@@ -443,8 +806,48 @@ function GlobeDemoComponent() {
     const stats = getCountryStats(countryName)
     if (stats) {
       setSelectedCountry(stats)
+      zoomToCountry(stats.lat, stats.lng)
     }
+    setShowSearch(false)
+    setSearchQuery("")
   }
+
+  const zoomToCountry = (lat: number, lng: number) => {
+    const globe = globeRef.current
+    const camera = cameraRef.current
+    if (!globe || !camera) return
+
+    autoRotateRef.current = false
+    
+    const phi = (90 - lat) * (Math.PI / 180)
+    const theta = (lng + 180) * (Math.PI / 180)
+    
+    globe.rotation.y = -theta + Math.PI
+    globe.rotation.x = -(phi - Math.PI / 2) * 0.5
+    camera.position.z = 200
+
+    setTimeout(() => { autoRotateRef.current = true }, 5000)
+  }
+
+  const handleExportSnapshot = async () => {
+    const renderer = rendererRef.current
+    const scene = sceneRef.current
+    const camera = cameraRef.current
+    if (!renderer || !scene || !camera) return
+
+    renderer.render(scene, camera)
+    const dataUrl = renderer.domElement.toDataURL("image/png")
+    
+    const link = document.createElement("a")
+    link.href = dataUrl
+    link.download = `cryptoguard-globe-${Date.now()}.png`
+    link.click()
+  }
+
+  const uniqueChains = useMemo(() => {
+    const chains = new Set(txs.map(t => t.chain))
+    return ["all", ...Array.from(chains)]
+  }, [txs])
 
   if (!mounted) {
     return (
@@ -458,163 +861,350 @@ function GlobeDemoComponent() {
     <div className="relative h-[600px] w-full">
       <div ref={mountRef} className="h-full w-full rounded-xl bg-black/40 backdrop-blur-sm border border-yellow-500/30 shadow-[0_0_40px_#ffd70033]" />
       
-      <div className="absolute top-3 left-3 flex flex-col gap-2 z-20">
-        <div className="flex items-center gap-1 p-1 rounded-lg bg-black/80 border border-yellow-500/30 backdrop-blur-sm">
-          <Button
-            size="sm"
-            variant={filter === "all" ? "default" : "ghost"}
-            onClick={() => setFilter("all")}
-            className={`h-7 px-2 text-[10px] ${filter === "all" ? "bg-yellow-500 text-black" : "text-yellow-300 hover:bg-yellow-500/20"}`}
-          >
-            <Globe2 className="w-3 h-3 mr-1" />
-            All
-          </Button>
-          <Button
-            size="sm"
-            variant={filter === "safe" ? "default" : "ghost"}
-            onClick={() => setFilter("safe")}
-            className={`h-7 px-2 text-[10px] ${filter === "safe" ? "bg-green-500 text-black" : "text-green-400 hover:bg-green-500/20"}`}
-          >
-            <Shield className="w-3 h-3 mr-1" />
-            Safe
-          </Button>
-          <Button
-            size="sm"
-            variant={filter === "risky" ? "default" : "ghost"}
-            onClick={() => setFilter("risky")}
-            className={`h-7 px-2 text-[10px] ${filter === "risky" ? "bg-orange-500 text-black" : "text-orange-400 hover:bg-orange-500/20"}`}
-          >
-            <AlertTriangle className="w-3 h-3 mr-1" />
-            Risky
-          </Button>
-          <Button
-            size="sm"
-            variant={filter === "fraud" ? "default" : "ghost"}
-            onClick={() => setFilter("fraud")}
-            className={`h-7 px-2 text-[10px] ${filter === "fraud" ? "bg-red-500 text-black" : "text-red-400 hover:bg-red-500/20"}`}
-          >
-            <Activity className="w-3 h-3 mr-1" />
-            Fraud
-          </Button>
-        </div>
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={() => setShowControls(!showControls)}
+        className="absolute top-2 left-2 z-30 h-7 w-7 p-0 text-yellow-300 hover:bg-yellow-500/20 bg-black/60 border border-yellow-500/30"
+      >
+        {showControls ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+      </Button>
 
-        <div className="flex items-center gap-1 p-1 rounded-lg bg-black/80 border border-yellow-500/30 backdrop-blur-sm">
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setShowHeatmap(!showHeatmap)}
-            className={`h-7 px-2 text-[10px] ${showHeatmap ? "text-yellow-300 bg-yellow-500/20" : "text-gray-400 hover:bg-yellow-500/10"}`}
-          >
-            <Layers className="w-3 h-3 mr-1" />
-            Heatmap
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setShowHotspots(!showHotspots)}
-            className={`h-7 px-2 text-[10px] ${showHotspots ? "text-yellow-300 bg-yellow-500/20" : "text-gray-400 hover:bg-yellow-500/10"}`}
-          >
-            <Activity className="w-3 h-3 mr-1" />
-            Hotspots
-          </Button>
-        </div>
-      </div>
+      {showControls && (
+        <>
+          <div className="absolute top-3 left-10 flex flex-col gap-2 z-20">
+            <div className="flex items-center gap-1 p-1 rounded-lg bg-black/80 border border-yellow-500/30 backdrop-blur-sm">
+              <Button
+                size="sm"
+                variant={filter === "all" ? "default" : "ghost"}
+                onClick={() => setFilter("all")}
+                className={`h-7 px-2 text-[10px] ${filter === "all" ? "bg-yellow-500 text-black" : "text-yellow-300 hover:bg-yellow-500/20"}`}
+              >
+                <Globe2 className="w-3 h-3 mr-1" />
+                All
+              </Button>
+              <Button
+                size="sm"
+                variant={filter === "safe" ? "default" : "ghost"}
+                onClick={() => setFilter("safe")}
+                className={`h-7 px-2 text-[10px] ${filter === "safe" ? "bg-green-500 text-black" : "text-green-400 hover:bg-green-500/20"}`}
+              >
+                <Shield className="w-3 h-3 mr-1" />
+                Safe
+              </Button>
+              <Button
+                size="sm"
+                variant={filter === "risky" ? "default" : "ghost"}
+                onClick={() => setFilter("risky")}
+                className={`h-7 px-2 text-[10px] ${filter === "risky" ? "bg-orange-500 text-black" : "text-orange-400 hover:bg-orange-500/20"}`}
+              >
+                <AlertTriangle className="w-3 h-3 mr-1" />
+                Risky
+              </Button>
+              <Button
+                size="sm"
+                variant={filter === "fraud" ? "default" : "ghost"}
+                onClick={() => setFilter("fraud")}
+                className={`h-7 px-2 text-[10px] ${filter === "fraud" ? "bg-red-500 text-black" : "text-red-400 hover:bg-red-500/20"}`}
+              >
+                <Activity className="w-3 h-3 mr-1" />
+                Fraud
+              </Button>
+            </div>
 
-      <div className="absolute top-3 right-3 flex flex-col gap-1 z-20">
-        <div className="flex flex-col gap-1 p-1 rounded-lg bg-black/80 border border-yellow-500/30 backdrop-blur-sm">
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setIsPlaying(!isPlaying)}
-            className="h-7 w-7 p-0 text-yellow-300 hover:bg-yellow-500/20"
-            title={isPlaying ? "Pause rotation" : "Resume rotation"}
-          >
-            {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => handleZoom("in")}
-            className="h-7 w-7 p-0 text-yellow-300 hover:bg-yellow-500/20"
-            title="Zoom in"
-          >
-            <ZoomIn className="w-3.5 h-3.5" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => handleZoom("out")}
-            className="h-7 w-7 p-0 text-yellow-300 hover:bg-yellow-500/20"
-            title="Zoom out"
-          >
-            <ZoomOut className="w-3.5 h-3.5" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={handleReset}
-            className="h-7 w-7 p-0 text-yellow-300 hover:bg-yellow-500/20"
-            title="Reset view"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-          </Button>
-        </div>
-      </div>
+            <div className="flex items-center gap-1 p-1 rounded-lg bg-black/80 border border-yellow-500/30 backdrop-blur-sm flex-wrap">
+              {uniqueChains.slice(0, 6).map(chain => (
+                <Button
+                  key={chain}
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setChainFilter(chain)}
+                  className={`h-6 px-2 text-[9px] ${chainFilter === chain ? "bg-yellow-500/30 text-yellow-300" : "text-gray-400 hover:bg-yellow-500/10"}`}
+                  style={chain !== "all" ? { borderLeft: `3px solid ${CHAIN_COLORS[chain] || "#FFD700"}` } : {}}
+                >
+                  {chain === "all" ? "All Chains" : chain}
+                </Button>
+              ))}
+            </div>
 
-      <div className="absolute bottom-16 left-3 z-20">
-        <div className="p-2 rounded-lg bg-black/80 border border-yellow-500/30 backdrop-blur-sm">
-          <div className="text-[10px] text-gray-400 mb-1.5 uppercase tracking-wider">Risk Scale</div>
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-[#00ff9d] shadow-[0_0_8px_#00ff9d]" />
-              <span className="text-[10px] text-gray-300">Safe (0-30%)</span>
+            <div className="flex items-center gap-1 p-1 rounded-lg bg-black/80 border border-yellow-500/30 backdrop-blur-sm">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowHeatmap(!showHeatmap)}
+                className={`h-7 px-2 text-[10px] ${showHeatmap ? "text-yellow-300 bg-yellow-500/20" : "text-gray-400 hover:bg-yellow-500/10"}`}
+              >
+                <Layers className="w-3 h-3 mr-1" />
+                Heatmap
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowHotspots(!showHotspots)}
+                className={`h-7 px-2 text-[10px] ${showHotspots ? "text-yellow-300 bg-yellow-500/20" : "text-gray-400 hover:bg-yellow-500/10"}`}
+              >
+                <Activity className="w-3 h-3 mr-1" />
+                Hotspots
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowParticles(!showParticles)}
+                className={`h-7 px-2 text-[10px] ${showParticles ? "text-yellow-300 bg-yellow-500/20" : "text-gray-400 hover:bg-yellow-500/10"}`}
+              >
+                <Sparkles className="w-3 h-3 mr-1" />
+                Particles
+              </Button>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-[#ffff66] shadow-[0_0_8px_#ffff66]" />
-              <span className="text-[10px] text-gray-300">Low (30-60%)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-[#ffa500] shadow-[0_0_8px_#ffa500]" />
-              <span className="text-[10px] text-gray-300">Risky (60-85%)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-[#ff2e2e] shadow-[0_0_8px_#ff2e2e]" />
-              <span className="text-[10px] text-gray-300">Fraud (85%+)</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20">
-        <div className="flex items-center gap-3 px-3 py-1.5 rounded-full bg-black/80 border border-yellow-500/30 backdrop-blur-sm">
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-[10px] text-green-400 font-medium">{txs.filter(t => t.status === "safe").length}</span>
+            <div className="flex items-center gap-1 p-1 rounded-lg bg-black/80 border border-yellow-500/30 backdrop-blur-sm">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setDayNight("auto")}
+                className={`h-7 px-2 text-[10px] ${dayNight === "auto" ? "text-yellow-300 bg-yellow-500/20" : "text-gray-400 hover:bg-yellow-500/10"}`}
+              >
+                <Cloud className="w-3 h-3 mr-1" />
+                Auto
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setDayNight("day")}
+                className={`h-7 px-2 text-[10px] ${dayNight === "day" ? "text-yellow-300 bg-yellow-500/20" : "text-gray-400 hover:bg-yellow-500/10"}`}
+              >
+                <Sun className="w-3 h-3 mr-1" />
+                Day
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setDayNight("night")}
+                className={`h-7 px-2 text-[10px] ${dayNight === "night" ? "text-yellow-300 bg-yellow-500/20" : "text-gray-400 hover:bg-yellow-500/10"}`}
+              >
+                <Moon className="w-3 h-3 mr-1" />
+                Night
+              </Button>
+            </div>
           </div>
-          <div className="w-px h-3 bg-yellow-500/30" />
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-            <span className="text-[10px] text-orange-400 font-medium">{txs.filter(t => t.status === "risky").length}</span>
+
+          <div className="absolute top-3 right-3 flex flex-col gap-1 z-20">
+            <div className="flex flex-col gap-1 p-1 rounded-lg bg-black/80 border border-yellow-500/30 backdrop-blur-sm">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowSearch(!showSearch)}
+                className="h-7 w-7 p-0 text-yellow-300 hover:bg-yellow-500/20"
+                title="Search"
+              >
+                <Search className="w-3.5 h-3.5" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setIsPlaying(!isPlaying)}
+                className="h-7 w-7 p-0 text-yellow-300 hover:bg-yellow-500/20"
+                title={isPlaying ? "Pause rotation" : "Resume rotation"}
+              >
+                {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => handleZoom("in")}
+                className="h-7 w-7 p-0 text-yellow-300 hover:bg-yellow-500/20"
+                title="Zoom in"
+              >
+                <ZoomIn className="w-3.5 h-3.5" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => handleZoom("out")}
+                className="h-7 w-7 p-0 text-yellow-300 hover:bg-yellow-500/20"
+                title="Zoom out"
+              >
+                <ZoomOut className="w-3.5 h-3.5" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleReset}
+                className="h-7 w-7 p-0 text-yellow-300 hover:bg-yellow-500/20"
+                title="Reset view"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleExportSnapshot}
+                className="h-7 w-7 p-0 text-yellow-300 hover:bg-yellow-500/20"
+                title="Export snapshot"
+              >
+                <Camera className="w-3.5 h-3.5" />
+              </Button>
+            </div>
           </div>
-          <div className="w-px h-3 bg-yellow-500/30" />
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-[10px] text-red-400 font-medium">{txs.filter(t => t.status === "fraud").length}</span>
+
+          {showSearch && (
+            <div className="absolute top-14 right-3 w-64 z-30 animate-in slide-in-from-right-5 duration-300">
+              <div className="rounded-lg bg-black/90 border border-yellow-500/40 backdrop-blur-sm p-2">
+                <div className="relative">
+                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                  <Input
+                    placeholder="Search country..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="h-8 pl-8 text-xs bg-black/50 border-yellow-500/30 text-white placeholder:text-gray-500"
+                  />
+                </div>
+                {searchResults.length > 0 && (
+                  <div className="mt-2 space-y-1 max-h-48 overflow-y-auto">
+                    {searchResults.map(country => (
+                      <Button
+                        key={country.code}
+                        variant="ghost"
+                        onClick={() => handleCountryClick(country.name)}
+                        className="w-full h-7 justify-start text-[11px] text-yellow-300 hover:bg-yellow-500/20"
+                      >
+                        <span className="text-gray-500 mr-2">{country.code}</span>
+                        {country.name}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="absolute bottom-20 left-3 z-20">
+            <div className="p-2 rounded-lg bg-black/80 border border-yellow-500/30 backdrop-blur-sm">
+              <div className="text-[10px] text-gray-400 mb-1.5 uppercase tracking-wider">Risk Scale</div>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-[#00ff9d] shadow-[0_0_8px_#00ff9d]" />
+                  <span className="text-[10px] text-gray-300">Safe (0-30%)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-[#ffff66] shadow-[0_0_8px_#ffff66]" />
+                  <span className="text-[10px] text-gray-300">Low (30-60%)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-[#ffa500] shadow-[0_0_8px_#ffa500]" />
+                  <span className="text-[10px] text-gray-300">Risky (60-85%)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-[#ff2e2e] shadow-[0_0_8px_#ff2e2e]" />
+                  <span className="text-[10px] text-gray-300">Fraud (85%+)</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="w-px h-3 bg-yellow-500/30" />
-          <div className="text-[10px] text-yellow-300 font-semibold">
-            {txs.length} Live
+
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 w-72">
+            <div className="p-2 rounded-lg bg-black/80 border border-yellow-500/30 backdrop-blur-sm">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-yellow-400" />
+                  <span className="text-[10px] text-gray-400">Timeline</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setPlaybackSpeed(1)}
+                    className={`h-5 px-1.5 text-[9px] ${playbackSpeed === 1 ? "text-yellow-300 bg-yellow-500/20" : "text-gray-400"}`}
+                  >
+                    1x
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setPlaybackSpeed(10)}
+                    className={`h-5 px-1.5 text-[9px] ${playbackSpeed === 10 ? "text-yellow-300 bg-yellow-500/20" : "text-gray-400"}`}
+                  >
+                    10x
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setPlaybackSpeed(100)}
+                    className={`h-5 px-1.5 text-[9px] ${playbackSpeed === 100 ? "text-yellow-300 bg-yellow-500/20" : "text-gray-400"}`}
+                  >
+                    100x
+                  </Button>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] text-gray-500">0m</span>
+                <Slider
+                  value={[timelinePosition]}
+                  onValueChange={([val]) => setTimelinePosition(val)}
+                  max={100}
+                  step={1}
+                  className="flex-1"
+                />
+                <span className="text-[9px] text-gray-500">10m</span>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20">
+            <div className="flex items-center gap-3 px-3 py-1.5 rounded-full bg-black/80 border border-yellow-500/30 backdrop-blur-sm">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-[10px] text-green-400 font-medium">{filteredTxs.filter(t => t.status === "safe").length}</span>
+              </div>
+              <div className="w-px h-3 bg-yellow-500/30" />
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
+                <span className="text-[10px] text-orange-400 font-medium">{filteredTxs.filter(t => t.status === "risky").length}</span>
+              </div>
+              <div className="w-px h-3 bg-yellow-500/30" />
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                <span className="text-[10px] text-red-400 font-medium">{filteredTxs.filter(t => t.status === "fraud").length}</span>
+              </div>
+              <div className="w-px h-3 bg-yellow-500/30" />
+              <div className="flex items-center gap-1">
+                <Wifi className="w-3 h-3 text-green-400 animate-pulse" />
+                <span className="text-[10px] text-yellow-300 font-semibold">
+                  {filteredTxs.length} Live
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="absolute bottom-20 right-3 z-20">
+            <div className="p-2 rounded-lg bg-black/80 border border-yellow-500/30 backdrop-blur-sm">
+              <div className="text-[10px] text-gray-400 mb-1.5 uppercase tracking-wider">Quick Select</div>
+              <div className="flex flex-wrap gap-1 max-w-[180px]">
+                {["United States", "China", "Russia", "Nigeria", "UAE", "Germany", "Japan", "Brazil"].map(country => (
+                  <Button
+                    key={country}
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleCountryClick(country)}
+                    className="h-6 px-2 text-[9px] text-yellow-300 hover:bg-yellow-500/20 border border-yellow-500/20"
+                  >
+                    {country.length > 10 ? country.slice(0, 8) + ".." : country}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {selectedCountry && (
-        <div className="absolute top-14 right-3 w-64 z-30 animate-in slide-in-from-right-5 duration-300">
+        <div className="absolute top-14 right-3 w-72 z-30 animate-in slide-in-from-right-5 duration-300">
           <div className="rounded-lg bg-black/90 border border-yellow-500/40 backdrop-blur-sm overflow-hidden">
             <div className="flex items-center justify-between px-3 py-2 bg-yellow-500/10 border-b border-yellow-500/30">
               <div className="flex items-center gap-2">
                 <Globe2 className="w-4 h-4 text-yellow-400" />
                 <span className="text-sm font-semibold text-yellow-300">{selectedCountry.name}</span>
+                <span className="text-[10px] text-gray-500">({selectedCountry.code})</span>
               </div>
               <Button
                 size="sm"
@@ -663,29 +1253,55 @@ function GlobeDemoComponent() {
                   </div>
                 </div>
               )}
+              {selectedCountry.recentAlerts.length > 0 && (
+                <div>
+                  <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-1.5">Recent Alerts</div>
+                  <div className="space-y-1 max-h-24 overflow-y-auto">
+                    {selectedCountry.recentAlerts.map((alert, i) => (
+                      <div key={i} className="flex items-center justify-between text-[10px] p-1 rounded bg-black/40">
+                        <span className={alert.type === "fraud" ? "text-red-400" : "text-orange-400"}>
+                          {alert.type.toUpperCase()}
+                        </span>
+                        <span className="text-gray-400">${alert.amount.toLocaleString()}</span>
+                        <span className="text-gray-500">{alert.time}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="flex gap-2 pt-2 border-t border-yellow-500/20">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 h-7 text-[10px] border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20"
+                >
+                  <Download className="w-3 h-3 mr-1" />
+                  Export CSV
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 h-7 text-[10px] border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20"
+                >
+                  <AlertTriangle className="w-3 h-3 mr-1" />
+                  Flag
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      <div className="absolute bottom-16 right-3 z-20">
-        <div className="p-2 rounded-lg bg-black/80 border border-yellow-500/30 backdrop-blur-sm">
-          <div className="text-[10px] text-gray-400 mb-1.5 uppercase tracking-wider">Quick Select</div>
-          <div className="flex flex-wrap gap-1 max-w-[180px]">
-            {["United States", "China", "Russia", "Nigeria", "UAE"].map(country => (
-              <Button
-                key={country}
-                size="sm"
-                variant="ghost"
-                onClick={() => handleCountryClick(country)}
-                className="h-6 px-2 text-[9px] text-yellow-300 hover:bg-yellow-500/20 border border-yellow-500/20"
-              >
-                {country.length > 12 ? country.slice(0, 10) + ".." : country}
-              </Button>
-            ))}
+      {fraudBursts.length > 0 && (
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/20 border border-red-500/50 backdrop-blur-sm animate-pulse">
+            <AlertTriangle className="w-4 h-4 text-red-400" />
+            <span className="text-[11px] text-red-300 font-medium">
+              Fraud Alert: {fraudBursts.length} suspicious {fraudBursts.length === 1 ? "transaction" : "transactions"} detected
+            </span>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
