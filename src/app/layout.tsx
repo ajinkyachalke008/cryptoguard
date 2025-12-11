@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Cryptoguard — AI Crypto Fraud Detection",
@@ -17,6 +18,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
+        <Script
+          id="orchids-browser-logs"
+          src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/scripts/orchids-browser-logs.js"
+          strategy="afterInteractive"
+          data-orchids-project-id="0ad00823-3ee5-4e7f-969c-c69c567a8b0d"
+        />
         <ThemeProvider>
           <AuthProvider>
             {children}
