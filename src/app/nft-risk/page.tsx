@@ -14,7 +14,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   XCircle,
-  Image,
+  ImageIcon,
   TrendingUp,
   Users
 } from "lucide-react"
@@ -308,7 +308,7 @@ export default function NFTRiskPage() {
           <CardContent className="pt-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1">
-                <Image className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-yellow-500/70" />
+                <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-yellow-500/70" />
                 <Input
                   placeholder="Enter NFT collection name or contract address"
                   value={collection}
@@ -358,7 +358,7 @@ export default function NFTRiskPage() {
               <div className="relative">
                 <div className="w-24 h-24 rounded-full border-4 border-yellow-500/30 animate-ping absolute inset-0" />
                 <div className="w-24 h-24 rounded-full border-4 border-yellow-500/50 animate-pulse flex items-center justify-center">
-                  <Image className="w-10 h-10 text-yellow-500 animate-pulse" />
+                  <ImageIcon className="w-10 h-10 text-yellow-500 animate-pulse" />
                 </div>
               </div>
               <p className="mt-6 text-yellow-300 font-medium animate-pulse">Analyzing NFT collection...</p>
@@ -400,7 +400,7 @@ export default function NFTRiskPage() {
                       <p className="font-bold text-gray-200">{fakeVolumeData?.comparison.reported_floor.toFixed(2)} ETH</p>
                     </div>
                     <div className="text-center px-4 py-2 rounded-lg bg-black/40 border border-gray-700">
-                      <Image className="w-5 h-5 text-purple-400 mx-auto mb-1" />
+                      <ImageIcon className="w-5 h-5 text-purple-400 mx-auto mb-1" />
                       <p className="text-xs text-gray-500">Volume (24h)</p>
                       <p className="font-bold text-gray-200">{fakeVolumeData?.total_volume_eth.toLocaleString()} ETH</p>
                     </div>
@@ -458,7 +458,7 @@ export default function NFTRiskPage() {
           <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
             <CardContent className="py-16 flex flex-col items-center justify-center text-center">
               <div className="w-20 h-20 rounded-full bg-yellow-500/10 flex items-center justify-center mb-4">
-                <Image className="w-10 h-10 text-yellow-500/50" />
+                <ImageIcon className="w-10 h-10 text-yellow-500/50" />
               </div>
               <h3 className="text-xl font-semibold text-gray-300 mb-2">Enter an NFT collection to analyze</h3>
               <p className="text-gray-500 max-w-md">
