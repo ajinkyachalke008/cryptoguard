@@ -1,119 +1,124 @@
 "use client"
 
-import { useEffect, useRef } from "react"
-import * as THREE from "three"
-import ThreeGlobe from "three-globe"
+import dynamic from "next/dynamic"
+import { useEffect, useRef, useState } from "react"
 import { useTransactions } from "@/hooks/useTransactions"
 
-export default function GlobeDemo() {
+function GlobeDemoComponent() {
   const mountRef = useRef<HTMLDivElement>(null)
   const { txs } = useTransactions()
+  const [mounted, setMounted] = useState(false)
 
-  // Keep a ref to globe and arcs
-  const globeRef = useRef<ThreeGlobe | null>(null)
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
-  const sceneRef = useRef<THREE.Scene | null>(null)
-  const controlsRef = useRef<any>(null)
+  const globeRef = useRef<any>(null)
+  const rendererRef = useRef<any>(null)
+  const cameraRef = useRef<any>(null)
+  const sceneRef = useRef<any>(null)
 
   useEffect(() => {
-    const container = mountRef.current!
-    const width = container.clientWidth
-    const height = container.clientHeight
+    setMounted(true)
+  }, [])
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
-    renderer.setSize(width, height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    container.appendChild(renderer.domElement)
-    rendererRef.current = renderer
+  useEffect(() => {
+    if (!mounted || !mountRef.current) return
 
-    const scene = new THREE.Scene()
-    sceneRef.current = scene
+    const initGlobe = async () => {
+      const THREE = await import("three")
+      const ThreeGlobeModule = await import("three-globe")
+      const ThreeGlobe = ThreeGlobeModule.default
 
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000)
-    camera.position.z = 250
-    cameraRef.current = camera
+      const container = mountRef.current!
+      const width = container.clientWidth
+      const height = container.clientHeight
 
-    const globe = new (ThreeGlobe as any)()
-      .globeImageUrl(
-        // NASA Blue Marble
-        "https://unpkg.com/three-globe/example/img/earth-night.jpg"
-      )
-      .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png")
-      .showAtmosphere(true)
-      .atmosphereColor("#FFD700")
-      .atmosphereAltitude(0.12)
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+      renderer.setSize(width, height)
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+      container.appendChild(renderer.domElement)
+      rendererRef.current = renderer
 
-    globeRef.current = globe
+      const scene = new THREE.Scene()
+      sceneRef.current = scene
 
-    scene.add(globe as unknown as THREE.Object3D)
+      const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000)
+      camera.position.z = 250
+      cameraRef.current = camera
 
-    const ambient = new THREE.AmbientLight(0xffffff, 0.7)
-    scene.add(ambient)
-    const dir = new THREE.DirectionalLight(0xffffff, 0.6)
-    dir.position.set(200, 200, 200)
-    scene.add(dir)
+      const globe = new (ThreeGlobe as any)()
+        .globeImageUrl(
+          "https://unpkg.com/three-globe/example/img/earth-night.jpg"
+        )
+        .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png")
+        .showAtmosphere(true)
+        .atmosphereColor("#FFD700")
+        .atmosphereAltitude(0.12)
 
-    let raf = 0
-    const animate = () => {
-      raf = requestAnimationFrame(animate)
-      ;(globe as any).rotation.y += 0.002  // Faster rotation speed
-      renderer.render(scene, camera)
-    }
-    animate()
+      globeRef.current = globe
 
-    const onResize = () => {
-      const w = container.clientWidth
-      const h = container.clientHeight
-      renderer.setSize(w, h)
-      camera.aspect = w / h
-      camera.updateProjectionMatrix()
-    }
-    window.addEventListener("resize", onResize)
+      scene.add(globe as unknown as THREE.Object3D)
 
-    // Simple drag rotate
-    let isDragging = false
-    let prevX = 0
-    container.addEventListener("mousedown", (e) => {
-      isDragging = true
-      prevX = e.clientX
-    })
-    window.addEventListener("mouseup", () => (isDragging = false))
-    window.addEventListener("mousemove", (e) => {
-      if (isDragging) {
-        const delta = (e.clientX - prevX) * 0.005
-        prevX = e.clientX
-        ;(globe as any).rotation.y += delta
+      const ambient = new THREE.AmbientLight(0xffffff, 0.7)
+      scene.add(ambient)
+      const dir = new THREE.DirectionalLight(0xffffff, 0.6)
+      dir.position.set(200, 200, 200)
+      scene.add(dir)
+
+      let raf = 0
+      const animate = () => {
+        raf = requestAnimationFrame(animate)
+        ;(globe as any).rotation.y += 0.002
+        renderer.render(scene, camera)
       }
-    })
+      animate()
 
-    return () => {
-      cancelAnimationFrame(raf)
-      window.removeEventListener("resize", onResize)
-      container.innerHTML = ""
-      renderer.dispose()
-    }
-  }, [])
+      const onResize = () => {
+        const w = container.clientWidth
+        const h = container.clientHeight
+        renderer.setSize(w, h)
+        camera.aspect = w / h
+        camera.updateProjectionMatrix()
+      }
+      window.addEventListener("resize", onResize)
 
-  // Country borders + heatmap overlay (load once)
-  useEffect(() => {
-    const globe = globeRef.current as any
-    if (!globe) return
-
-    // Public geojson with properties.name
-    fetch("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
-      .then((r) => r.json())
-      .then((geojson) => {
-        globe
-          .polygonsData(geojson.features)
-          .polygonStrokeColor(() => "#FFD70066")  // Brighter, more visible golden borders
-          .polygonSideColor(() => "rgba(255,215,0,0.12)")  // More opaque side fill
-          .polygonAltitude(() => 0.005)  // Slightly higher for visibility
+      let isDragging = false
+      let prevX = 0
+      container.addEventListener("mousedown", (e) => {
+        isDragging = true
+        prevX = e.clientX
       })
-      .catch(() => {})
-  }, [])
+      window.addEventListener("mouseup", () => (isDragging = false))
+      window.addEventListener("mousemove", (e) => {
+        if (isDragging) {
+          const delta = (e.clientX - prevX) * 0.005
+          prevX = e.clientX
+          ;(globe as any).rotation.y += delta
+        }
+      })
 
-  // Update heatmap intensity + labels from live fraud counts
+      fetch("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
+        .then((r) => r.json())
+        .then((geojson) => {
+          globe
+            .polygonsData(geojson.features)
+            .polygonStrokeColor(() => "#FFD70066")
+            .polygonSideColor(() => "rgba(255,215,0,0.12)")
+            .polygonAltitude(() => 0.005)
+        })
+        .catch(() => {})
+
+      return () => {
+        cancelAnimationFrame(raf)
+        window.removeEventListener("resize", onResize)
+        container.innerHTML = ""
+        renderer.dispose()
+      }
+    }
+
+    const cleanup = initGlobe()
+    return () => {
+      cleanup.then((fn) => fn?.())
+    }
+  }, [mounted])
+
   useEffect(() => {
     const globe = globeRef.current as any
     if (!globe) return
@@ -123,20 +128,17 @@ export default function GlobeDemo() {
       if (t.status === "fraud") fraudCounts[t.to] = (fraudCounts[t.to] || 0) + 1
     })
 
-    // Re-apply cap color to reflect latest counts
     globe.polygonCapColor((d: any) => {
       const name: string = d?.properties?.name || d?.properties?.ADMIN || ""
-      // lenient matching for common country naming differences
       const key =
         fraudCounts[name] !== undefined
           ? name
           : Object.keys(fraudCounts).find((k) => name.includes(k) || k.includes(name)) || ""
       const c = key ? fraudCounts[key] || 0 : 0
       const a = Math.min(1, c / 6)
-      return `rgba(255,215,0,${0.12 + a * 0.4})`  // Higher base opacity for better visibility
+      return `rgba(255,215,0,${0.12 + a * 0.4})`
     })
 
-    // Floating labels for top countries
     const TOP_POS: Record<string, { lat: number; lng: number }> = {
       "United States": { lat: 38, lng: -97 },
       "United States of America": { lat: 38, lng: -97 },
@@ -171,7 +173,6 @@ export default function GlobeDemo() {
       .labelResolution(2)
   }, [txs])
 
-  // Update arcs when txs change
   useEffect(() => {
     const globe = globeRef.current as any
     if (!globe) return
@@ -196,7 +197,17 @@ export default function GlobeDemo() {
       .arcDashAnimateTime(1800)
   }, [txs])
 
+  if (!mounted) {
+    return (
+      <div className="relative h-[520px] w-full rounded-xl bg-black/40 backdrop-blur-sm border border-yellow-500/30 shadow-[0_0_40px_#ffd70033] flex items-center justify-center">
+        <div className="w-16 h-16 rounded-full border-4 border-yellow-500/30 border-t-yellow-500 animate-spin" />
+      </div>
+    )
+  }
+
   return (
     <div ref={mountRef} className="relative h-[520px] w-full rounded-xl bg-black/40 backdrop-blur-sm border border-yellow-500/30 shadow-[0_0_40px_#ffd70033]" />
   )
 }
+
+export default GlobeDemoComponent
