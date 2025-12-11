@@ -299,7 +299,6 @@ export default function ProtocolRiskPage() {
       toast.success("Protocol scan complete")
       
     } catch (error) {
-      console.error('Scan error:', error)
       toast.error(error instanceof Error ? error.message : 'Scan failed')
       setIsScanning(false)
       

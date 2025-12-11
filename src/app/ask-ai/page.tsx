@@ -133,8 +133,7 @@ export default function AskAIPage() {
         }
         setMessages(prev => [...prev, assistantMessage])
       }
-    } catch (error) {
-      console.error("Chat error:", error)
+    } catch {
       toast.error("Failed to get response from AI")
     } finally {
       setIsLoading(false)

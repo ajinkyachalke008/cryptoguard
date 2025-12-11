@@ -75,8 +75,7 @@ export default function MarketplaceRiskPage() {
       
       setScanComplete(true)
       toast.success(`${name} scan complete`)
-    } catch (error) {
-      console.error("Scan error:", error)
+    } catch {
       toast.error("Failed to scan marketplace")
       setIsScanning(false)
     } finally {

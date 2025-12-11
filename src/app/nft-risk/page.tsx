@@ -258,7 +258,6 @@ export default function NFTRiskPage() {
       toast.success("NFT collection scan complete")
       
     } catch (error) {
-      console.error('Scan error:', error)
       toast.error(error instanceof Error ? error.message : 'Scan failed')
       setIsScanning(false)
       

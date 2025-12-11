@@ -320,7 +320,6 @@ export default function WalletScanPage() {
       toast.success("Wallet scan complete")
       
     } catch (error) {
-      console.error('Scan error:', error)
       toast.error(error instanceof Error ? error.message : 'Scan failed')
       setIsScanning(false)
       
@@ -361,7 +360,6 @@ export default function WalletScanPage() {
 
       toast.success("Added to watchlist")
     } catch (error) {
-      console.error('Watchlist error:', error)
       toast.error('Failed to add to watchlist')
     }
   }
@@ -396,7 +394,6 @@ export default function WalletScanPage() {
       window.URL.revokeObjectURL(url)
       
     } catch (error) {
-      console.error('Report error:', error)
       toast.error('Failed to generate report')
     }
   }

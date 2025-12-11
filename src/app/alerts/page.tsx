@@ -119,8 +119,7 @@ export default function AlertsPage() {
       }
       const data = await response.json()
       setAlerts(data.alerts || [])
-    } catch (error) {
-      console.error("Failed to fetch alerts:", error)
+    } catch {
       toast.error("Failed to load alerts")
     } finally {
       setIsLoading(false)
@@ -153,8 +152,7 @@ export default function AlertsPage() {
         alert.id === alertId ? { ...alert, status: newStatus } : alert
       ))
       toast.success(`Alert status updated to ${statusConfig[newStatus].label}`)
-    } catch (error) {
-      console.error("Failed to update alert:", error)
+    } catch {
       toast.error("Failed to update alert status")
     }
   }

@@ -94,8 +94,7 @@ export default function Dashboard() {
         const trendsData = await trendsRes.json()
         setTrends(trendsData.trends || [])
       }
-    } catch (error) {
-      console.error("Failed to fetch dashboard data:", error)
+    } catch {
       toast.error("Failed to load analytics data")
     } finally {
       setIsLoading(false)
