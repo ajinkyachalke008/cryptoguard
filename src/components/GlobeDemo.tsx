@@ -103,7 +103,6 @@ function GlobeDemoComponent() {
   const [fraudBursts, setFraudBursts] = useState<FraudBurst[]>([])
   const [isMobile, setIsMobile] = useState(false)
   const [showControls, setShowControls] = useState(true)
-  const [globeInitialized, setGlobeInitialized] = useState(false)
 
   const globeRef = useRef<any>(null)
   const rendererRef = useRef<any>(null)
@@ -119,7 +118,17 @@ function GlobeDemoComponent() {
   const arcLinesRef = useRef<any[]>([])
   const energyRingsRef = useRef<any[]>([])
   const rafRef = useRef<number>(0)
-  const cleanupRef = useRef<(() => void) | null>(null)
+  const initStartedRef = useRef(false)
+  const playbackSpeedRef = useRef(playbackSpeed)
+  const dayNightRef = useRef(dayNight)
+
+  useEffect(() => {
+    playbackSpeedRef.current = playbackSpeed
+  }, [playbackSpeed])
+
+  useEffect(() => {
+    dayNightRef.current = dayNight
+  }, [dayNight])
 
   useEffect(() => {
     isPlayingRef.current = isPlaying
@@ -243,8 +252,9 @@ function GlobeDemoComponent() {
   }, [filteredTxs])
 
   useEffect(() => {
-    if (!mounted || !mountRef.current || !webglSupported || globeInitialized) return
+    if (!mounted || !mountRef.current || !webglSupported || initStartedRef.current) return
 
+    initStartedRef.current = true
     let isCleanedUp = false
     let animationId = 0
 
@@ -263,6 +273,8 @@ function GlobeDemoComponent() {
         const height = container.clientHeight
 
         const canvas = document.createElement('canvas')
+        canvas.style.width = '100%'
+        canvas.style.height = '100%'
         container.appendChild(canvas)
 
         let renderer: any
@@ -275,7 +287,7 @@ function GlobeDemoComponent() {
             failIfMajorPerformanceCaveat: false
           })
         } catch (e) {
-          console.warn("WebGL renderer creation failed, using fallback")
+          console.warn("WebGL renderer creation failed")
           setWebglSupported(false)
           return
         }
@@ -309,24 +321,20 @@ function GlobeDemoComponent() {
         camera.position.z = 280
         cameraRef.current = camera
 
-        const textureUrl = dayNight === "night" || (dayNight === "auto" && new Date().getHours() >= 18)
-          ? "https://unpkg.com/three-globe/example/img/earth-night.jpg"
-          : "https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
-
         const globe = new (ThreeGlobe as any)()
-          .globeImageUrl(textureUrl)
+          .globeImageUrl("https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg")
           .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png")
           .showAtmosphere(true)
-          .atmosphereColor(dayNight === "night" ? "#FFD700" : "#87CEEB")
+          .atmosphereColor("#87CEEB")
           .atmosphereAltitude(isMobile ? 0.1 : 0.18)
 
         globeRef.current = globe
         scene.add(globe as unknown as THREE.Object3D)
 
-        const ambient = new THREE.AmbientLight(0xffffff, dayNight === "night" ? 0.3 : 0.6)
+        const ambient = new THREE.AmbientLight(0xffffff, 0.6)
         scene.add(ambient)
         
-        const sunLight = new THREE.DirectionalLight(0xffffff, dayNight === "night" ? 0.5 : 1.0)
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1.0)
         sunLight.position.set(200, 100, 200)
         scene.add(sunLight)
         sunRef.current = sunLight
@@ -396,11 +404,11 @@ function GlobeDemoComponent() {
           time += deltaTime
 
           if (autoRotateRef.current && isPlayingRef.current && globe) {
-            const rotationSpeed = 0.15 * playbackSpeed * deltaTime
+            const rotationSpeed = 0.15 * playbackSpeedRef.current * deltaTime
             ;(globe as any).rotation.y += rotationSpeed
           }
 
-          if (sunRef.current && dayNight === "auto") {
+          if (sunRef.current && dayNightRef.current === "auto") {
             const sunAngle = time * 0.05
             sunRef.current.position.x = Math.cos(sunAngle) * 300
             sunRef.current.position.z = Math.sin(sunAngle) * 300
@@ -423,7 +431,7 @@ function GlobeDemoComponent() {
 
           arcParticlesRef.current.forEach((particle) => {
             if (particle.mesh && particle.startPos && particle.endPos && particle.controlPoint) {
-              particle.progress += particle.speed * playbackSpeed * deltaTime * 60
+              particle.progress += particle.speed * playbackSpeedRef.current * deltaTime * 60
               if (particle.progress > 1) particle.progress = 0
               
               const t = particle.progress
@@ -459,7 +467,7 @@ function GlobeDemoComponent() {
 
           energyRingsRef.current.forEach((ring) => {
             if (ring.mesh) {
-              ring.progress += 0.008 * playbackSpeed * deltaTime * 60
+              ring.progress += 0.008 * playbackSpeedRef.current * deltaTime * 60
               if (ring.progress > 1) {
                 ring.progress = 0
               }
@@ -485,7 +493,7 @@ function GlobeDemoComponent() {
           try {
             renderer.render(scene, camera)
           } catch (e) {
-            console.warn("Render error:", e)
+            // Render error - context may be lost
           }
         }
         animate()
@@ -577,9 +585,7 @@ function GlobeDemoComponent() {
           })
           .catch(() => {})
 
-        setGlobeInitialized(true)
-
-        cleanupRef.current = () => {
+        return () => {
           isCleanedUp = true
           cancelAnimationFrame(animationId)
           window.removeEventListener("resize", onResize)
@@ -603,7 +609,7 @@ function GlobeDemoComponent() {
           sceneRef.current = null
           cameraRef.current = null
           rendererRef.current = null
-          setGlobeInitialized(false)
+          initStartedRef.current = false
         }
 
       } catch (error) {
@@ -612,14 +618,12 @@ function GlobeDemoComponent() {
       }
     }
 
-    initGlobe()
+    const cleanup = initGlobe()
 
     return () => {
-      if (cleanupRef.current) {
-        cleanupRef.current()
-      }
+      cleanup?.then(fn => fn?.())
     }
-  }, [mounted, isMobile, dayNight, webglSupported, globeInitialized])
+  }, [mounted, isMobile, webglSupported])
 
   useEffect(() => {
     const globe = globeRef.current as any
