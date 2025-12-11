@@ -253,7 +253,6 @@ export async function POST(request: NextRequest) {
     
     const newScan = await db.insert(walletScans)
       .values({
-        userId: 1,
         walletAddress: normalizedAddress,
         chain: normalizedBlockchain,
         rawData: JSON.stringify(scanData),
