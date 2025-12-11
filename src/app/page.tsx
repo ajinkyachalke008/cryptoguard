@@ -225,13 +225,6 @@ Community: https://community.cryptoguard.com
             >
               View Dashboard
             </Button>
-            <Button
-              variant="ghost"
-              onClick={() => setRegOpen(true)}
-              className="w-full sm:w-auto h-10 sm:h-11 rounded-full text-sm sm:text-base text-yellow-300 font-semibold hover:text-yellow-200 hover:bg-yellow-500/20 active:scale-95"
-            >
-              Register
-            </Button>
           </div>
 
           {/* Floating Stats */}
