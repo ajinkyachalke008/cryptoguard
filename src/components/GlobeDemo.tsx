@@ -64,6 +64,17 @@ interface FraudBurst {
   intensity: number
 }
 
+interface ArcParticle {
+  mesh: any
+  startPos: any
+  endPos: any
+  controlPoint: any
+  progress: number
+  speed: number
+  color: number
+  trail: any[]
+}
+
 const CHAIN_COLORS: Record<string, string> = {
   BTC: "#F7931A",
   ETH: "#627EEA",
@@ -102,11 +113,19 @@ function GlobeDemoComponent() {
   const cameraRef = useRef<any>(null)
   const sceneRef = useRef<any>(null)
   const autoRotateRef = useRef(true)
+  const isPlayingRef = useRef(true)
   const hotspotsRef = useRef<any[]>([])
-  const particlesRef = useRef<any[]>([])
+  const arcParticlesRef = useRef<ArcParticle[]>([])
   const sunRef = useRef<any>(null)
   const atmosphereRef = useRef<any>(null)
   const burstMeshesRef = useRef<any[]>([])
+  const arcLinesRef = useRef<any[]>([])
+  const energyRingsRef = useRef<any[]>([])
+
+  useEffect(() => {
+    isPlayingRef.current = isPlaying
+    autoRotateRef.current = isPlaying
+  }, [isPlaying])
 
   useEffect(() => {
     setMounted(true)
@@ -233,7 +252,7 @@ function GlobeDemoComponent() {
       const height = container.clientHeight
 
       const maxActiveArcs = isMobile ? 300 : 1200
-      const particlesPerArc = isMobile ? 2 : 8
+      const particlesPerArc = isMobile ? 4 : 12
 
       const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, alpha: true })
       renderer.setSize(width, height)
@@ -312,13 +331,17 @@ function GlobeDemoComponent() {
       hotspotsGroup.name = "hotspots"
       scene.add(hotspotsGroup)
 
-      const particlesGroup = new THREE.Group()
-      particlesGroup.name = "particles"
-      scene.add(particlesGroup)
+      const arcParticlesGroup = new THREE.Group()
+      arcParticlesGroup.name = "arcParticles"
+      scene.add(arcParticlesGroup)
 
       const burstsGroup = new THREE.Group()
       burstsGroup.name = "bursts"
       scene.add(burstsGroup)
+
+      const energyLinesGroup = new THREE.Group()
+      energyLinesGroup.name = "energyLines"
+      scene.add(energyLinesGroup)
 
       let raf = 0
       let time = 0
@@ -326,8 +349,8 @@ function GlobeDemoComponent() {
         raf = requestAnimationFrame(animate)
         time += 0.016
 
-        if (autoRotateRef.current) {
-          ;(globe as any).rotation.y += 0.0008 * playbackSpeed
+        if (autoRotateRef.current && isPlayingRef.current) {
+          ;(globe as any).rotation.y += 0.002 * playbackSpeed
         }
 
         if (sunRef.current && dayNight === "auto") {
@@ -351,29 +374,51 @@ function GlobeDemoComponent() {
           }
         })
 
-        particlesRef.current.forEach((particle, i) => {
-          if (particle.mesh) {
-            particle.progress += 0.005 * playbackSpeed
+        arcParticlesRef.current.forEach((particle) => {
+          if (particle.mesh && particle.startPos && particle.endPos && particle.controlPoint) {
+            particle.progress += particle.speed * playbackSpeed
             if (particle.progress > 1) particle.progress = 0
             
             const t = particle.progress
-            const startPos = particle.startPos
-            const endPos = particle.endPos
-            const midHeight = 120 + particle.altitude * 30
-            
-            const mid = new THREE.Vector3(
-              (startPos.x + endPos.x) / 2,
-              (startPos.y + endPos.y) / 2 + midHeight - 100,
-              (startPos.z + endPos.z) / 2
-            ).normalize().multiplyScalar(midHeight)
+            const oneMinusT = 1 - t
             
             const pos = new THREE.Vector3()
-            pos.x = (1-t)*(1-t)*startPos.x + 2*(1-t)*t*mid.x + t*t*endPos.x
-            pos.y = (1-t)*(1-t)*startPos.y + 2*(1-t)*t*mid.y + t*t*endPos.y
-            pos.z = (1-t)*(1-t)*startPos.z + 2*(1-t)*t*mid.z + t*t*endPos.z
+            pos.x = oneMinusT * oneMinusT * particle.startPos.x + 2 * oneMinusT * t * particle.controlPoint.x + t * t * particle.endPos.x
+            pos.y = oneMinusT * oneMinusT * particle.startPos.y + 2 * oneMinusT * t * particle.controlPoint.y + t * t * particle.endPos.y
+            pos.z = oneMinusT * oneMinusT * particle.startPos.z + 2 * oneMinusT * t * particle.controlPoint.z + t * t * particle.endPos.z
             
             particle.mesh.position.copy(pos)
-            particle.mesh.material.opacity = Math.sin(t * Math.PI) * 0.8
+            
+            const fadeIn = Math.min(1, t * 5)
+            const fadeOut = Math.min(1, (1 - t) * 5)
+            particle.mesh.material.opacity = fadeIn * fadeOut * 0.9
+            
+            const scale = 0.8 + Math.sin(t * Math.PI) * 0.4
+            particle.mesh.scale.setScalar(scale)
+
+            if (particle.trail && particle.trail.length > 0) {
+              particle.trail.forEach((trailMesh: any, idx: number) => {
+                const trailT = Math.max(0, t - (idx + 1) * 0.02)
+                const trailOneMinusT = 1 - trailT
+                trailMesh.position.x = trailOneMinusT * trailOneMinusT * particle.startPos.x + 2 * trailOneMinusT * trailT * particle.controlPoint.x + trailT * trailT * particle.endPos.x
+                trailMesh.position.y = trailOneMinusT * trailOneMinusT * particle.startPos.y + 2 * trailOneMinusT * trailT * particle.controlPoint.y + trailT * trailT * particle.endPos.y
+                trailMesh.position.z = trailOneMinusT * trailOneMinusT * particle.startPos.z + 2 * trailOneMinusT * trailT * particle.controlPoint.z + trailT * trailT * particle.endPos.z
+                trailMesh.material.opacity = Math.max(0, (fadeIn * fadeOut * 0.5) * (1 - idx * 0.15))
+                trailMesh.scale.setScalar(scale * (1 - idx * 0.1))
+              })
+            }
+          }
+        })
+
+        energyRingsRef.current.forEach((ring, i) => {
+          if (ring.mesh) {
+            ring.progress += 0.008 * playbackSpeed
+            if (ring.progress > 1) {
+              ring.progress = 0
+            }
+            const scale = 1 + ring.progress * 3
+            ring.mesh.scale.setScalar(scale)
+            ring.mesh.material.opacity = Math.max(0, 0.6 * (1 - ring.progress))
           }
         })
 
@@ -414,7 +459,7 @@ function GlobeDemoComponent() {
       })
       window.addEventListener("mouseup", () => {
         isDragging = false
-        setTimeout(() => { autoRotateRef.current = true }, 3000)
+        setTimeout(() => { if (isPlayingRef.current) autoRotateRef.current = true }, 3000)
       })
       window.addEventListener("mousemove", (e) => {
         if (isDragging) {
@@ -614,19 +659,28 @@ function GlobeDemoComponent() {
     const scene = sceneRef.current
     if (!scene || !showParticles) return
 
-    const particlesGroup = scene.children.find((c: any) => c.name === "particles")
-    if (!particlesGroup) return
+    const arcParticlesGroup = scene.children.find((c: any) => c.name === "arcParticles")
+    const energyLinesGroup = scene.children.find((c: any) => c.name === "energyLines")
+    if (!arcParticlesGroup) return
 
-    while (particlesGroup.children.length > 0) {
-      particlesGroup.remove(particlesGroup.children[0])
+    while (arcParticlesGroup.children.length > 0) {
+      arcParticlesGroup.remove(arcParticlesGroup.children[0])
     }
-    particlesRef.current = []
+    if (energyLinesGroup) {
+      while (energyLinesGroup.children.length > 0) {
+        energyLinesGroup.remove(energyLinesGroup.children[0])
+      }
+    }
+    arcParticlesRef.current = []
+    energyRingsRef.current = []
 
-    const createParticles = async () => {
+    const createArcParticles = async () => {
       const THREE = await import("three")
-      const maxParticles = isMobile ? 50 : 200
+      const maxParticles = isMobile ? 80 : 250
+      const particlesPerArc = isMobile ? 3 : 6
+      const trailLength = isMobile ? 2 : 5
 
-      filteredTxs.slice(0, maxParticles).forEach((tx, idx) => {
+      filteredTxs.slice(0, maxParticles / particlesPerArc).forEach((tx, txIdx) => {
         const fromPhi = (90 - tx.latLngFrom[0]) * (Math.PI / 180)
         const fromTheta = (tx.latLngFrom[1] + 180) * (Math.PI / 180)
         const toPhi = (90 - tx.latLngTo[0]) * (Math.PI / 180)
@@ -644,31 +698,70 @@ function GlobeDemoComponent() {
           radius * Math.sin(toPhi) * Math.sin(toTheta)
         )
 
-        let color = 0x00ff9d
-        if (tx.riskScore >= 0.7) color = 0xff2e2e
-        else if (tx.riskScore >= 0.5) color = 0xffa500
-        else if (tx.riskScore >= 0.3) color = 0xffff66
+        const midPoint = new THREE.Vector3()
+          .addVectors(startPos, endPos)
+          .multiplyScalar(0.5)
+        const arcHeight = startPos.distanceTo(endPos) * 0.4 + 15 + tx.riskScore * 20
+        const controlPoint = midPoint.clone().normalize().multiplyScalar(radius + arcHeight)
 
-        const geometry = new THREE.SphereGeometry(0.3, 8, 8)
-        const material = new THREE.MeshBasicMaterial({
-          color,
-          transparent: true,
-          opacity: 0.8,
-        })
-        const mesh = new THREE.Mesh(geometry, material)
-        particlesGroup.add(mesh)
+        let colorHex = 0x00ff9d
+        if (tx.riskScore >= 0.85) colorHex = 0xff2e2e
+        else if (tx.riskScore >= 0.6) colorHex = 0xffa500
+        else if (tx.riskScore >= 0.3) colorHex = 0xffff66
 
-        particlesRef.current.push({
-          mesh,
-          startPos,
-          endPos,
-          progress: (idx % 20) / 20,
-          altitude: tx.riskScore,
-        })
+        for (let p = 0; p < particlesPerArc; p++) {
+          const particleGeometry = new THREE.SphereGeometry(0.4 + tx.riskScore * 0.3, 12, 12)
+          const particleMaterial = new THREE.MeshBasicMaterial({
+            color: colorHex,
+            transparent: true,
+            opacity: 0.9,
+          })
+          const particleMesh = new THREE.Mesh(particleGeometry, particleMaterial)
+          arcParticlesGroup.add(particleMesh)
+
+          const trail: any[] = []
+          for (let t = 0; t < trailLength; t++) {
+            const trailGeometry = new THREE.SphereGeometry(0.25 - t * 0.03, 8, 8)
+            const trailMaterial = new THREE.MeshBasicMaterial({
+              color: colorHex,
+              transparent: true,
+              opacity: 0.5 - t * 0.08,
+            })
+            const trailMesh = new THREE.Mesh(trailGeometry, trailMaterial)
+            arcParticlesGroup.add(trailMesh)
+            trail.push(trailMesh)
+          }
+
+          arcParticlesRef.current.push({
+            mesh: particleMesh,
+            startPos,
+            endPos,
+            controlPoint,
+            progress: (p / particlesPerArc) + (txIdx % 10) * 0.1,
+            speed: 0.003 + Math.random() * 0.002 + tx.riskScore * 0.002,
+            color: colorHex,
+            trail,
+          })
+        }
+
+        if (energyLinesGroup && tx.riskScore > 0.5 && txIdx < 30) {
+          const ringGeometry = new THREE.RingGeometry(0.8, 1.2, 16)
+          const ringMaterial = new THREE.MeshBasicMaterial({
+            color: colorHex,
+            transparent: true,
+            opacity: 0.6,
+            side: THREE.DoubleSide,
+          })
+          const ringMesh = new THREE.Mesh(ringGeometry, ringMaterial)
+          ringMesh.position.copy(startPos)
+          ringMesh.lookAt(0, 0, 0)
+          energyLinesGroup.add(ringMesh)
+          energyRingsRef.current.push({ mesh: ringMesh, progress: Math.random() })
+        }
       })
     }
 
-    createParticles()
+    createArcParticles()
   }, [filteredTxs, showParticles, isMobile])
 
   useEffect(() => {
@@ -726,10 +819,10 @@ function GlobeDemoComponent() {
         return [baseColor + "ee", baseColor + "44"]
       }
       
-      if (riskScore >= 0.85) return ["rgba(255,46,46,0.9)", "rgba(255,46,46,0.3)"]
-      if (riskScore >= 0.6) return ["rgba(255,165,0,0.9)", "rgba(255,165,0,0.3)"]
-      if (riskScore >= 0.3) return ["rgba(255,255,102,0.9)", "rgba(255,255,102,0.3)"]
-      return ["rgba(0,255,157,0.9)", "rgba(0,255,157,0.3)"]
+      if (riskScore >= 0.85) return ["rgba(255,46,46,0.95)", "rgba(255,46,46,0.4)"]
+      if (riskScore >= 0.6) return ["rgba(255,165,0,0.95)", "rgba(255,165,0,0.4)"]
+      if (riskScore >= 0.3) return ["rgba(255,255,102,0.95)", "rgba(255,255,102,0.4)"]
+      return ["rgba(0,255,157,0.95)", "rgba(0,255,157,0.4)"]
     }
 
     const maxArcs = isMobile ? 100 : 300
@@ -748,11 +841,11 @@ function GlobeDemoComponent() {
     globe
       .arcsData(arcsData)
       .arcColor((d: any) => d.color)
-      .arcStroke((d: any) => 0.3 + Math.sqrt(d.amount) * 0.01)
-      .arcAltitude((d: any) => 0.1 + d.riskScore * 0.25)
-      .arcDashLength(0.6)
-      .arcDashGap(0.15)
-      .arcDashAnimateTime((d: any) => (2500 - d.riskScore * 1000) / playbackSpeed)
+      .arcStroke((d: any) => 0.4 + Math.sqrt(d.amount) * 0.015 + d.riskScore * 0.3)
+      .arcAltitude((d: any) => 0.12 + d.riskScore * 0.3)
+      .arcDashLength(0.5)
+      .arcDashGap(0.1)
+      .arcDashAnimateTime((d: any) => (1800 - d.riskScore * 800) / playbackSpeed)
   }, [filteredTxs, isMobile, chainFilter, playbackSpeed])
 
   useEffect(() => {
@@ -826,7 +919,7 @@ function GlobeDemoComponent() {
     globe.rotation.x = -(phi - Math.PI / 2) * 0.5
     camera.position.z = 200
 
-    setTimeout(() => { autoRotateRef.current = true }, 5000)
+    setTimeout(() => { if (isPlayingRef.current) autoRotateRef.current = true }, 5000)
   }
 
   const handleExportSnapshot = async () => {
