@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
 import NavBar from "@/components/NavBar"
+import { DeveloperBadge } from "@/components/DeveloperBadge"
 import NeonParticles from "@/components/NeonParticles"
 import CursorTrail from "@/components/CursorTrail"
 import { GlobeLegend } from "@/components/GlobeLegend"
@@ -154,6 +155,9 @@ Community: https://community.cryptoguard.com
         </div>
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 lg:pt-20 pb-10 sm:pb-12 text-center">
+          {/* Developer Badge */}
+          <DeveloperBadge />
+
           <div className="mx-auto mb-3 sm:mb-4 inline-flex items-center gap-2 rounded-full border border-yellow-500/50 bg-black/60 px-2.5 sm:px-3 py-1 text-[10px] sm:text-xs text-yellow-300 shadow-[0_0_20px_#ffd70044] backdrop-blur-sm">
             <span className="inline-flex items-center gap-1">
               <Zap className="size-2.5 sm:size-3 text-yellow-400" /> NEW • AI Fraud Detection
