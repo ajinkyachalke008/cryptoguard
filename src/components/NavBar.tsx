@@ -30,7 +30,8 @@ import {
   Store,
   MessageSquare,
   ChevronDown,
-  TrendingUp
+  TrendingUp,
+  Activity
 } from "lucide-react"
 
 const mainNavItems = [
@@ -51,6 +52,7 @@ const toolItems = [
   { href: "/crypto-watchlist", label: "Crypto Watchlist", icon: TrendingUp },
   { href: "/alerts", label: "Alerts", icon: Bell },
   { href: "/graph", label: "Graph Explorer", icon: Network },
+  { href: "/transaction-center", label: "Transaction Center", icon: Activity },
   { href: "/reports", label: "Reports", icon: Download },
   { href: "/ask-ai", label: "Ask CryptoGuard", icon: MessageSquare },
   { href: "/downloads", label: "Downloads", icon: Download },
