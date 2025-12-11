@@ -20,7 +20,14 @@ import {
   Download,
   Network,
   Plus,
-  Eye
+  Eye,
+  Globe,
+  Lock,
+  User,
+  Zap,
+  Brain,
+  TrendingUp,
+  Activity
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -410,7 +417,7 @@ export default function WalletScanPage() {
       <NavBar />
 
       <div className="mx-auto max-w-7xl px-4 py-8">
-        {/* Header */}
+        {/* Enhanced Header with Feature Overview */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold bg-[linear-gradient(180deg,#fff7cc_0%,#ffd700_50%,#b58100_100%)] bg-clip-text text-transparent">
             Wallet Risk Scanner
@@ -418,6 +425,38 @@ export default function WalletScanPage() {
           <p className="text-gray-400 mt-2">
             Comprehensive multi-chain risk assessment with sanctions, PEP screening, and AI analysis
           </p>
+          
+          {/* Feature Capabilities Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            <Card className="border-yellow-500/30 bg-black/40 backdrop-blur-sm">
+              <CardContent className="pt-4 pb-4 text-center">
+                <Globe className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
+                <p className="text-xs text-gray-400">Multi-Chain</p>
+                <p className="text-sm font-semibold text-yellow-300">6+ Blockchains</p>
+              </CardContent>
+            </Card>
+            <Card className="border-yellow-500/30 bg-black/40 backdrop-blur-sm">
+              <CardContent className="pt-4 pb-4 text-center">
+                <Lock className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+                <p className="text-xs text-gray-400">Sanctions Check</p>
+                <p className="text-sm font-semibold text-blue-300">OFAC/EU/UK</p>
+              </CardContent>
+            </Card>
+            <Card className="border-yellow-500/30 bg-black/40 backdrop-blur-sm">
+              <CardContent className="pt-4 pb-4 text-center">
+                <User className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                <p className="text-xs text-gray-400">PEP Screening</p>
+                <p className="text-sm font-semibold text-purple-300">Real-time</p>
+              </CardContent>
+            </Card>
+            <Card className="border-yellow-500/30 bg-black/40 backdrop-blur-sm">
+              <CardContent className="pt-4 pb-4 text-center">
+                <Brain className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                <p className="text-xs text-gray-400">AI Analysis</p>
+                <p className="text-sm font-semibold text-green-300">GPT-4 Powered</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* Search Section */}
@@ -607,20 +646,150 @@ export default function WalletScanPage() {
           </div>
         )}
 
-        {/* Empty State */}
+        {/* Enhanced Empty State with Feature Explanations */}
         {!scanComplete && !isScanning && (
-          <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
-            <CardContent className="py-16 flex flex-col items-center justify-center text-center">
-              <div className="w-20 h-20 rounded-full bg-yellow-500/10 flex items-center justify-center mb-4">
-                <Search className="w-10 h-10 text-yellow-500/50" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-300 mb-2">Enter a wallet address to scan</h3>
-              <p className="text-gray-500 max-w-md">
-                Our comprehensive scanner will analyze sanctions exposure, PEP connections, 
-                multi-chain activity, and provide AI-powered risk explanations.
-              </p>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
+              <CardContent className="py-16 flex flex-col items-center justify-center text-center">
+                <div className="w-20 h-20 rounded-full bg-yellow-500/10 flex items-center justify-center mb-4">
+                  <Search className="w-10 h-10 text-yellow-500/50" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-300 mb-2">Enter a wallet address to scan</h3>
+                <p className="text-gray-500 max-w-md mb-6">
+                  Our comprehensive scanner will analyze sanctions exposure, PEP connections, 
+                  multi-chain activity, and provide AI-powered risk explanations.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* What We Check Section */}
+            <div className="grid gap-6 md:grid-cols-2">
+              <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-red-500/20 border border-red-500/30 flex items-center justify-center shrink-0">
+                      <Lock className="w-6 h-6 text-red-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-yellow-300 mb-2">Sanctions Screening</h3>
+                      <p className="text-sm text-gray-400 mb-3">
+                        We check wallet addresses against international sanctions lists including:
+                      </p>
+                      <ul className="space-y-2 text-sm text-gray-400">
+                        <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                          OFAC SDN List (US Treasury)
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                          EU Consolidated List
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                          UK HM Treasury List
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                          UN Security Council Lists
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0">
+                      <User className="w-6 h-6 text-purple-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-yellow-300 mb-2">PEP Screening</h3>
+                      <p className="text-sm text-gray-400 mb-3">
+                        Identify Politically Exposed Persons connections:
+                      </p>
+                      <ul className="space-y-2 text-sm text-gray-400">
+                        <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                          Government Officials & Relatives
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                          State-Owned Enterprise Leaders
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                          International Organization Figures
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                          Political Party Representatives
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center shrink-0">
+                      <Globe className="w-6 h-6 text-blue-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-yellow-300 mb-2">Multi-Chain Analysis</h3>
+                      <p className="text-sm text-gray-400 mb-3">
+                        Track wallet activity across multiple blockchains:
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {["Ethereum", "Bitcoin", "BSC", "Polygon", "Solana", "Arbitrum"].map((chain) => (
+                          <Badge key={chain} variant="outline" className="border-blue-500/30 text-blue-300 justify-center">
+                            {chain}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-green-500/20 border border-green-500/30 flex items-center justify-center shrink-0">
+                      <Brain className="w-6 h-6 text-green-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-yellow-300 mb-2">AI-Powered Insights</h3>
+                      <p className="text-sm text-gray-400 mb-3">
+                        Advanced machine learning analysis provides:
+                      </p>
+                      <ul className="space-y-2 text-sm text-gray-400">
+                        <li className="flex items-center gap-2">
+                          <Zap className="w-4 h-4 text-green-400" />
+                          Behavioral Pattern Recognition
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <TrendingUp className="w-4 h-4 text-green-400" />
+                          Risk Score Predictions
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Activity className="w-4 h-4 text-green-400" />
+                          Transaction Flow Analysis
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Network className="w-4 h-4 text-green-400" />
+                          Connection Graph Mapping
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         )}
       </div>
 

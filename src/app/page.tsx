@@ -18,7 +18,7 @@ import SecurityFeatures from "@/components/SecurityFeatures"
 import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Sparkles, Zap, Download, Monitor, Smartphone, Chrome, ArrowRight } from "lucide-react"
+import { Sparkles, Zap, Download, Monitor, Smartphone, Chrome, ArrowRight, Shield, CheckCircle2, Store, AlertTriangle, Network, TrendingUp } from "lucide-react"
 import { LiveDemoModal } from "@/components/LiveDemoModal"
 import { TypeWriter } from "@/components/TypeWriter"
 import { FloatingStats } from "@/components/FloatingStats"
@@ -285,6 +285,248 @@ Community: https://community.cryptoguard.com
       {/* Features & Solutions */}
       <section id="features" className="mt-8 sm:mt-12">
         <FeaturesSolutions />
+        
+        {/* Detailed Feature Explanation Section */}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold bg-[linear-gradient(180deg,#fff7cc_0%,#ffd700_50%,#b58100_100%)] bg-clip-text text-transparent mb-4">
+              Platform Features
+            </h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Comprehensive tools for crypto fraud detection, risk assessment, and compliance
+            </p>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {/* Wallet Scanner */}
+            <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm hover:shadow-[0_0_40px_#ffd70033] transition-all">
+              <CardContent className="pt-6">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30 flex items-center justify-center mb-4">
+                  <Shield className="w-6 h-6 text-blue-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-yellow-300 mb-2">Wallet Scanner</h3>
+                <p className="text-sm text-gray-400 mb-4">
+                  Comprehensive multi-chain risk assessment with sanctions screening, PEP checks, and AI-powered analysis. 
+                  Get detailed compliance reports for regulatory requirements.
+                </p>
+                <ul className="space-y-2 text-xs text-gray-500 mb-4">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    OFAC/EU/UK sanctions screening
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Politically Exposed Person (PEP) detection
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Cross-chain fund flow analysis
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    AI risk explanations & recommendations
+                  </li>
+                </ul>
+                <Button 
+                  onClick={() => router.push("/wallet-scan")} 
+                  className="w-full bg-blue-500/20 border border-blue-500/50 text-blue-300 hover:bg-blue-500/30"
+                >
+                  Launch Scanner →
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Quick Scan */}
+            <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm hover:shadow-[0_0_40px_#ffd70033] transition-all">
+              <CardContent className="pt-6">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500/20 to-yellow-600/10 border border-yellow-500/30 flex items-center justify-center mb-4">
+                  <Zap className="w-6 h-6 text-yellow-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-yellow-300 mb-2">Quick Scan</h3>
+                <p className="text-sm text-gray-400 mb-4">
+                  Lightning-fast wallet risk assessment in under 10 seconds. Perfect for quick checks 
+                  and initial screening before deeper analysis.
+                </p>
+                <ul className="space-y-2 text-xs text-gray-500 mb-4">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    10-second instant risk scoring
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Multi-chain support (ETH, BSC, Polygon+)
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    AI-powered pattern detection
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Basic fraud flag identification
+                  </li>
+                </ul>
+                <Button 
+                  onClick={() => router.push("/scanner")} 
+                  className="w-full bg-yellow-500 text-black hover:bg-yellow-400 font-semibold"
+                >
+                  Quick Scan →
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Marketplace Risk */}
+            <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm hover:shadow-[0_0_40px_#ffd70033] transition-all">
+              <CardContent className="pt-6">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30 flex items-center justify-center mb-4">
+                  <Store className="w-6 h-6 text-purple-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-yellow-300 mb-2">Marketplace Scanner</h3>
+                <p className="text-sm text-gray-400 mb-4">
+                  Analyze NFT marketplaces for fraud indicators, wash trading patterns, and safety features. 
+                  Essential for marketplace due diligence.
+                </p>
+                <ul className="space-y-2 text-xs text-gray-500 mb-4">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Fraud metric analysis
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Wash trading detection
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Safety feature assessment
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Historical incident tracking
+                  </li>
+                </ul>
+                <Button 
+                  onClick={() => router.push("/marketplace-risk")} 
+                  className="w-full bg-purple-500/20 border border-purple-500/50 text-purple-300 hover:bg-purple-500/30"
+                >
+                  Scan Marketplace →
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Protocol/Token Risk */}
+            <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm hover:shadow-[0_0_40px_#ffd70033] transition-all">
+              <CardContent className="pt-6">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-red-500/20 to-red-600/10 border border-red-500/30 flex items-center justify-center mb-4">
+                  <AlertTriangle className="w-6 h-6 text-red-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-yellow-300 mb-2">Protocol/Token Risk</h3>
+                <p className="text-sm text-gray-400 mb-4">
+                  Comprehensive security analysis for DeFi protocols and tokens. Check audit status, 
+                  smart contract vulnerabilities, and rug pull indicators.
+                </p>
+                <ul className="space-y-2 text-xs text-gray-500 mb-4">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Audit rating & verification
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Smart contract vulnerability scan
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Rug pull risk assessment
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Liquidity & ownership analysis
+                  </li>
+                </ul>
+                <Button 
+                  onClick={() => router.push("/protocol-risk")} 
+                  className="w-full bg-red-500/20 border border-red-500/50 text-red-300 hover:bg-red-500/30"
+                >
+                  Check Protocol →
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Graph Explorer */}
+            <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm hover:shadow-[0_0_40px_#ffd70033] transition-all">
+              <CardContent className="pt-6">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500/20 to-green-600/10 border border-green-500/30 flex items-center justify-center mb-4">
+                  <Network className="w-6 h-6 text-green-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-yellow-300 mb-2">Graph Explorer</h3>
+                <p className="text-sm text-gray-400 mb-4">
+                  Interactive visualization of wallet relationships and fund flows. Trace money movement 
+                  across multiple hops with D3.js-powered graphics.
+                </p>
+                <ul className="space-y-2 text-xs text-gray-500 mb-4">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Interactive network visualization
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Multi-hop transaction tracing
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Risk-based node coloring
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Live mode for real-time updates
+                  </li>
+                </ul>
+                <Button 
+                  onClick={() => router.push("/graph")} 
+                  className="w-full bg-green-500/20 border border-green-500/50 text-green-300 hover:bg-green-500/30"
+                >
+                  Explore Graph →
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Crypto Watchlist */}
+            <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm hover:shadow-[0_0_40px_#ffd70033] transition-all">
+              <CardContent className="pt-6">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500/20 to-orange-600/10 border border-orange-500/30 flex items-center justify-center mb-4">
+                  <TrendingUp className="w-6 h-6 text-orange-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-yellow-300 mb-2">Crypto Watchlist</h3>
+                <p className="text-sm text-gray-400 mb-4">
+                  Real-time cryptocurrency market data for 30+ coins. Track prices, market caps, 
+                  volume, and 24h changes with auto-refresh functionality.
+                </p>
+                <ul className="space-y-2 text-xs text-gray-500 mb-4">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Live prices for 30+ cryptocurrencies
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Market cap & volume tracking
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Price charts & sparklines
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    Favorite & filter capabilities
+                  </li>
+                </ul>
+                <Button 
+                  onClick={() => router.push("/crypto-watchlist")} 
+                  className="w-full bg-orange-500/20 border border-orange-500/50 text-orange-300 hover:bg-orange-500/30"
+                >
+                  View Watchlist →
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </section>
 
       {/* Social Proof Section */}

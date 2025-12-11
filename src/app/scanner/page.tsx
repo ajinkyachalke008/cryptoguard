@@ -32,7 +32,10 @@ import {
   AlertOctagon,
   Loader2,
   Copy,
-  ExternalLink
+  ExternalLink,
+  Sparkles,
+  Target,
+  Gauge
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -146,12 +149,31 @@ export default function ScannerPage() {
       <NavBar />
 
       <div className="mx-auto max-w-7xl px-4 py-8">
-        {/* Header */}
+        {/* Enhanced Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-[linear-gradient(180deg,#fff7cc_0%,#ffd700_50%,#b58100_100%)] bg-clip-text text-transparent">
-            Wallet Scanner
-          </h1>
-          <p className="text-gray-400 mt-2">Analyze any crypto wallet for risk assessment and fraud detection</p>
+          <div className="flex items-center gap-2 mb-2">
+            <Zap className="w-8 h-8 text-yellow-400" />
+            <h1 className="text-4xl font-bold bg-[linear-gradient(180deg,#fff7cc_0%,#ffd700_50%,#b58100_100%)] bg-clip-text text-transparent">
+              Quick Scan
+            </h1>
+          </div>
+          <p className="text-gray-400 mt-2">Fast wallet risk assessment with instant results in under 10 seconds</p>
+          
+          {/* Quick Stats */}
+          <div className="flex flex-wrap gap-4 mt-4">
+            <Badge className="bg-green-500/20 text-green-400 border-green-500/50 px-3 py-1">
+              <Clock className="w-3 h-3 mr-1" />
+              ~10s scan time
+            </Badge>
+            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/50 px-3 py-1">
+              <Target className="w-3 h-3 mr-1" />
+              85%+ accuracy
+            </Badge>
+            <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/50 px-3 py-1">
+              <Activity className="w-3 h-3 mr-1" />
+              Real-time analysis
+            </Badge>
+          </div>
         </div>
 
         {/* Search Section */}
@@ -343,28 +365,220 @@ export default function ScannerPage() {
           </div>
         )}
 
-        {/* Empty State */}
+        {/* Enhanced Empty State */}
         {!result && !isScanning && (
-          <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
-            <CardContent className="py-16 flex flex-col items-center justify-center text-center">
-              <div className="w-20 h-20 rounded-full bg-yellow-500/10 flex items-center justify-center mb-4">
-                <Search className="w-10 h-10 text-yellow-500/50" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-300 mb-2">Enter a wallet address to scan</h3>
-              <p className="text-gray-500 max-w-md">
-                Our AI-powered scanner will analyze transaction history, detect connections to malicious wallets, 
-                and provide a comprehensive risk assessment.
-              </p>
-              {!isAuthenticated && (
-                <Button
-                  onClick={() => router.push("/login")}
-                  className="mt-4 bg-yellow-500 text-black hover:bg-yellow-400"
-                >
-                  Login to Start Scanning
-                </Button>
-              )}
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
+              <CardContent className="py-16 flex flex-col items-center justify-center text-center">
+                <div className="w-20 h-20 rounded-full bg-yellow-500/10 flex items-center justify-center mb-4">
+                  <Search className="w-10 h-10 text-yellow-500/50" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-300 mb-2">Enter a wallet address to scan</h3>
+                <p className="text-gray-500 max-w-md">
+                  Our AI-powered scanner will analyze transaction history, detect connections to malicious wallets, 
+                  and provide a comprehensive risk assessment.
+                </p>
+                {!isAuthenticated && (
+                  <Button
+                    onClick={() => router.push("/login")}
+                    className="mt-4 bg-yellow-500 text-black hover:bg-yellow-400"
+                  >
+                    Login to Start Scanning
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Feature Highlights */}
+            <div className="grid gap-6 md:grid-cols-3">
+              <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
+                <CardContent className="pt-6">
+                  <div className="w-12 h-12 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center mb-4">
+                    <Gauge className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-yellow-300 mb-2">Lightning Fast</h3>
+                  <p className="text-sm text-gray-400">
+                    Get risk scores in under 10 seconds with our optimized scanning engine
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
+                <CardContent className="pt-6">
+                  <div className="w-12 h-12 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center mb-4">
+                    <Sparkles className="w-6 h-6 text-purple-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-yellow-300 mb-2">AI-Powered</h3>
+                  <p className="text-sm text-gray-400">
+                    Advanced machine learning models analyze patterns and behaviors
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
+                <CardContent className="pt-6">
+                  <div className="w-12 h-12 rounded-lg bg-green-500/20 border border-green-500/30 flex items-center justify-center mb-4">
+                    <Shield className="w-6 h-6 text-green-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-yellow-300 mb-2">Multi-Chain Support</h3>
+                  <p className="text-sm text-gray-400">
+                    Scan wallets across Ethereum, BSC, Polygon, Arbitrum, and more
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* What We Detect */}
+            <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-yellow-300">What We Detect</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Our scanner checks for multiple risk factors
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-sm text-gray-300">Transaction Patterns</h4>
+                    <ul className="space-y-2 text-sm text-gray-400">
+                      <li className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                        Mixer/Tumbler usage
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                        Darknet marketplace interactions
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                        High-frequency trading patterns
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                        Wash trading indicators
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-sm text-gray-300">Connection Analysis</h4>
+                    <ul className="space-y-2 text-sm text-gray-400">
+                      <li className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                        Known scam wallets
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                        Sanctioned addresses
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                        Exchange hot wallets
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+                        DeFi protocol interactions
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Comparison with Full Scanner */}
+            <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-yellow-300">Quick Scan vs Full Scanner</CardTitle>
+                <CardDescription className="text-gray-400">
+                  Choose the right tool for your needs
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="p-4 rounded-lg border border-yellow-500/30 bg-yellow-500/5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Zap className="w-5 h-5 text-yellow-400" />
+                      <h4 className="font-semibold text-yellow-300">Quick Scan (Current)</h4>
+                    </div>
+                    <ul className="space-y-2 text-sm text-gray-400">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-400" />
+                        10 second results
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-400" />
+                        Basic risk scoring
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-400" />
+                        AI-powered analysis
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-400" />
+                        Multi-chain support
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <XCircle className="w-4 h-4 text-gray-600" />
+                        Detailed compliance reports
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <XCircle className="w-4 h-4 text-gray-600" />
+                        Graph visualization
+                      </li>
+                    </ul>
+                    <div className="mt-4 text-xs text-gray-500">
+                      Best for: Quick checks and initial screening
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-lg border border-blue-500/30 bg-blue-500/5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Shield className="w-5 h-5 text-blue-400" />
+                      <h4 className="font-semibold text-blue-300">Full Wallet Scanner</h4>
+                    </div>
+                    <ul className="space-y-2 text-sm text-gray-400">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-400" />
+                        Comprehensive analysis
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-400" />
+                        Sanctions & PEP screening
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-400" />
+                        Cross-chain fund tracking
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-400" />
+                        Detailed risk breakdown
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-400" />
+                        Export compliance reports
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-400" />
+                        Graph network analysis
+                      </li>
+                    </ul>
+                    <div className="mt-4">
+                      <Button
+                        size="sm"
+                        onClick={() => router.push("/wallet-scan")}
+                        className="w-full bg-blue-500 text-white hover:bg-blue-400"
+                      >
+                        Try Full Scanner →
+                      </Button>
+                    </div>
+                    <div className="mt-2 text-xs text-gray-500 text-center">
+                      Best for: Compliance and detailed investigations
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
 
