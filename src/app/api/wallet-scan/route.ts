@@ -239,17 +239,29 @@ export async function POST(request: NextRequest) {
       ai_explanation: aiExplanation,
       cross_chain_flow: crossChainFlow
     };
+
+    // Determine risk level based on score
+    const riskLevel = riskScore >= 75 ? 'critical' : riskScore >= 50 ? 'high' : riskScore >= 25 ? 'medium' : 'low';
+    
+    // Generate tags from chain risks
+    const tags = chainRisks.flatMap(cr => cr.flags);
+    
+    // Generate rule-based flags
+    const ruleBasedFlags = chainRisks.flatMap(cr => 
+      cr.flags.map(f => f.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()))
+    );
     
     const newScan = await db.insert(walletScans)
       .values({
         userId: 1,
         walletAddress: normalizedAddress,
-        blockchain: normalizedBlockchain,
+        chain: normalizedBlockchain,
+        rawData: JSON.stringify(scanData),
         riskScore,
-        scanType: 'comprehensive',
-        sanctionsStatus,
-        pepRiskLevel,
-        scanData: JSON.stringify(scanData),
+        riskLevel,
+        tags: JSON.stringify(tags),
+        aiExplanation,
+        ruleBasedFlags: JSON.stringify(ruleBasedFlags),
         createdAt: new Date().toISOString()
       })
       .returning();
@@ -269,13 +281,13 @@ export async function POST(request: NextRequest) {
     const response = {
       id: result.id,
       wallet_address: result.walletAddress,
-      blockchain: result.blockchain,
+      blockchain: result.chain,
       risk_score: result.riskScore,
-      scan_type: result.scanType,
-      sanctions_status: result.sanctionsStatus,
-      pep_risk_level: result.pepRiskLevel,
+      risk_level: result.riskLevel,
+      sanctions_status: sanctionsStatus,
+      pep_risk_level: pepRiskLevel,
       created_at: result.createdAt,
-      scan_data: JSON.parse(result.scanData)
+      scan_data: scanData
     };
     
     return NextResponse.json(response, { status: 201 });
