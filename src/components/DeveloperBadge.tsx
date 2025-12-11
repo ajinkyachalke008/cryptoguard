@@ -4,149 +4,36 @@ import { Shield } from "lucide-react"
 
 export function DeveloperBadge() {
   return (
-    <div className="flex justify-center w-full px-4 py-2">
+    <div className="flex justify-center mb-6 sm:mb-8">
       <div 
-        className="developer-badge group inline-flex items-center gap-2.5 rounded-[10px] border-2 border-[#FF2E2E] bg-black/15 backdrop-blur-sm px-[22px] py-[10px] shadow-[0_0_18px_#FF2E2E] min-w-[420px] max-w-[70%] w-auto transition-all duration-180 hover:scale-[1.02] hover:shadow-[0_0_28px_#FF2E2E] motion-reduce:transform-none motion-reduce:animate-none"
-        role="banner"
-        aria-label="Software developer credit: Ajinkya Chalke"
+        className="relative inline-flex items-center gap-2.5 sm:gap-3 rounded-full border-2 border-[#FF2E2E] bg-black/80 backdrop-blur-md shadow-[0_0_30px_#FF2E2E66,inset_0_0_20px_#FF2E2E22] animate-[slideDownFade_0.8s_ease-out,neonPulse_2.8s_ease-in-out_infinite,float_4s_ease-in-out_infinite] hover:scale-105 hover:shadow-[0_0_50px_#FF2E2E88,inset_0_0_30px_#FF2E2E33] transition-all duration-300 px-5 sm:px-[22px] py-2 sm:py-2.5 min-w-[320px] sm:min-w-[360px] max-w-[85vw] sm:max-w-[70vw] w-fit"
+        style={{
+          background: "linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,0,0,0.9) 100%)",
+        }}
       >
-        <Shield 
-          className="w-5 h-5 text-[#FFD659] flex-shrink-0" 
-          strokeWidth={2}
-          aria-hidden="true"
-        />
-        <span className="text-[#FFD659] font-semibold tracking-[0.6px] text-[14px] whitespace-nowrap developer-badge-text">
+        {/* Holographic scan line */}
+        <div className="absolute inset-0 overflow-hidden rounded-full pointer-events-none opacity-60">
+          <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#FF2E2E] to-transparent animate-[scanLine_3.6s_ease-in-out_infinite]" />
+        </div>
+
+        {/* Shield Icon */}
+        <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#FF2E2E] drop-shadow-[0_0_8px_#FF2E2E] flex-shrink-0 relative z-10" />
+        
+        {/* Developer Text */}
+        <span 
+          className="relative z-10 text-[11px] sm:text-[14px] font-bold tracking-wide text-[#FFD659] drop-shadow-[0_0_12px_#FFD65999] whitespace-nowrap"
+          style={{
+            fontFamily: "'Orbitron', 'Eurostile', 'Rajdhani', sans-serif",
+            textShadow: "0 0 20px rgba(255, 214, 89, 0.8), 0 0 40px rgba(255, 214, 89, 0.4)"
+          }}
+        >
           SOFTWARE DEVELOPER: AJINKYA CHALKE
         </span>
+
+        {/* Corner accent glows */}
+        <div className="absolute top-0 left-0 w-3 h-3 sm:w-4 sm:h-4 bg-[#FF2E2E] opacity-40 blur-md rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-3 h-3 sm:w-4 sm:h-4 bg-[#FF2E2E] opacity-40 blur-md rounded-full pointer-events-none" />
       </div>
-
-      <style jsx global>{`
-        @keyframes slideDownFade {
-          from {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes neonPulse {
-          0%, 100% {
-            box-shadow: 0 0 18px #FF2E2E, 0 0 8px #FF2E2E80;
-            filter: drop-shadow(0 0 8px #FFD65990);
-          }
-          50% {
-            box-shadow: 0 0 28px #FF2E2E, 0 0 12px #FF6B6B;
-            filter: drop-shadow(0 0 12px #FFD659);
-          }
-        }
-
-        @keyframes scanLine {
-          0% {
-            background-position: -100% 0;
-          }
-          100% {
-            background-position: 200% 0;
-          }
-        }
-
-        @keyframes subtleYFloat {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-2px);
-          }
-        }
-
-        .developer-badge {
-          animation: slideDownFade 450ms cubic-bezier(0.22, 0.9, 0.31, 1) forwards,
-                     neonPulse 2.8s ease-in-out infinite,
-                     subtleYFloat 6s ease-in-out infinite;
-          position: relative;
-          overflow: visible;
-        }
-
-        .developer-badge::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(
-            90deg,
-            transparent 0%,
-            rgba(255, 46, 46, 0.35) 50%,
-            transparent 100%
-          );
-          animation: scanLine 3.6s linear infinite;
-          pointer-events: none;
-        }
-
-        .developer-badge-text {
-          text-shadow: 0 0 8px rgba(255, 214, 89, 0.9);
-          font-family: 'Orbitron', 'Eurostile', 'Inter', system-ui, sans-serif;
-          overflow: visible;
-          text-overflow: clip;
-        }
-
-        .developer-badge:hover {
-          box-shadow: 0 0 28px #FF2E2E, 0 0 14px #FF6B6B !important;
-        }
-
-        .developer-badge:hover .developer-badge-text {
-          text-shadow: 0 0 12px rgba(255, 214, 89, 1);
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .developer-badge {
-            animation: none !important;
-            box-shadow: 0 0 18px #FF2E2E;
-          }
-          
-          .developer-badge::before {
-            animation: none !important;
-            display: none;
-          }
-          
-          .developer-badge:hover {
-            transform: none !important;
-          }
-        }
-
-        @media (max-width: 640px) {
-          .developer-badge {
-            min-width: 320px;
-            max-width: 95%;
-            padding-left: 16px;
-            padding-right: 16px;
-            gap: 8px;
-          }
-          
-          .developer-badge-text {
-            font-size: 12px;
-            letter-spacing: 0.4px;
-          }
-        }
-
-        @media (max-width: 380px) {
-          .developer-badge {
-            min-width: 280px;
-            max-width: 98%;
-            padding-left: 12px;
-            padding-right: 12px;
-            gap: 6px;
-          }
-          
-          .developer-badge-text {
-            font-size: 10px;
-            letter-spacing: 0.3px;
-          }
-        }
-      `}</style>
     </div>
   )
 }
