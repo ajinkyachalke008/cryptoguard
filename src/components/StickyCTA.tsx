@@ -6,10 +6,9 @@ import { Button } from "@/components/ui/button"
 
 interface StickyCTAProps {
   onOpenDemo: () => void
-  onOpenRegister: () => void
 }
 
-export function StickyCTA({ onOpenDemo, onOpenRegister }: StickyCTAProps) {
+export function StickyCTA({ onOpenDemo }: StickyCTAProps) {
   const [isVisible, setIsVisible] = useState(false)
   const [isDismissed, setIsDismissed] = useState(false)
 
@@ -49,14 +48,6 @@ export function StickyCTA({ onOpenDemo, onOpenRegister }: StickyCTAProps) {
           <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <Button
               onClick={onOpenDemo}
-              variant="outline"
-              className="flex-1 sm:flex-none h-8 sm:h-9 rounded-full border-yellow-500/50 px-3 sm:px-4 text-xs sm:text-sm text-yellow-300 hover:bg-yellow-500/10 hover:text-yellow-200 active:scale-95"
-            >
-              <span className="hidden sm:inline">Live Demo</span>
-              <span className="sm:hidden">Demo</span>
-            </Button>
-            <Button
-              onClick={onOpenRegister}
               className="flex-1 sm:flex-none h-8 sm:h-9 rounded-full bg-yellow-500 px-3 sm:px-4 text-xs sm:text-sm text-black font-semibold hover:bg-yellow-400 shadow-[0_0_20px_#ffd70066] active:scale-95"
             >
               <span className="hidden sm:inline">Get Started</span>
