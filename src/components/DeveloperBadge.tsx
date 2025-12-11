@@ -6,7 +6,7 @@ export function DeveloperBadge() {
   return (
     <div className="flex justify-center w-full px-4 py-2">
       <div 
-        className="developer-badge group inline-flex items-center gap-2.5 rounded-[10px] border-2 border-[#FF2E2E] bg-black/15 backdrop-blur-sm px-[22px] py-[10px] shadow-[0_0_18px_#FF2E2E] min-w-[360px] max-w-[70%] w-auto transition-all duration-180 hover:scale-[1.02] hover:shadow-[0_0_28px_#FF2E2E] motion-reduce:transform-none motion-reduce:animate-none"
+        className="developer-badge group inline-flex items-center gap-2.5 rounded-[10px] border-2 border-[#FF2E2E] bg-black/15 backdrop-blur-sm px-[22px] py-[10px] shadow-[0_0_18px_#FF2E2E] min-w-[420px] max-w-[70%] w-auto transition-all duration-180 hover:scale-[1.02] hover:shadow-[0_0_28px_#FF2E2E] motion-reduce:transform-none motion-reduce:animate-none"
         role="banner"
         aria-label="Software developer credit: Ajinkya Chalke"
       >
@@ -15,7 +15,7 @@ export function DeveloperBadge() {
           strokeWidth={2}
           aria-hidden="true"
         />
-        <span className="text-[#FFD659] font-semibold tracking-[0.6px] text-sm sm:text-[14px] whitespace-nowrap developer-badge-text">
+        <span className="text-[#FFD659] font-semibold tracking-[0.6px] text-[14px] whitespace-nowrap developer-badge-text">
           SOFTWARE DEVELOPER: AJINKYA CHALKE
         </span>
       </div>
@@ -119,14 +119,31 @@ export function DeveloperBadge() {
 
         @media (max-width: 640px) {
           .developer-badge {
-            min-w-[280px];
-            max-w-[90%];
+            min-width: 320px;
+            max-width: 95%;
             padding-left: 16px;
             padding-right: 16px;
+            gap: 8px;
           }
           
           .developer-badge-text {
             font-size: 12px;
+            letter-spacing: 0.4px;
+          }
+        }
+
+        @media (max-width: 380px) {
+          .developer-badge {
+            min-width: 280px;
+            max-width: 98%;
+            padding-left: 12px;
+            padding-right: 12px;
+            gap: 6px;
+          }
+          
+          .developer-badge-text {
+            font-size: 10px;
+            letter-spacing: 0.3px;
           }
         }
       `}</style>
