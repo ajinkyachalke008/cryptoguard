@@ -148,3 +148,47 @@ export const reports = sqliteTable('reports', {
   reportData: text('report_data', { mode: 'json' }),
   createdAt: text('created_at').notNull(),
 });
+
+// API Keys table
+export const apiKeys = sqliteTable('api_keys', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').references(() => users.id),
+  name: text('name').notNull(),
+  key: text('key').notNull().unique(),
+  status: text('status').notNull().default('active'),
+  lastUsedAt: text('last_used_at'),
+  createdAt: text('created_at').notNull(),
+});
+
+// Case Management table
+export const cases = sqliteTable('cases', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').references(() => users.id),
+  title: text('title').notNull(),
+  description: text('description'),
+  status: text('status').notNull().default('open'),
+  priority: text('priority').notNull().default('medium'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+// Case Items table (links scans/alerts to cases)
+export const caseItems = sqliteTable('case_items', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  caseId: integer('case_id').references(() => cases.id),
+  itemType: text('item_type').notNull(), // 'wallet_scan', 'transaction_scan', 'alert'
+  itemId: integer('item_id').notNull(),
+  createdAt: text('created_at').notNull(),
+});
+
+// Webhooks table
+export const webhooks = sqliteTable('webhooks', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').references(() => users.id),
+  url: text('url').notNull(),
+  name: text('name').notNull(),
+  events: text('events', { mode: 'json' }), // ['alert.created', 'scan.completed']
+  secret: text('secret').notNull(),
+  status: text('status').notNull().default('active'),
+  createdAt: text('created_at').notNull(),
+});
