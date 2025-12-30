@@ -33,14 +33,15 @@ import {
   Network,
   Layers,
   Play,
-  Pause
+  Pause,
+  Loader2
 } from "lucide-react"
 import { toast } from "sonner"
 import * as d3 from "d3"
 
 type RiskLevel = "low" | "medium" | "high" | "critical"
 
-interface GraphNode {
+interface GraphNode extends d3.SimulationNodeDatum {
   id: string
   address: string
   riskScore: number
@@ -48,15 +49,9 @@ interface GraphNode {
   volume: number
   transactionCount: number
   label?: string
-  x?: number
-  y?: number
-  fx?: number | null
-  fy?: number | null
 }
 
-interface GraphLink {
-  source: string | GraphNode
-  target: string | GraphNode
+interface GraphLink extends d3.SimulationLinkDatum<GraphNode> {
   value: number
   transactionCount: number
   hashes: string[]
@@ -65,79 +60,6 @@ interface GraphLink {
 interface GraphData {
   nodes: GraphNode[]
   links: GraphLink[]
-}
-
-// Generate mock graph data
-function generateGraphData(centerAddress: string, depth: number): GraphData {
-  const nodes: GraphNode[] = []
-  const links: GraphLink[] = []
-  const nodeMap = new Set<string>()
-
-  const riskLevels: RiskLevel[] = ["low", "medium", "high", "critical"]
-  
-  // Center node
-  const centerNode: GraphNode = {
-    id: centerAddress,
-    address: centerAddress,
-    riskScore: Math.floor(Math.random() * 100),
-    riskLevel: riskLevels[Math.floor(Math.random() * 4)],
-    volume: Math.floor(Math.random() * 1000000) + 100000,
-    transactionCount: Math.floor(Math.random() * 100) + 20,
-    label: "Target"
-  }
-  centerNode.riskLevel = centerNode.riskScore < 25 ? "low" : centerNode.riskScore < 50 ? "medium" : centerNode.riskScore < 75 ? "high" : "critical"
-  nodes.push(centerNode)
-  nodeMap.add(centerAddress)
-
-  // Generate connected nodes
-  const generateAddress = () => `0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 6)}`
-  
-  let currentLevel = [centerAddress]
-  
-  for (let d = 0; d < depth; d++) {
-    const nextLevel: string[] = []
-    const connectionsPerNode = Math.max(2, 5 - d)
-    
-    for (const parentId of currentLevel) {
-      const numConnections = Math.floor(Math.random() * connectionsPerNode) + 1
-      
-      for (let i = 0; i < numConnections; i++) {
-        const newAddress = generateAddress()
-        if (!nodeMap.has(newAddress)) {
-          const riskScore = Math.floor(Math.random() * 100)
-          const newNode: GraphNode = {
-            id: newAddress,
-            address: newAddress,
-            riskScore,
-            riskLevel: riskScore < 25 ? "low" : riskScore < 50 ? "medium" : riskScore < 75 ? "high" : "critical",
-            volume: Math.floor(Math.random() * 500000) + 1000,
-            transactionCount: Math.floor(Math.random() * 50) + 1
-          }
-          
-          // Add labels for special nodes
-          if (riskScore > 80) newNode.label = "🚨 High Risk"
-          else if (newNode.volume > 400000) newNode.label = "💰 High Volume"
-          
-          nodes.push(newNode)
-          nodeMap.add(newAddress)
-          nextLevel.push(newAddress)
-        }
-        
-        links.push({
-          source: parentId,
-          target: newAddress,
-          value: Math.floor(Math.random() * 100000) + 1000,
-          transactionCount: Math.floor(Math.random() * 20) + 1,
-          hashes: Array.from({ length: Math.floor(Math.random() * 5) + 1 }, () => 
-            `0x${Math.random().toString(16).slice(2, 10)}`
-          )
-        })
-      }
-    }
-    currentLevel = nextLevel
-  }
-
-  return { nodes, links }
 }
 
 const riskColors = {
@@ -155,34 +77,47 @@ export default function GraphPage() {
   
   const [address, setAddress] = useState(searchParams.get("address") || "")
   const [graphData, setGraphData] = useState<GraphData | null>(null)
-  const [depth, setDepth] = useState([2])
+  const [depth, setDepth] = useState([1])
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
   const [selectedLink, setSelectedLink] = useState<GraphLink | null>(null)
   const [isLive, setIsLive] = useState(false)
   const [riskFilter, setRiskFilter] = useState<"all" | RiskLevel>("all")
   const [zoom, setZoom] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleExplore = useCallback(() => {
+  const fetchGraphData = useCallback(async (addr: string, d: number) => {
+    setIsLoading(true)
+    try {
+      const response = await fetch(`/api/graph?address=${addr}&depth=${d}`)
+      if (!response.ok) throw new Error("Failed to fetch graph data")
+      const data = await response.json()
+      setGraphData(data)
+      setSelectedNode(null)
+      setSelectedLink(null)
+      toast.success(`Graph loaded with ${data.nodes.length} nodes`)
+    } catch (error) {
+      toast.error("Failed to load graph")
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  const handleExplore = () => {
     if (!address.trim()) {
       toast.error("Please enter a wallet address")
       return
     }
-    const data = generateGraphData(address, depth[0])
-    setGraphData(data)
-    setSelectedNode(null)
-    setSelectedLink(null)
-    toast.success(`Graph loaded with ${data.nodes.length} nodes`)
-  }, [address, depth])
+    fetchGraphData(address, depth[0])
+  }
 
   // Initialize graph when address is provided via URL
   useEffect(() => {
     const urlAddress = searchParams.get("address")
-    if (urlAddress && !graphData) {
+    if (urlAddress && !graphData && !isLoading) {
       setAddress(urlAddress)
-      const data = generateGraphData(urlAddress, depth[0])
-      setGraphData(data)
+      fetchGraphData(urlAddress, depth[0])
     }
-  }, [searchParams, graphData, depth])
+  }, [searchParams, fetchGraphData, graphData, isLoading, depth])
 
   // D3 force simulation
   useEffect(() => {
@@ -202,8 +137,8 @@ export default function GraphPage() {
     
     const filteredNodeIds = new Set(filteredNodes.map(n => n.id))
     const filteredLinks = graphData.links.filter(l => {
-      const sourceId = typeof l.source === "string" ? l.source : l.source.id
-      const targetId = typeof l.target === "string" ? l.target : l.target.id
+      const sourceId = typeof l.source === "string" ? l.source : (l.source as any).id
+      const targetId = typeof l.target === "string" ? l.target : (l.target as any).id
       return filteredNodeIds.has(sourceId) && filteredNodeIds.has(targetId)
     })
 
@@ -234,14 +169,14 @@ export default function GraphPage() {
       .style("opacity", 0.6)
 
     // Force simulation
-    const simulation = d3.forceSimulation(filteredNodes as d3.SimulationNodeDatum[])
+    const simulation = d3.forceSimulation(filteredNodes)
       .force("link", d3.forceLink(filteredLinks)
         .id((d: any) => d.id)
-        .distance(100)
+        .distance(120)
         .strength(0.5))
-      .force("charge", d3.forceManyBody().strength(-300))
+      .force("charge", d3.forceManyBody().strength(-400))
       .force("center", d3.forceCenter(width / 2, height / 2))
-      .force("collision", d3.forceCollide().radius(40))
+      .force("collision", d3.forceCollide().radius(50))
 
     // Links
     const link = g.append("g")
@@ -317,8 +252,9 @@ export default function GraphPage() {
       .attr("fill", "none")
       .attr("stroke", riskColors.critical)
       .attr("stroke-width", 2)
-      .attr("opacity", 0)
+      .attr("opacity", 0.5)
       .attr("class", "pulse-ring")
+      .style("animation", "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite")
 
     // Simulation tick
     simulation.on("tick", () => {
@@ -442,9 +378,14 @@ export default function GraphPage() {
                 </Select>
                 <Button
                   onClick={handleExplore}
+                  disabled={isLoading}
                   className="bg-yellow-500 text-black font-semibold hover:bg-yellow-400 shadow-[0_0_24px_#ffd70066]"
                 >
-                  <Search className="w-4 h-4 mr-2" />
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Search className="w-4 h-4 mr-2" />
+                  )}
                   Explore
                 </Button>
               </div>
@@ -493,7 +434,12 @@ export default function GraphPage() {
               </div>
             </div>
             <div ref={containerRef} className="relative h-[600px] bg-black/20">
-              {!graphData ? (
+              {isLoading ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm z-10">
+                  <Loader2 className="w-12 h-12 text-yellow-500 animate-spin mb-4" />
+                  <p className="text-yellow-300 font-medium">Tracing blockchain relationships...</p>
+                </div>
+              ) : !graphData ? (
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <Network className="w-16 h-16 text-yellow-500/30 mb-4" />
                   <p className="text-gray-400">Enter a wallet address to explore connections</p>
@@ -607,13 +553,13 @@ export default function GraphPage() {
                   <div>
                     <p className="text-xs text-gray-500 mb-1">From</p>
                     <code className="text-xs text-gray-300">
-                      {typeof selectedLink.source === "string" ? selectedLink.source : selectedLink.source.address}
+                      {typeof selectedLink.source === "string" ? selectedLink.source : (selectedLink.source as any).address}
                     </code>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 mb-1">To</p>
                     <code className="text-xs text-gray-300">
-                      {typeof selectedLink.target === "string" ? selectedLink.target : selectedLink.target.address}
+                      {typeof selectedLink.target === "string" ? selectedLink.target : (selectedLink.target as any).address}
                     </code>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -631,7 +577,7 @@ export default function GraphPage() {
                     <div className="space-y-1 max-h-32 overflow-y-auto">
                       {selectedLink.hashes.map((hash, i) => (
                         <code key={i} className="block text-xs text-gray-400 hover:text-yellow-300 cursor-pointer">
-                          {hash}...
+                          {hash}
                         </code>
                       ))}
                     </div>
@@ -690,7 +636,7 @@ export default function GraphPage() {
                   className="w-full border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20"
                   size="sm"
                   disabled={!graphData}
-                  onClick={() => router.push(`/reports?address=${address}&type=graph`)}
+                  onClick={() => router.push(`/reports?address=${address}&type=wallet`)}
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Full Report (PDF)
