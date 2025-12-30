@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server"
+import { db } from "@/db"
+import { apiKeys } from "@/db/schema"
 
 export async function POST(req: Request) {
   try {
@@ -13,23 +15,29 @@ export async function POST(req: Request) {
     }
 
     // Generate API key
-    const apiKey = `cg_live_${generateRandomString(32)}`
+    const apiKeyString = `cg_live_${generateRandomString(32)}`
     
-    // Mock response - in production, save to database
-    const newKey = {
-      id: Date.now().toString(),
+    // Save to database
+    const [newKey] = await db.insert(apiKeys).values({
       name,
-      key: apiKey,
-      created: new Date().toISOString(),
-      lastUsed: null,
-      status: "active"
-    }
+      key: apiKeyString,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+    }).returning()
 
     return NextResponse.json({ 
       success: true, 
-      apiKey: newKey 
+      apiKey: {
+        id: newKey.id.toString(),
+        name: newKey.name,
+        key: newKey.key,
+        created: newKey.createdAt,
+        lastUsed: newKey.lastUsedAt,
+        status: newKey.status
+      }
     }, { status: 201 })
   } catch (error) {
+    console.error("Failed to generate API key:", error)
     return NextResponse.json(
       { error: "Failed to generate API key" },
       { status: 500 }
