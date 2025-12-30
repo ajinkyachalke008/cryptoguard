@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import NavBar from "@/components/NavBar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Key, Copy, Trash2, Plus, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowLeft } from "lucide-react"
+import { Key, Copy, Trash2, Plus, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowLeft, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 interface ApiKey {
@@ -19,28 +19,29 @@ interface ApiKey {
 
 export default function ApiKeysPage() {
   const router = useRouter()
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([
-    {
-      id: "1",
-      name: "Production API",
-      key: "cg_live_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
-      created: "2025-01-15",
-      lastUsed: "2025-10-03",
-      status: "active"
-    },
-    {
-      id: "2",
-      name: "Development API",
-      key: "cg_test_x9y8z7w6v5u4t3s2r1q0p9o8n7m6l5k4",
-      created: "2025-02-20",
-      lastUsed: null,
-      status: "active"
-    }
-  ])
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([])
   const [newKeyName, setNewKeyName] = useState("")
   const [generatedKey, setGeneratedKey] = useState<string | null>(null)
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(new Set())
+  const [isLoading, setIsLoading] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
+
+  useEffect(() => {
+    fetchApiKeys()
+  }, [])
+
+  const fetchApiKeys = async () => {
+    try {
+      const response = await fetch("/api/api-keys/list")
+      if (!response.ok) throw new Error("Failed to fetch API keys")
+      const data = await response.json()
+      setApiKeys(data.apiKeys || [])
+    } catch (error) {
+      toast.error("Failed to load API keys")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const generateApiKey = async () => {
     if (!newKeyName.trim()) {
@@ -50,25 +51,25 @@ export default function ApiKeysPage() {
 
     setIsGenerating(true)
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 800))
-    
-    const newKey = `cg_live_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
-    const newApiKey: ApiKey = {
-      id: Date.now().toString(),
-      name: newKeyName,
-      key: newKey,
-      created: new Date().toISOString().split('T')[0],
-      lastUsed: null,
-      status: "active"
+    try {
+      const response = await fetch("/api/api-keys/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newKeyName })
+      })
+
+      if (!response.ok) throw new Error("Failed to generate API key")
+      
+      const data = await response.json()
+      setApiKeys(prev => [data.apiKey, ...prev])
+      setGeneratedKey(data.apiKey.key)
+      setNewKeyName("")
+      toast.success("API key generated successfully!")
+    } catch (error) {
+      toast.error("Failed to generate API key")
+    } finally {
+      setIsGenerating(false)
     }
-    
-    setApiKeys(prev => [newApiKey, ...prev])
-    setGeneratedKey(newKey)
-    setNewKeyName("")
-    setIsGenerating(false)
-    
-    toast.success("API key generated successfully!")
   }
 
   const copyToClipboard = (key: string) => {
@@ -77,10 +78,22 @@ export default function ApiKeysPage() {
   }
 
   const revokeKey = async (id: string) => {
-    setApiKeys(prev => prev.map(key => 
-      key.id === id ? { ...key, status: "revoked" as const } : key
-    ))
-    toast.success("API key revoked successfully")
+    try {
+      const response = await fetch("/api/api-keys/revoke", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ keyId: id })
+      })
+
+      if (!response.ok) throw new Error("Failed to revoke API key")
+
+      setApiKeys(prev => prev.map(key => 
+        key.id === id ? { ...key, status: "revoked" as const } : key
+      ))
+      toast.success("API key revoked successfully")
+    } catch (error) {
+      toast.error("Failed to revoke API key")
+    }
   }
 
   const toggleKeyVisibility = (id: string) => {
@@ -151,7 +164,12 @@ export default function ApiKeysPage() {
               disabled={isGenerating}
               className="bg-yellow-500 text-black font-semibold hover:bg-yellow-400 shadow-[0_0_20px_#ffd70066]"
             >
-              {isGenerating ? "Generating..." : "Generate Key"}
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : "Generate Key"}
             </Button>
           </div>
 
@@ -190,7 +208,12 @@ export default function ApiKeysPage() {
           </div>
 
           <div className="divide-y divide-yellow-500/20">
-            {apiKeys.length === 0 ? (
+            {isLoading ? (
+              <div className="p-12 text-center">
+                <Loader2 className="size-8 text-yellow-500 animate-spin mx-auto mb-3" />
+                <p className="text-gray-500">Loading your API keys...</p>
+              </div>
+            ) : apiKeys.length === 0 ? (
               <div className="p-12 text-center">
                 <Key className="size-12 text-gray-600 mx-auto mb-3" />
                 <p className="text-gray-500">No API keys yet. Generate one to get started!</p>
@@ -250,10 +273,10 @@ export default function ApiKeysPage() {
                       </div>
 
                       <div className="flex items-center gap-4 text-xs text-gray-500">
-                        <span>Created: {apiKey.created}</span>
+                        <span>Created: {new Date(apiKey.created).toLocaleDateString()}</span>
                         <span>•</span>
                         <span>
-                          Last used: {apiKey.lastUsed || "Never"}
+                          Last used: {apiKey.lastUsed ? new Date(apiKey.lastUsed).toLocaleString() : "Never"}
                         </span>
                       </div>
                     </div>
