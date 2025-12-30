@@ -10,7 +10,6 @@ export async function GET(
   try {
     const conversationId = params.conversation_id;
 
-    // Validate conversation ID
     if (!conversationId || isNaN(parseInt(conversationId))) {
       return NextResponse.json(
         {
@@ -23,7 +22,6 @@ export async function GET(
 
     const parsedConversationId = parseInt(conversationId);
 
-    // Get conversation from ai_conversations table
     const conversation = await db
       .select()
       .from(aiConversations)
@@ -40,7 +38,6 @@ export async function GET(
       );
     }
 
-    // Get all messages for this conversation ordered by timestamp ASC
     const messages = await db
       .select({
         id: aiMessages.id,
@@ -52,7 +49,6 @@ export async function GET(
       .where(eq(aiMessages.conversationId, parsedConversationId))
       .orderBy(asc(aiMessages.timestamp));
 
-    // Construct response with conversation and messages
     const response = {
       id: conversation[0].id,
       user_id: conversation[0].userId,
@@ -75,6 +71,76 @@ export async function GET(
       {
         error: 'Internal server error: ' + (error instanceof Error ? error.message : 'Unknown error'),
         code: 'INTERNAL_SERVER_ERROR'
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { conversation_id: string } }
+) {
+  try {
+    const conversationId = params.conversation_id;
+    const body = await request.json();
+    const { question } = body;
+
+    if (!question) {
+      return NextResponse.json({ error: 'question is required' }, { status: 400 });
+    }
+
+    if (!conversationId || isNaN(parseInt(conversationId))) {
+      return NextResponse.json({ error: 'Invalid conversation ID' }, { status: 400 });
+    }
+
+    const parsedConversationId = parseInt(conversationId);
+
+    // 1. Verify conversation exists
+    const conversation = await db
+      .select()
+      .from(aiConversations)
+      .where(eq(aiConversations.id, parsedConversationId))
+      .limit(1);
+
+    if (conversation.length === 0) {
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
+    }
+
+    // 2. Save user message
+    await db.insert(aiMessages).values({
+      conversationId: parsedConversationId,
+      role: 'user',
+      content: question,
+      timestamp: new Date().toISOString()
+    });
+
+    // 3. Generate mock AI response
+    const response = `I understand your follow-up about "${question.substring(0, 30)}". 
+
+Based on my analysis, this further confirms the risk profile we initially discussed. I've cross-referenced this with our latest fraud patterns and found a 65% match with known sophisticated phishing tactics.
+
+Is there a specific wallet address or transaction hash you'd like me to look into related to this?`;
+
+    // 4. Save AI message
+    await db.insert(aiMessages).values({
+      conversationId: parsedConversationId,
+      role: 'assistant',
+      content: response,
+      timestamp: new Date().toISOString()
+    });
+
+    return NextResponse.json(
+      {
+        response: response
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('POST error:', error);
+    return NextResponse.json(
+      { 
+        error: 'Internal server error: ' + (error instanceof Error ? error.message : 'Unknown error')
       },
       { status: 500 }
     );
