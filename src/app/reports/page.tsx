@@ -37,7 +37,8 @@ import {
   Activity,
   TrendingUp,
   Users,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Search
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -57,54 +58,14 @@ interface ReportConfig {
 
 interface GeneratedReport {
   id: string
-  type: ReportType
-  format: ExportFormat
-  name: string
-  generatedAt: string
-  size: string
-  status: "ready" | "generating" | "failed"
+  reportType: string
+  entityAddress: string
+  blockchain: string
+  createdAt: string
+  reportData?: any
 }
 
-const recentReports: GeneratedReport[] = [
-  {
-    id: "RPT-001",
-    type: "wallet",
-    format: "pdf",
-    name: "Wallet_0x742d35...f44E_Report.pdf",
-    generatedAt: "Nov 28, 2025 14:30",
-    size: "2.4 MB",
-    status: "ready"
-  },
-  {
-    id: "RPT-002",
-    type: "alerts",
-    format: "excel",
-    name: "Alerts_Dec2025.xlsx",
-    generatedAt: "Nov 25, 2025 12:15",
-    size: "1.8 MB",
-    status: "ready"
-  },
-  {
-    id: "RPT-003",
-    type: "transactions",
-    format: "csv",
-    name: "Transactions_Export_20251122.csv",
-    generatedAt: "Nov 22, 2025 10:00",
-    size: "5.2 MB",
-    status: "ready"
-  },
-  {
-    id: "RPT-004",
-    type: "watchlist",
-    format: "pdf",
-    name: "Watchlist_Snapshot_Dec2025.pdf",
-    generatedAt: "Nov 18, 2025 16:45",
-    size: "890 KB",
-    status: "ready"
-  }
-]
-
-const reportTypeConfig = {
+const reportTypeConfig: Record<string, any> = {
   wallet: {
     label: "Single Wallet Report",
     icon: Wallet,
@@ -163,7 +124,7 @@ const reportTypeConfig = {
   }
 }
 
-const formatConfig = {
+const formatConfig: Record<string, any> = {
   pdf: { label: "PDF Document", icon: FileText, extension: ".pdf" },
   excel: { label: "Excel Spreadsheet", icon: FileSpreadsheet, extension: ".xlsx" },
   csv: { label: "CSV File", icon: TableIcon, extension: ".csv" }
@@ -173,7 +134,8 @@ export default function ReportsPage() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<ReportType>("wallet")
   const [isGenerating, setIsGenerating] = useState(false)
-  const [reports, setReports] = useState<GeneratedReport[]>(recentReports)
+  const [isLoading, setIsLoading] = useState(true)
+  const [reports, setReports] = useState<GeneratedReport[]>([])
   
   const [config, setConfig] = useState<ReportConfig>({
     type: "wallet",
@@ -185,6 +147,23 @@ export default function ReportsPage() {
     includeAlerts: true,
     includeRiskFactors: true
   })
+
+  useEffect(() => {
+    fetchReports()
+  }, [])
+
+  const fetchReports = async () => {
+    try {
+      const response = await fetch("/api/reports")
+      if (!response.ok) throw new Error("Failed to fetch reports")
+      const data = await response.json()
+      setReports(data.reports || [])
+    } catch (error) {
+      console.error("Failed to load reports")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   // Initialize from URL params
   useEffect(() => {
@@ -207,34 +186,49 @@ export default function ReportsPage() {
     }
 
     setIsGenerating(true)
+    try {
+      const response = await fetch("/api/reports/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          entity_address: config.address || "SYSTEM_GEN",
+          blockchain: "ethereum",
+          report_type: config.type
+        })
+      })
 
-    // Simulate report generation
-    await new Promise(resolve => setTimeout(resolve, 2500))
-
-    const now = new Date()
-    const newReport: GeneratedReport = {
-      id: `RPT-${Date.now()}`,
-      type: config.type,
-      format: config.format,
-      name: config.type === "wallet" 
-        ? `Wallet_${config.address?.slice(0, 8)}...${config.address?.slice(-4)}_Report${formatConfig[config.format].extension}`
-        : `${reportTypeConfig[config.type].label.replace(/\s/g, "_")}_${now.toISOString().split("T")[0]}${formatConfig[config.format].extension}`,
-      generatedAt: now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-      size: `${(Math.random() * 5 + 0.5).toFixed(1)} MB`,
-      status: "ready"
+      if (!response.ok) throw new Error("Report generation failed")
+      
+      const newReport = await response.json()
+      setReports(prev => [newReport, ...prev])
+      toast.success("Report generated successfully!")
+    } catch (error) {
+      toast.error("Failed to generate report")
+    } finally {
+      setIsGenerating(false)
     }
-
-    setReports(prev => [newReport, ...prev])
-    setIsGenerating(false)
-    toast.success("Report generated successfully!")
   }
 
-  const handleDownload = (report: GeneratedReport) => {
-    toast.success(`Downloading ${report.name}`)
+  const handleDownload = async (report: GeneratedReport) => {
+    try {
+      const response = await fetch(`/api/reports/${report.id}/download?format=${config.format}`)
+      if (!response.ok) throw new Error("Download failed")
+      
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `report-${report.id}.${config.format}`
+      a.click()
+      window.URL.revokeObjectURL(url)
+      toast.success(`Downloading report...`)
+    } catch (error) {
+      toast.error("Download failed")
+    }
   }
 
-  const TypeIcon = reportTypeConfig[activeTab].icon
-  const FormatIcon = formatConfig[config.format].icon
+  const TypeIcon = reportTypeConfig[activeTab]?.icon || FileText
+  const FormatIcon = formatConfig[config.format]?.icon || FileText
 
   return (
     <div className="min-h-screen bg-background">
@@ -297,7 +291,7 @@ export default function ReportsPage() {
                         <div className="mt-4">
                           <p className="text-xs text-gray-500 mb-2">Included sections:</p>
                           <div className="grid grid-cols-2 gap-1">
-                            {reportTypeConfig[type].sections.map((section, i) => (
+                            {reportTypeConfig[type].sections.map((section: string, i: number) => (
                               <div key={i} className="flex items-center gap-2 text-xs text-gray-400">
                                 <Check className="w-3 h-3 text-green-500" />
                                 {section}
@@ -465,7 +459,7 @@ export default function ReportsPage() {
                     </div>
                     
                     <div className="text-center py-2">
-                      <h4 className="text-yellow-300 font-semibold">{reportTypeConfig[activeTab].label}</h4>
+                      <h4 className="text-yellow-300 font-semibold">{reportTypeConfig[activeTab]?.label || "Report"}</h4>
                       {config.address && (
                         <p className="text-gray-400 text-[10px] mt-1 font-mono">{config.address}</p>
                       )}
@@ -491,7 +485,7 @@ export default function ReportsPage() {
                     </div>
 
                     <div className="space-y-1">
-                      {reportTypeConfig[activeTab].sections.slice(0, 4).map((section, i) => (
+                      {reportTypeConfig[activeTab]?.sections.slice(0, 4).map((section: string, i: number) => (
                         <div key={i} className="h-2 bg-gray-700/50 rounded animate-pulse" style={{ width: `${80 - i * 10}%` }} />
                       ))}
                     </div>
@@ -500,7 +494,7 @@ export default function ReportsPage() {
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2 text-gray-400">
                       <FormatIcon className="w-4 h-4" />
-                      <span>{formatConfig[config.format].label}</span>
+                      <span>{formatConfig[config.format]?.label}</span>
                     </div>
                     <span className="text-gray-500">~{activeTab === "transactions" ? "5.2" : "2.1"} MB</span>
                   </div>
@@ -516,74 +510,49 @@ export default function ReportsPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {reports.slice(0, 5).map(report => {
-                    const ReportIcon = reportTypeConfig[report.type].icon
-                    return (
-                      <div
-                        key={report.id}
-                        className="flex items-center gap-3 p-3 rounded-lg border border-yellow-500/20 bg-black/40 hover:border-yellow-500/40 transition-colors"
-                      >
-                        <div className={`w-8 h-8 rounded flex items-center justify-center bg-yellow-500/10 ${reportTypeConfig[report.type].color}`}>
-                          <ReportIcon className="w-4 h-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-300 truncate">{report.name}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xs text-gray-500">{report.generatedAt}</span>
-                            <span className="text-xs text-gray-600">•</span>
-                            <span className="text-xs text-gray-500">{report.size}</span>
-                          </div>
-                        </div>
-                        <Badge className={`${
-                          report.format === "pdf" ? "bg-red-500/20 text-red-400 border-red-500/50" :
-                          report.format === "excel" ? "bg-green-500/20 text-green-400 border-green-500/50" :
-                          "bg-blue-500/20 text-blue-400 border-blue-500/50"
-                        } text-xs`}>
-                          {report.format.toUpperCase()}
-                        </Badge>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDownload(report)}
-                          className="text-yellow-300 hover:text-yellow-200 hover:bg-yellow-500/20"
+                  {isLoading ? (
+                    <div className="py-8 text-center">
+                      <Loader2 className="size-6 text-yellow-500 animate-spin mx-auto mb-2" />
+                      <p className="text-xs text-gray-500">Loading history...</p>
+                    </div>
+                  ) : reports.length === 0 ? (
+                    <p className="text-sm text-gray-500 text-center py-8">No reports found.</p>
+                  ) : (
+                    reports.slice(0, 5).map(report => {
+                      const ReportIcon = reportTypeConfig[report.reportType]?.icon || FileText
+                      return (
+                        <div
+                          key={report.id}
+                          className="flex items-center gap-3 p-3 rounded-lg border border-yellow-500/20 bg-black/40 hover:border-yellow-500/40 transition-colors"
                         >
-                          <Download className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    )
-                  })}
+                          <div className={`w-8 h-8 rounded flex items-center justify-center bg-yellow-500/10 ${reportTypeConfig[report.reportType]?.color || "text-gray-400"}`}>
+                            <ReportIcon className="w-4 h-4" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-gray-300 truncate">
+                              {report.reportType === "wallet" ? `Wallet Scan: ${report.entityAddress.slice(0, 10)}...` : report.reportType.toUpperCase()}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs text-gray-500">{new Date(report.createdAt).toLocaleDateString()}</span>
+                              <span className="text-xs text-gray-600">•</span>
+                              <span className="text-xs text-gray-500">{report.blockchain}</span>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDownload(report)}
+                            className="text-yellow-300 hover:text-yellow-200 hover:bg-yellow-500/20"
+                          >
+                            <Download className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )
+                    })
+                  )}
                 </div>
               </CardContent>
             </Card>
-
-            {/* Excel Structure Info */}
-            {config.format === "excel" && (
-              <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-yellow-300 text-sm">Excel Structure</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-xs">
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <TableIcon className="w-3 h-3 text-green-400" />
-                      Sheet 1: Overview (wallet summary & score)
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <TableIcon className="w-3 h-3 text-green-400" />
-                      Sheet 2: Transactions table
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <TableIcon className="w-3 h-3 text-green-400" />
-                      Sheet 3: Alerts
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <TableIcon className="w-3 h-3 text-green-400" />
-                      Sheet 4: Watchlist (if applicable)
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
         </div>
       </div>
