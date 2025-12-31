@@ -690,18 +690,34 @@ export default function TrustTimelinePage() {
                                   <p className="text-sm text-cyan-300">{event.aiExplanation}</p>
                                 </div>
                                 
-                                {event.evidence && (
-                                  <div className="bg-black/40 rounded p-3">
-                                    <div className="text-xs text-gray-500 mb-2">Evidence</div>
-                                    <div className="space-y-1">
-                                      {event.evidence.map((item, i) => (
-                                        <div key={i} className="text-xs font-mono text-gray-400">
-                                          {item}
-                                        </div>
-                                      ))}
+                                  {event.evidence && (
+                                    <div className="bg-black/40 rounded p-3 mb-3">
+                                      <div className="text-xs text-gray-500 mb-2">Evidence</div>
+                                      <div className="space-y-1">
+                                        {event.evidence.map((item, i) => (
+                                          <div key={i} className="text-xs font-mono text-gray-400">
+                                            {item}
+                                          </div>
+                                        ))}
+                                      </div>
                                     </div>
-                                  </div>
-                                )}
+                                  )}
+
+                                  {event.type === "contract" && (
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="w-full border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-xs"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        window.location.href = "/contract-explainer"
+                                      }}
+                                    >
+                                      <FileCode className="w-3 h-3 mr-2" />
+                                      Deep Dive Contract Analysis
+                                    </Button>
+                                  )}
+
                               </div>
                             )}
                           </div>
