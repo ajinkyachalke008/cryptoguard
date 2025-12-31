@@ -412,7 +412,7 @@ export default function WalletIntelligencePage() {
                       <div className="flex-1 space-y-4">
                         <div>
                           <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Target Address</h4>
-                          <code className="text-lg font-bold text-white break-all">{address}</code>
+                          <BlockchainIdentifier type="address" value={address} truncate={false} className="text-lg font-bold text-white" />
                         </div>
                         <ConfidenceBar level={overallConfidence()} />
                       </div>
