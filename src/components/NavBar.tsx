@@ -45,6 +45,7 @@ const scannerItems = [
   { href: "/protocol-risk", label: "Protocol/Token", icon: FileCode, description: "DeFi protocol risk scoring" },
   { href: "/nft-risk", label: "NFT Collection", icon: Image, description: "Wash trading & fake volume" },
   { href: "/marketplace-risk", label: "Marketplace", icon: Store, description: "Marketplace risk assessment" },
+  { href: "/contract-explainer", label: "Contract Explainer", icon: FileCode, description: "AI-powered contract analysis" },
 ]
 
 const toolItems = [
