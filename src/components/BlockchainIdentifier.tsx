@@ -86,34 +86,34 @@ export function BlockchainIdentifier({
         </TooltipContent>
       </Tooltip>
 
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 lg:group-hover:opacity-100 group-focus-within:opacity-100">
-        {isCopyable && (
-          <button
-            onClick={handleCopy}
-            className="p-1 hover:bg-white/10 rounded-md transition-colors text-gray-500 hover:text-indigo-400"
-            aria-label={`Copy ${type === "address" ? "wallet address" : "transaction ID"}`}
-          >
-            {copied ? (
-              <Check className="w-3.5 h-3.5 text-emerald-500" />
-            ) : (
-              <Copy className="w-3.5 h-3.5" />
-            )}
-          </button>
-        )}
+        <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 group-focus-within:opacity-100">
+          {isCopyable && (
+            <button
+              onClick={handleCopy}
+              className="p-1 hover:bg-white/10 rounded-md transition-colors text-gray-400 sm:text-gray-500 hover:text-indigo-400"
+              aria-label={`Copy ${type === "address" ? "wallet address" : "transaction ID"}`}
+            >
+              {copied ? (
+                <Check className="w-3.5 h-3.5 text-emerald-500" />
+              ) : (
+                <Copy className="w-3.5 h-3.5" />
+              )}
+            </button>
+          )}
 
-        {showLink && (
-          <a
-            href={getExplorerLink()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-1 hover:bg-white/10 rounded-md transition-colors text-gray-500 hover:text-indigo-400"
-            onClick={(e) => e.stopPropagation()}
-            aria-label="View on block explorer"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
-        )}
-      </div>
+          {showLink && (
+            <a
+              href={getExplorerLink()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-1 hover:bg-white/10 rounded-md transition-colors text-gray-400 sm:text-gray-500 hover:text-indigo-400"
+              onClick={(e) => e.stopPropagation()}
+              aria-label="View on block explorer"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          )}
+        </div>
     </div>
   )
 }
