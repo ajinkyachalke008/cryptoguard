@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import NavBar from "@/components/NavBar"
+import Footer from "@/components/Footer"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,72 +31,68 @@ import {
   ArrowRight
 } from "lucide-react"
 
-type ConfidenceLevel = "low" | "medium" | "high" | "insufficient_data"
+type ConfidenceLevel = "high" | "medium" | "low" | "insufficient_data"
 
 interface ClusterSignal {
   type: string
-  description: string
-  weight: number
   present: boolean
+  weight: number
+  description: string
 }
 
 interface ClusterData {
-  cluster_id: string | null
+  address: string
   cluster_size: number
+  is_known_entity: boolean
+  known_entity_name?: string
   wallet_role: string
   confidence: ConfidenceLevel
-  signals_used: ClusterSignal[]
   explanation: string
   limitations: string[]
-  data_completeness: number
-  is_known_entity: boolean
-  known_entity_type: string | null
+  signals_used: ClusterSignal[]
 }
 
 interface HourlyActivity {
   hour: number
   activity: number
-  transaction_count: number
+  count: number
 }
 
 interface TimezoneSignal {
   type: string
-  description: string
-  weight: number
   present: boolean
+  weight: number
+  description: string
 }
 
 interface TimezoneData {
-  peak_hours_utc: number[]
-  activity_distribution: HourlyActivity[]
+  address: string
   likely_timezone_range: string
+  behavior_pattern: "human_like" | "bot_like" | "mixed" | "unknown"
   confidence: ConfidenceLevel
-  behavior_pattern: string
-  signals_used: TimezoneSignal[]
   explanation: string
-  limitations: string[]
+  peak_hours_utc: number[]
   total_transactions_analyzed: number
   analysis_period_days: number
+  activity_distribution: HourlyActivity[]
 }
 
 interface RegionProbability {
   region: string
   probability: number
-  display_probability: string
 }
 
 interface GeoSignal {
   type: string
-  description: string
-  weight: number
   present: boolean
-  inferred_regions?: string[]
+  weight: number
+  description: string
 }
 
 interface GeoData {
+  address: string
   regions: RegionProbability[]
   confidence: ConfidenceLevel
-  signals_used: GeoSignal[]
   explanation: string
   limitations: string[]
   methodology: string
@@ -661,6 +658,7 @@ export default function WalletIntelligencePage() {
           )}
         </AnimatePresence>
       </main>
+      <Footer />
     </div>
   )
 }
