@@ -537,47 +537,95 @@ export default function TrustTimelinePage() {
           </CardContent>
         </Card>
 
-        {showResults && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
-              <Card className="border-yellow-500/30 bg-black/60 backdrop-blur-sm overflow-hidden">
-                <CardHeader className="border-b border-yellow-500/20">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg text-yellow-300 flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5" />
-                      Risk Evolution Timeline
-                    </CardTitle>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <div className="text-xs text-gray-500">Current Risk</div>
-                        <div 
-                          className="text-2xl font-mono font-bold"
-                          style={{ color: getRiskColor(currentRisk) }}
-                        >
-                          {currentRisk}%
+          {showResults && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-6">
+                <Card className="border-yellow-500/30 bg-black/60 backdrop-blur-sm overflow-hidden">
+                  <CardHeader className="border-b border-yellow-500/20">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <CardTitle className="text-lg text-yellow-300 flex items-center gap-2">
+                          <TrendingUp className="w-5 h-5" />
+                          Risk Evolution Timeline
+                        </CardTitle>
+                        <div className="flex bg-black/40 rounded-lg p-1 border border-yellow-500/20">
+                          {(["24h", "7d", "30d", "all"] as const).map((r) => (
+                            <button
+                              key={r}
+                              onClick={() => setTimeRange(r)}
+                              className={`px-3 py-1 text-xs rounded transition-all ${
+                                timeRange === r 
+                                  ? "bg-yellow-500 text-black font-bold" 
+                                  : "text-gray-500 hover:text-gray-300"
+                              }`}
+                            >
+                              {r.toUpperCase()}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="flex gap-2">
+                          {[
+                            { id: "risk", label: "Risk", color: "bg-yellow-500" },
+                            { id: "liquidity", label: "Liquidity", color: "bg-sky-400" },
+                            { id: "ownership", label: "Ownership", color: "bg-purple-500" },
+                            { id: "social", label: "Social", color: "bg-pink-400" }
+                          ].map(layer => (
+                            <button
+                              key={layer.id}
+                              onClick={() => {
+                                const next = new Set(activeLayers)
+                                if (next.has(layer.id)) next.delete(layer.id); else next.add(layer.id)
+                                setActiveLayers(next)
+                              }}
+                              className={`flex items-center gap-1.5 px-2 py-1 rounded border transition-all ${
+                                activeLayers.has(layer.id)
+                                  ? "border-white/20 bg-white/5 opacity-100"
+                                  : "border-transparent opacity-30 grayscale"
+                              }`}
+                            >
+                              <div className={`w-1.5 h-1.5 rounded-full ${layer.color}`} />
+                              <span className="text-[10px] font-medium uppercase">{layer.label}</span>
+                            </button>
+                          ))}
                         </div>
                       </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="relative h-[400px] w-full">
-                    <canvas 
-                      ref={canvasRef}
-                      className="w-full h-full"
-                      style={{ display: "block" }}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardHeader>
+                  <CardContent className="p-0 relative">
+                    <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+                      <div className="bg-black/60 backdrop-blur-md border border-white/10 rounded-lg px-3 py-2">
+                        <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Status</div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                          <span className="text-xs font-mono text-emerald-400">LIVE TRACKING ACTIVE</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="relative h-[450px] w-full bg-[#08090d] cursor-crosshair">
+                      <canvas 
+                        ref={canvasRef}
+                        className="w-full h-full"
+                        style={{ display: "block" }}
+                      />
+                      {/* Depth Overlay */}
+                      <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#05060a] via-transparent to-transparent opacity-40" />
+                    </div>
+                  </CardContent>
+                </Card>
 
-              <Card className="border-yellow-500/30 bg-black/60 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="text-lg text-yellow-300">Timeline Events</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="relative">
-                    <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-green-500 via-yellow-500 to-red-500 opacity-30" />
+                <Card className="border-yellow-500/30 bg-black/60 backdrop-blur-sm">
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle className="text-lg text-yellow-300">Forensic Event Log</CardTitle>
+                    <Badge variant="outline" className="text-[10px] border-yellow-500/30 text-yellow-500/70">
+                      {mockEvents.length} DETECTED ANOMALIES
+                    </Badge>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="relative">
+                      <div className="absolute left-6 top-0 bottom-0 w-[1px] bg-gradient-to-b from-emerald-500/50 via-yellow-500/50 to-red-500/50" />
+
                     
                     <div className="space-y-4">
                       {mockEvents.map((event, index) => (
