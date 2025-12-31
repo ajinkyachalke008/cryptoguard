@@ -84,22 +84,25 @@ export default function TransactionFeed() {
               t.status === "fraud" && "border border-red-500/40 bg-red-950/40"
             )}
           >
-            <div className="flex-1 min-w-0 mr-2">
-              <div className="flex items-center gap-2 mb-0.5">
-                <div className="text-foreground font-medium truncate">
-                  {t.from} → {t.to}
+              <div className="flex-1 min-w-0 mr-2">
+                <div className="flex items-center gap-1 mb-0.5">
+                  <BlockchainIdentifier type="address" value={t.from} />
+                  <ArrowRight className="w-3 h-3 text-gray-500" />
+                  <BlockchainIdentifier type="address" value={t.to} />
+                </div>
+                <div className="flex items-center gap-2 text-gray-400 text-[10px] sm:text-xs">
+                  <div className="flex items-center gap-1">
+                    <span className="text-gray-500">Tx</span>
+                    <BlockchainIdentifier type="tx" value={t.id} />
+                  </div>
+                  <span>·</span>
+                  <span className="text-yellow-400 font-semibold">${t.amount.toLocaleString()}</span>
+                  <span className="flex items-center gap-1 text-yellow-300/80 font-mono shrink-0">
+                    <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                    {getTransactionTime(index)}
+                  </span>
                 </div>
               </div>
-              <div className="flex items-center gap-2 text-gray-400 text-[10px] sm:text-xs">
-                <span className="truncate">
-                  Tx {t.id.slice(-6)} · ${t.amount.toLocaleString()}
-                </span>
-                <span className="flex items-center gap-1 text-yellow-300/80 font-mono shrink-0">
-                  <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                  {getTransactionTime(index)}
-                </span>
-              </div>
-            </div>
             <Badge
               className={cn(
                 "capitalize font-semibold text-[10px] sm:text-xs px-2 py-0.5 flex-shrink-0",
