@@ -232,18 +232,22 @@ export default function TrustTimelinePage() {
   const [showResults, setShowResults] = useState(true)
   const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null)
   const [riskData, setRiskData] = useState<RiskDataPoint[]>([])
+  const [timeRange, setTimeRange] = useState<"24h" | "7d" | "30d" | "all">("7d")
+  const [activeLayers, setActiveLayers] = useState<Set<string>>(new Set(["risk", "liquidity", "ownership", "social"]))
   const [animationProgress, setAnimationProgress] = useState(0)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    setRiskData(generateRiskData(mockEvents))
-  }, [])
+    const days = timeRange === "24h" ? 1 : timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90
+    setRiskData(generateRiskData(mockEvents, days))
+    setAnimationProgress(0)
+  }, [timeRange])
 
   useEffect(() => {
     if (showResults && animationProgress < 100) {
       const timer = setTimeout(() => {
         setAnimationProgress(prev => Math.min(100, prev + 2))
-      }, 20)
+      }, 16)
       return () => clearTimeout(timer)
     }
   }, [showResults, animationProgress])
@@ -263,11 +267,12 @@ export default function TrustTimelinePage() {
 
     ctx.clearRect(0, 0, rect.width, rect.height)
 
-    const padding = { top: 40, right: 40, bottom: 60, left: 60 }
+    const padding = { top: 40, right: 60, bottom: 60, left: 60 }
     const graphWidth = rect.width - padding.left - padding.right
     const graphHeight = rect.height - padding.top - padding.bottom
 
-    ctx.strokeStyle = "rgba(255,215,0,0.1)"
+    // Draw Grid
+    ctx.strokeStyle = "rgba(255,215,0,0.05)"
     ctx.lineWidth = 1
     for (let i = 0; i <= 4; i++) {
       const y = padding.top + (graphHeight / 4) * i
@@ -276,15 +281,101 @@ export default function TrustTimelinePage() {
       ctx.lineTo(padding.left + graphWidth, y)
       ctx.stroke()
       
-      ctx.fillStyle = "rgba(255,255,255,0.5)"
-      ctx.font = "11px JetBrains Mono, monospace"
+      ctx.fillStyle = "rgba(255,255,255,0.3)"
+      ctx.font = "10px JetBrains Mono, monospace"
       ctx.textAlign = "right"
-      ctx.fillText(`${100 - i * 25}%`, padding.left - 10, y + 4)
+      ctx.fillText(`${100 - i * 25}`, padding.left - 15, y + 4)
     }
 
     const visiblePoints = Math.floor((riskData.length * animationProgress) / 100)
-    
-    if (visiblePoints > 1) {
+    if (visiblePoints <= 1) return
+
+    const getX = (i: number) => padding.left + (i / (riskData.length - 1)) * graphWidth
+    const getY = (val: number) => padding.top + ((100 - val) / 100) * graphHeight
+
+    // 1. Confidence Band (Layer 1 Background)
+    if (activeLayers.has("risk")) {
+      ctx.beginPath()
+      const bandOpacity = 0.1 * (animationProgress / 100)
+      ctx.fillStyle = `rgba(255, 215, 0, ${bandOpacity})`
+      
+      // Top of band
+      for (let i = 0; i < visiblePoints; i++) {
+        const x = getX(i)
+        const y = getY(Math.min(100, riskData[i].score + (100 - riskData[i].confidence) / 2))
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y)
+      }
+      // Bottom of band
+      for (let i = visiblePoints - 1; i >= 0; i--) {
+        const x = getX(i)
+        const y = getY(Math.max(0, riskData[i].score - (100 - riskData[i].confidence) / 2))
+        ctx.lineTo(x, y)
+      }
+      ctx.closePath()
+      ctx.fill()
+    }
+
+    // 2. Liquidity Health (Layer 2 - Underlay Area)
+    if (activeLayers.has("liquidity")) {
+      ctx.beginPath()
+      ctx.fillStyle = "rgba(56, 189, 248, 0.15)"
+      for (let i = 0; i < visiblePoints; i++) {
+        const x = getX(i)
+        const y = getY(riskData[i].liquidity)
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y)
+      }
+      ctx.lineTo(getX(visiblePoints - 1), padding.top + graphHeight)
+      ctx.lineTo(padding.left, padding.top + graphHeight)
+      ctx.closePath()
+      ctx.fill()
+      
+      ctx.beginPath()
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.4)"
+      ctx.lineWidth = 1
+      for (let i = 0; i < visiblePoints; i++) {
+        const x = getX(i)
+        const y = getY(riskData[i].liquidity)
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y)
+      }
+      ctx.stroke()
+    }
+
+    // 3. Ownership Concentration (Layer 3 - Purple Dotted)
+    if (activeLayers.has("ownership")) {
+      ctx.beginPath()
+      ctx.setLineDash([5, 5])
+      ctx.strokeStyle = "rgba(168, 85, 247, 0.6)"
+      ctx.lineWidth = 2
+      for (let i = 0; i < visiblePoints; i++) {
+        const x = getX(i)
+        const y = getY(riskData[i].ownership)
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y)
+      }
+      ctx.stroke()
+      ctx.setLineDash([])
+    }
+
+    // 4. Social Pressure Glow (Layer 4)
+    if (activeLayers.has("social")) {
+      for (let i = 0; i < visiblePoints; i += 4) {
+        const x = getX(i)
+        const y = getY(riskData[i].social)
+        const intensity = riskData[i].social / 100
+        const pulse = Math.sin(Date.now() / 1000 + i) * 0.2 + 0.8
+        
+        const grad = ctx.createRadialGradient(x, y, 0, x, y, 30 * intensity * pulse)
+        grad.addColorStop(0, `rgba(244, 114, 182, ${0.2 * intensity})`)
+        grad.addColorStop(1, "rgba(244, 114, 182, 0)")
+        
+        ctx.fillStyle = grad
+        ctx.beginPath()
+        ctx.arc(x, y, 30 * intensity * pulse, 0, Math.PI * 2)
+        ctx.fill()
+      }
+    }
+
+    // 5. Primary Risk Curve (Layer 1)
+    if (activeLayers.has("risk")) {
       const gradient = ctx.createLinearGradient(padding.left, 0, padding.left + graphWidth, 0)
       riskData.slice(0, visiblePoints).forEach((point, i) => {
         const progress = i / (riskData.length - 1)
@@ -293,65 +384,48 @@ export default function TrustTimelinePage() {
 
       ctx.beginPath()
       ctx.strokeStyle = gradient
-      ctx.lineWidth = 3
+      ctx.lineWidth = 4
       ctx.lineCap = "round"
       ctx.lineJoin = "round"
 
-      riskData.slice(0, visiblePoints).forEach((point, i) => {
-        const x = padding.left + (i / (riskData.length - 1)) * graphWidth
-        const y = padding.top + ((100 - point.score) / 100) * graphHeight
-        
-        if (i === 0) {
-          ctx.moveTo(x, y)
-        } else {
-          const prevPoint = riskData[i - 1]
-          const prevX = padding.left + ((i - 1) / (riskData.length - 1)) * graphWidth
-          const prevY = padding.top + ((100 - prevPoint.score) / 100) * graphHeight
-          const cpX = (prevX + x) / 2
-          ctx.bezierCurveTo(cpX, prevY, cpX, y, x, y)
-        }
-      })
+      for (let i = 0; i < visiblePoints; i++) {
+        const x = getX(i)
+        const y = getY(riskData[i].score)
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y)
+      }
       ctx.stroke()
 
-      const areaGradient = ctx.createLinearGradient(0, padding.top, 0, padding.top + graphHeight)
-      areaGradient.addColorStop(0, "rgba(255,215,0,0.15)")
-      areaGradient.addColorStop(1, "rgba(255,215,0,0)")
-
-      ctx.beginPath()
-      riskData.slice(0, visiblePoints).forEach((point, i) => {
-        const x = padding.left + (i / (riskData.length - 1)) * graphWidth
-        const y = padding.top + ((100 - point.score) / 100) * graphHeight
+      // Predictive Projection
+      if (visiblePoints === riskData.length) {
+        ctx.beginPath()
+        ctx.setLineDash([5, 5])
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.3)"
+        const lastPoint = riskData[riskData.length - 1]
+        ctx.moveTo(getX(riskData.length - 1), getY(lastPoint.score))
         
-        if (i === 0) {
-          ctx.moveTo(x, y)
-        } else {
-          const prevPoint = riskData[i - 1]
-          const prevX = padding.left + ((i - 1) / (riskData.length - 1)) * graphWidth
-          const prevY = padding.top + ((100 - prevPoint.score) / 100) * graphHeight
-          const cpX = (prevX + x) / 2
-          ctx.bezierCurveTo(cpX, prevY, cpX, y, x, y)
+        // Simulating 3 more points into the future
+        for (let j = 1; j <= 4; j++) {
+          const fx = padding.left + graphWidth + (j / 4) * 60
+          const fy = getY(lastPoint.score + (Math.random() - 0.3) * 15)
+          ctx.lineTo(fx, fy)
         }
-      })
-      
-      const lastX = padding.left + ((visiblePoints - 1) / (riskData.length - 1)) * graphWidth
-      ctx.lineTo(lastX, padding.top + graphHeight)
-      ctx.lineTo(padding.left, padding.top + graphHeight)
-      ctx.closePath()
-      ctx.fillStyle = areaGradient
-      ctx.fill()
+        ctx.stroke()
+        ctx.setLineDash([])
+      }
     }
 
+    // 6. Event Markers
     riskData.slice(0, visiblePoints).forEach((point, i) => {
       if (!point.event) return
       
-      const x = padding.left + (i / (riskData.length - 1)) * graphWidth
-      const y = padding.top + ((100 - point.score) / 100) * graphHeight
+      const x = getX(i)
+      const y = getY(point.score)
       const color = getSeverityColor(point.event.severity)
 
       const pulse = Math.sin(Date.now() / 500 + i) * 0.3 + 0.7
       ctx.beginPath()
-      ctx.arc(x, y, 12 * pulse, 0, Math.PI * 2)
-      ctx.fillStyle = `${color}33`
+      ctx.arc(x, y, 14 * pulse, 0, Math.PI * 2)
+      ctx.fillStyle = `${color}22`
       ctx.fill()
 
       ctx.beginPath()
@@ -361,19 +435,31 @@ export default function TrustTimelinePage() {
       ctx.strokeStyle = "#000"
       ctx.lineWidth = 2
       ctx.stroke()
-    })
-
-    riskData.forEach((point, i) => {
-      const x = padding.left + (i / (riskData.length - 1)) * graphWidth
-      const date = point.timestamp.toLocaleDateString("en-US", { month: "short", day: "numeric" })
       
-      ctx.fillStyle = "rgba(255,255,255,0.5)"
-      ctx.font = "10px JetBrains Mono, monospace"
-      ctx.textAlign = "center"
-      ctx.fillText(date, x, rect.height - padding.bottom + 20)
+      // HUD Ring
+      ctx.beginPath()
+      ctx.arc(x, y, 10, 0, Math.PI * 2)
+      ctx.strokeStyle = `${color}66`
+      ctx.lineWidth = 1
+      ctx.setLineDash([2, 2])
+      ctx.stroke()
+      ctx.setLineDash([])
     })
 
-  }, [riskData, animationProgress])
+    // X-Axis Labels
+    const labelStep = Math.ceil(riskData.length / 6)
+    riskData.forEach((point, i) => {
+      if (i % labelStep === 0) {
+        const x = getX(i)
+        const date = point.timestamp.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+        ctx.fillStyle = "rgba(255,255,255,0.4)"
+        ctx.font = "9px JetBrains Mono, monospace"
+        ctx.textAlign = "center"
+        ctx.fillText(date, x, rect.height - padding.bottom + 25)
+      }
+    })
+
+  }, [riskData, animationProgress, activeLayers])
 
   useEffect(() => {
     if (showResults) {
