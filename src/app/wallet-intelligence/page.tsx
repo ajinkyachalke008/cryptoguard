@@ -161,6 +161,25 @@ export default function WalletIntelligencePage() {
     geo: GeoData | null
   }>({ cluster: null, timezone: null, geo: null })
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const addr = params.get("address")
+    if (addr) {
+      setAddress(addr)
+      // We can't call handleScan directly here because it's defined after
+      // But we can trigger it in another useEffect or define it before
+    }
+  }, [])
+
+  useEffect(() => {
+    if (address && !data.cluster && !isScanning) {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get("address") === address) {
+        handleScan()
+      }
+    }
+  }, [address])
+
   const handleScan = async () => {
     if (!address) return
     setIsScanning(true)
