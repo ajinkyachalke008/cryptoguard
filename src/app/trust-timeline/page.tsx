@@ -36,7 +36,64 @@ interface TimelineEvent {
 interface RiskDataPoint {
   timestamp: Date
   score: number
+  liquidity: number
+  ownership: number
+  social: number
+  confidence: number
   event?: TimelineEvent
+}
+
+const generateRiskData = (events: TimelineEvent[], days: number = 7): RiskDataPoint[] => {
+  const data: RiskDataPoint[] = []
+  let currentRisk = 25
+  let currentLiquidity = 80
+  let currentOwnership = 40
+  let currentSocial = 30
+  
+  const points = days * 4 // 4 points per day
+  const startTime = new Date(Date.now() - 86400000 * days)
+  
+  for (let i = 0; i <= points; i++) {
+    const timestamp = new Date(startTime.getTime() + (i / points) * (days * 86400000))
+    const matchingEvent = events.find(e => 
+      Math.abs(e.timestamp.getTime() - timestamp.getTime()) < (days * 86400000 / points / 2)
+    )
+    
+    // Simulate some noise
+    currentLiquidity = Math.max(0, Math.min(100, currentLiquidity + (Math.random() - 0.5) * 5))
+    currentOwnership = Math.max(0, Math.min(100, currentOwnership + (Math.random() - 0.5) * 3))
+    currentSocial = Math.max(0, Math.min(100, currentSocial + (Math.random() - 0.5) * 10))
+
+    if (matchingEvent) {
+      currentRisk = Math.min(100, Math.max(0, currentRisk + matchingEvent.riskDelta))
+      if (matchingEvent.type === "liquidity") currentLiquidity -= matchingEvent.riskDelta
+      if (matchingEvent.type === "ownership") currentOwnership += matchingEvent.riskDelta
+      if (matchingEvent.type === "social") currentSocial += matchingEvent.riskDelta
+      
+      data.push({ 
+        timestamp, 
+        score: currentRisk, 
+        liquidity: currentLiquidity,
+        ownership: currentOwnership,
+        social: currentSocial,
+        confidence: 85 + Math.random() * 10,
+        event: matchingEvent 
+      })
+    } else {
+      // Drift risk towards historical trends
+      currentRisk = Math.max(0, Math.min(100, currentRisk + (Math.random() - 0.45) * 2))
+      data.push({ 
+        timestamp, 
+        score: currentRisk,
+        liquidity: currentLiquidity,
+        ownership: currentOwnership,
+        social: currentSocial,
+        confidence: 90 + Math.random() * 5
+      })
+    }
+  }
+  
+  return data
 }
 
 const mockEvents: TimelineEvent[] = [
