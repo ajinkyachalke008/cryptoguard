@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Clock } from "lucide-react"
 import { useTransactions } from "@/hooks/useTransactions"
+import { BlockchainIdentifier } from "@/components/BlockchainIdentifier"
 
 export default function TransactionsTable() {
   const { txs } = useTransactions()
