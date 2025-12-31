@@ -41,7 +41,7 @@ import * as d3 from "d3"
 
 type RiskLevel = "low" | "medium" | "high" | "critical"
 
-interface GraphNode extends d3.SimulationNodeDatum {
+interface GraphNode {
   id: string
   address: string
   riskScore: number
@@ -49,9 +49,17 @@ interface GraphNode extends d3.SimulationNodeDatum {
   volume: number
   transactionCount: number
   label?: string
+  x?: number
+  y?: number
+  vx?: number
+  vy?: number
+  fx?: number | null
+  fy?: number | null
 }
 
-interface GraphLink extends d3.SimulationLinkDatum<GraphNode> {
+interface GraphLink {
+  source: string | GraphNode
+  target: string | GraphNode
   value: number
   transactionCount: number
   hashes: string[]
