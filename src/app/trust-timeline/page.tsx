@@ -808,12 +808,28 @@ export default function TrustTimelinePage() {
                                   <div className="bg-black/40 rounded p-3 mb-3">
                                     <div className="text-xs text-gray-500 mb-2 font-black uppercase tracking-widest">Forensic Evidence</div>
                                     <div className="space-y-2">
-                                      {event.evidence.map((item, i) => (
-                                        <div key={i} className="text-xs font-mono text-gray-400 flex items-center gap-2">
-                                          <div className="w-1 h-1 rounded-full bg-yellow-500/50" />
-                                          {item}
-                                        </div>
-                                      ))}
+                                        {event.evidence.map((item, i) => {
+                                          const isIdentifier = item.includes("0x") || item.includes("Contract:") || item.includes("Deployer:") || item.includes("Source:") || item.includes("Pool:")
+                                          const parts = item.split(": ")
+                                          const label = parts.length > 1 ? parts[0] : undefined
+                                          const val = parts.length > 1 ? parts[1] : item
+
+                                          return (
+                                            <div key={i} className="text-xs font-mono text-gray-400 flex items-center gap-2">
+                                              <div className="w-1 h-1 rounded-full bg-yellow-500/50" />
+                                              {isIdentifier && val.startsWith("0x") ? (
+                                                <BlockchainIdentifier 
+                                                  type={val.length > 42 ? "tx" : "address"} 
+                                                  value={val} 
+                                                  label={label}
+                                                  truncate={true}
+                                                />
+                                              ) : (
+                                                <span>{item}</span>
+                                              )}
+                                            </div>
+                                          )
+                                        })}
                                     </div>
                                   </div>
                                 )}
