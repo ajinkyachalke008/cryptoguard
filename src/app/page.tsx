@@ -517,19 +517,237 @@ Community: https://community.cryptoguard.com
                     Favorite & filter capabilities
                   </li>
                 </ul>
-                <Button 
-                  onClick={() => router.push("/crypto-watchlist")} 
-                  className="w-full bg-orange-500/20 border border-orange-500/50 text-orange-300 hover:bg-orange-500/30"
-                >
-                  View Watchlist →
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+                  <Button 
+                    onClick={() => router.push("/crypto-watchlist")} 
+                    className="w-full bg-orange-500/20 border border-orange-500/50 text-orange-300 hover:bg-orange-500/30"
+                  >
+                    View Watchlist →
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
 
-      {/* Social Proof Section */}
+            {/* AI Intelligence Features Section */}
+            <div className="mt-16">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl sm:text-4xl font-bold bg-[linear-gradient(180deg,#38bdf8_0%,#06b6d4_50%,#0891b2_100%)] bg-clip-text text-transparent mb-4">
+                  AI Intelligence Suite
+                </h2>
+                <p className="text-gray-400 max-w-2xl mx-auto">
+                  Advanced forensic tools powered by explainable AI to detect, prove, and predict crypto risk
+                </p>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {/* Trust Timeline */}
+                <Card className="border-cyan-500/40 bg-black/60 backdrop-blur-sm hover:shadow-[0_0_40px_#06b6d433] transition-all group">
+                  <CardContent className="pt-6">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border border-cyan-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <TrendingUp className="w-6 h-6 text-cyan-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-cyan-300 mb-2">Trust Timeline</h3>
+                    <p className="text-sm text-gray-400 mb-4">
+                      Visualize how token/wallet risk evolves over time with animated timeline showing liquidity changes, 
+                      ownership shifts, and social hype spikes.
+                    </p>
+                    <ul className="space-y-2 text-xs text-gray-500 mb-4">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-cyan-400" />
+                        Time-series anomaly detection
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-cyan-400" />
+                        AI-labeled risk change explanations
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-cyan-400" />
+                        Interactive event markers
+                      </li>
+                    </ul>
+                    <Button 
+                      onClick={() => router.push("/trust-timeline")} 
+                      className="w-full bg-cyan-500/20 border border-cyan-500/50 text-cyan-300 hover:bg-cyan-500/30"
+                    >
+                      View Timeline →
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Delta Engine */}
+                <Card className="border-purple-500/40 bg-black/60 backdrop-blur-sm hover:shadow-[0_0_40px_#a855f733] transition-all group">
+                  <CardContent className="pt-6">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <Network className="w-6 h-6 text-purple-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-purple-300 mb-2">AI Delta Engine</h3>
+                    <p className="text-sm text-gray-400 mb-4">
+                      Compare scan results between sessions to understand exactly what changed. 
+                      Floating delta cards show risk score changes with AI explanations.
+                    </p>
+                    <ul className="space-y-2 text-xs text-gray-500 mb-4">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-purple-400" />
+                        Before/after comparison
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-purple-400" />
+                        Severity-coded changes
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-purple-400" />
+                        Evidence-backed deltas
+                      </li>
+                    </ul>
+                    <Button 
+                      onClick={() => router.push("/delta-engine")} 
+                      className="w-full bg-purple-500/20 border border-purple-500/50 text-purple-300 hover:bg-purple-500/30"
+                    >
+                      Compare Scans →
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Behavior Heatmap */}
+                <Card className="border-orange-500/40 bg-black/60 backdrop-blur-sm hover:shadow-[0_0_40px_#f9731633] transition-all group">
+                  <CardContent className="pt-6">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500/20 to-orange-600/10 border border-orange-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <AlertTriangle className="w-6 h-6 text-orange-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-orange-300 mb-2">Behavior Heatmap</h3>
+                    <p className="text-sm text-gray-400 mb-4">
+                      Visualize wallet activity patterns with interactive radar heatmap. 
+                      Detect coordinated dumps, wash trading loops, and sybil attacks.
+                    </p>
+                    <ul className="space-y-2 text-xs text-gray-500 mb-4">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-orange-400" />
+                        Cluster visualization
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-orange-400" />
+                        Time-slider playback
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-orange-400" />
+                        Pattern detection AI
+                      </li>
+                    </ul>
+                    <Button 
+                      onClick={() => router.push("/behavior-heatmap")} 
+                      className="w-full bg-orange-500/20 border border-orange-500/50 text-orange-300 hover:bg-orange-500/30"
+                    >
+                      View Heatmap →
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Pattern Matcher */}
+                <Card className="border-red-500/40 bg-black/60 backdrop-blur-sm hover:shadow-[0_0_40px_#ef444433] transition-all group">
+                  <CardContent className="pt-6">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-red-500/20 to-red-600/10 border border-red-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <AlertTriangle className="w-6 h-6 text-red-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-red-300 mb-2">Scam Pattern Matcher</h3>
+                    <p className="text-sm text-gray-400 mb-4">
+                      Match current behavior against 500+ historical scam cases. 
+                      Get similarity scores with known rug pulls, honeypots, and pump & dumps.
+                    </p>
+                    <ul className="space-y-2 text-xs text-gray-500 mb-4">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-red-400" />
+                        Historical case matching
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-red-400" />
+                        Cosine similarity scoring
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-red-400" />
+                        Feature vector analysis
+                      </li>
+                    </ul>
+                    <Button 
+                      onClick={() => router.push("/pattern-matcher")} 
+                      className="w-full bg-red-500/20 border border-red-500/50 text-red-300 hover:bg-red-500/30"
+                    >
+                      Match Patterns →
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Social Hype Detector */}
+                <Card className="border-pink-500/40 bg-black/60 backdrop-blur-sm hover:shadow-[0_0_40px_#ec489933] transition-all group">
+                  <CardContent className="pt-6">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-pink-500/20 to-pink-600/10 border border-pink-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <Sparkles className="w-6 h-6 text-pink-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-pink-300 mb-2">Social Hype Detector</h3>
+                    <p className="text-sm text-gray-400 mb-4">
+                      Detect artificial social manipulation across Twitter, Telegram, and Discord. 
+                      Identify bot activity, fake followers, and coordinated campaigns.
+                    </p>
+                    <ul className="space-y-2 text-xs text-gray-500 mb-4">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-pink-400" />
+                        Bot activity scoring
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-pink-400" />
+                        Organic vs artificial split
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-pink-400" />
+                        Influencer analysis
+                      </li>
+                    </ul>
+                    <Button 
+                      onClick={() => router.push("/social-hype")} 
+                      className="w-full bg-pink-500/20 border border-pink-500/50 text-pink-300 hover:bg-pink-500/30"
+                    >
+                      Detect Hype →
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Contract Explainer */}
+                <Card className="border-emerald-500/40 bg-black/60 backdrop-blur-sm hover:shadow-[0_0_40px_#10b98133] transition-all group">
+                  <CardContent className="pt-6">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 border border-emerald-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <Shield className="w-6 h-6 text-emerald-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-emerald-300 mb-2">Contract Explainer</h3>
+                    <p className="text-sm text-gray-400 mb-4">
+                      Translate dangerous contract logic into human-readable explanations. 
+                      Three modes: Beginner, Developer, and Investor perspectives.
+                    </p>
+                    <ul className="space-y-2 text-xs text-gray-500 mb-4">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                        Plain language explanations
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                        Risk-highlighted clauses
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                        Code snippet analysis
+                      </li>
+                    </ul>
+                    <Button 
+                      onClick={() => router.push("/contract-explainer")} 
+                      className="w-full bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/30"
+                    >
+                      Analyze Contract →
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Social Proof Section */}
       <SocialProof />
 
       {/* Downloads Section */}
