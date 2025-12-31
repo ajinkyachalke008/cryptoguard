@@ -692,10 +692,11 @@ export default function TrustTimelinePage() {
                                 
                                   {event.evidence && (
                                     <div className="bg-black/40 rounded p-3 mb-3">
-                                      <div className="text-xs text-gray-500 mb-2">Evidence</div>
-                                      <div className="space-y-1">
+                                      <div className="text-xs text-gray-500 mb-2 font-black uppercase tracking-widest">Forensic Evidence</div>
+                                      <div className="space-y-2">
                                         {event.evidence.map((item, i) => (
-                                          <div key={i} className="text-xs font-mono text-gray-400">
+                                          <div key={i} className="text-xs font-mono text-gray-400 flex items-center gap-2">
+                                            <div className="w-1 h-1 rounded-full bg-yellow-500/50" />
                                             {item}
                                           </div>
                                         ))}
@@ -703,20 +704,32 @@ export default function TrustTimelinePage() {
                                     </div>
                                   )}
 
-                                  {event.type === "contract" && (
+                                  <div className="grid grid-cols-2 gap-2">
                                     <Button 
                                       variant="outline" 
                                       size="sm" 
-                                      className="w-full border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-xs"
+                                      className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 text-[10px] font-black uppercase"
                                       onClick={(e) => {
                                         e.stopPropagation()
-                                        window.location.href = "/contract-explainer"
+                                        router.push("/contract-explainer")
                                       }}
                                     >
                                       <FileCode className="w-3 h-3 mr-2" />
-                                      Deep Dive Contract Analysis
+                                      Contract Deep Dive
                                     </Button>
-                                  )}
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10 text-[10px] font-black uppercase"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        router.push(`/wallet-intelligence?address=${event.evidence?.[0]?.split(": ")?.[1] || ""}`)
+                                      }}
+                                    >
+                                      <Fingerprint className="w-3 h-3 mr-2" />
+                                      Wallet Intelligence
+                                    </Button>
+                                  </div>
 
                               </div>
                             )}
