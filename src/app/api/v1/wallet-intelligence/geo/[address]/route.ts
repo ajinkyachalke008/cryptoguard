@@ -250,9 +250,14 @@ export async function GET(
     const seed = Math.abs(addressHash)
     const activityCount = (seed % 120) + 15
     
-    const tzProfile = await db.query.timezoneProfiles.findFirst({
-      where: eq(timezoneProfiles.walletAddress, address),
-    })
+    let tzProfile = null
+    try {
+      tzProfile = await db.query.timezoneProfiles.findFirst({
+        where: eq(timezoneProfiles.walletAddress, address),
+      })
+    } catch {
+      // Table may not exist
+    }
     
     const hasTimezoneData = !!tzProfile || seed % 3 !== 0
     const timezoneRanges = [
