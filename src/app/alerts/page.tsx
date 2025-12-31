@@ -362,10 +362,10 @@ export default function AlertsPage() {
                             </Badge>
                           </div>
                           <p className={`font-medium ${severity.text}`}>{alert.message}</p>
-                          <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray-500">
-                            <span className="font-mono">{alert.wallet_address.slice(0, 10)}...{alert.wallet_address.slice(-6)}</span>
-                            <span>•</span>
-                            <span>{alert.blockchain}</span>
+                            <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray-500">
+                              <BlockchainIdentifier type="address" value={alert.wallet_address} />
+                              <span>•</span>
+                              <span>{alert.blockchain}</span>
                             {alert.amount && (
                               <>
                                 <span>•</span>
