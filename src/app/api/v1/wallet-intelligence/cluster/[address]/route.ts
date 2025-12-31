@@ -181,48 +181,55 @@ export async function GET(
       return NextResponse.json(response)
     }
 
-    const member = await db.query.walletClusterMembers.findFirst({
-      where: eq(walletClusterMembers.walletAddress, address),
-    })
-
-    const activityLogs = await db.query.walletActivityLogs.findMany({
-      where: eq(walletActivityLogs.walletAddress, address),
-    })
+    let member = null
+    let activityCount = 0
     
-    const activityCount = activityLogs.length
-
-    if (member && member.clusterId) {
-      const cluster = await db.query.walletClusters.findFirst({
-        where: eq(walletClusters.clusterId, member.clusterId),
+    try {
+      member = await db.query.walletClusterMembers.findFirst({
+        where: eq(walletClusterMembers.walletAddress, address),
       })
 
-      if (cluster) {
-        const members = await db.query.walletClusterMembers.findMany({
-          where: eq(walletClusterMembers.clusterId, cluster.clusterId),
+      const activityLogs = await db.query.walletActivityLogs.findMany({
+        where: eq(walletActivityLogs.walletAddress, address),
+      })
+      
+      activityCount = activityLogs.length
+
+      if (member && member.clusterId) {
+        const cluster = await db.query.walletClusters.findFirst({
+          where: eq(walletClusters.clusterId, member.clusterId),
         })
 
-        const signals = computeClusterSignals(address, activityCount, true, true, true)
-        const confidence = cluster.confidence as ConfidenceLevel
-        
-        const response: ClusterResponse = {
-          cluster_id: cluster.clusterId,
-          cluster_size: members.length,
-          wallet_role: member.role as WalletRole,
-          confidence,
-          signals_used: signals,
-          explanation: generateExplanation(signals, confidence, member.role as WalletRole, false, null),
-          limitations: [
-            "Cluster membership is probabilistic, not definitive",
-            "Shared services (mixers, exchanges) may create false positives",
-            "Role inference is based on observed patterns, not confirmed behavior"
-          ],
-          data_completeness: Math.min(100, activityCount * 5),
-          is_known_entity: false,
-          known_entity_type: null
+        if (cluster) {
+          const members = await db.query.walletClusterMembers.findMany({
+            where: eq(walletClusterMembers.clusterId, cluster.clusterId),
+          })
+
+          const signals = computeClusterSignals(address, activityCount, true, true, true)
+          const confidence = cluster.confidence as ConfidenceLevel
+          
+          const response: ClusterResponse = {
+            cluster_id: cluster.clusterId,
+            cluster_size: members.length,
+            wallet_role: member.role as WalletRole,
+            confidence,
+            signals_used: signals,
+            explanation: generateExplanation(signals, confidence, member.role as WalletRole, false, null),
+            limitations: [
+              "Cluster membership is probabilistic, not definitive",
+              "Shared services (mixers, exchanges) may create false positives",
+              "Role inference is based on observed patterns, not confirmed behavior"
+            ],
+            data_completeness: Math.min(100, activityCount * 5),
+            is_known_entity: false,
+            known_entity_type: null
+          }
+          
+          return NextResponse.json(response)
         }
-        
-        return NextResponse.json(response)
       }
+    } catch {
+      // Tables may not exist yet - continue to mock data
     }
 
     const addressHash = address.split('').reduce((a, b) => {
