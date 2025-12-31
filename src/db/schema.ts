@@ -192,3 +192,47 @@ export const webhooks = sqliteTable('webhooks', {
   status: text('status').notNull().default('active'),
   createdAt: text('created_at').notNull(),
 });
+
+// Wallet Intelligence tables
+export const wallets = sqliteTable('wallets', {
+  walletAddress: text('wallet_address').primaryKey(),
+  firstSeen: text('first_seen').notNull(),
+  lastSeen: text('last_seen').notNull(),
+});
+
+export const walletClusters = sqliteTable('wallet_clusters', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  clusterId: text('cluster_id').notNull().unique(),
+  confidence: text('confidence').notNull(), // 'low', 'medium', 'high'
+  createdAt: text('created_at').notNull(),
+});
+
+export const walletClusterMembers = sqliteTable('wallet_cluster_members', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  clusterId: text('cluster_id').references(() => walletClusters.clusterId),
+  walletAddress: text('wallet_address').references(() => wallets.walletAddress),
+  role: text('role').notNull(),
+});
+
+export const walletActivityLogs = sqliteTable('wallet_activity_logs', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  walletAddress: text('wallet_address').references(() => wallets.walletAddress),
+  timestamp: text('timestamp').notNull(),
+  activityType: text('activity_type').notNull(), // 'transaction', 'contract', 'liquidity'
+  amount: text('amount'),
+});
+
+export const timezoneProfiles = sqliteTable('timezone_profiles', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  walletAddress: text('wallet_address').references(() => wallets.walletAddress),
+  hourlyActivityDistribution: text('hourly_activity_distribution', { mode: 'json' }),
+  peakHours: text('peak_hours', { mode: 'json' }),
+  confidence: text('confidence').notNull(), // 'low', 'medium', 'high'
+});
+
+export const geoInferenceProfiles = sqliteTable('geo_inference_profiles', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  walletAddress: text('wallet_address').references(() => wallets.walletAddress),
+  regionProbabilities: text('region_probabilities', { mode: 'json' }),
+  confidence: text('confidence').notNull(), // 'low', 'medium', 'high'
+});
