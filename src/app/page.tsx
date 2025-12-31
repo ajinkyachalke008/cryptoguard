@@ -645,9 +645,9 @@ Community: https://community.cryptoguard.com
                 <Card className="border-red-500/40 bg-black/60 backdrop-blur-sm hover:shadow-[0_0_40px_#ef444433] transition-all group">
                   <CardContent className="pt-6">
                     <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-red-500/20 to-red-600/10 border border-red-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <AlertTriangle className="w-6 h-6 text-red-400" />
+                      <Target className="w-6 h-6 text-red-400" />
                     </div>
-                    <h3 className="text-xl font-semibold text-red-300 mb-2">Scam Pattern Matcher</h3>
+                    <h3 className="text-xl font-semibold text-red-300 mb-2">AI Scam Pattern Matching</h3>
                     <p className="text-sm text-gray-400 mb-4">
                       Match current behavior against 500+ historical scam cases. 
                       Get similarity scores with known rug pulls, honeypots, and pump & dumps.
@@ -667,7 +667,7 @@ Community: https://community.cryptoguard.com
                       </li>
                     </ul>
                     <Button 
-                      onClick={() => router.push("/pattern-matcher")} 
+                      onClick={() => router.push("/pattern-matching")} 
                       className="w-full bg-red-500/20 border border-red-500/50 text-red-300 hover:bg-red-500/30"
                     >
                       Match Patterns →
