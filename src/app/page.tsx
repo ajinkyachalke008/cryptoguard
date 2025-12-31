@@ -539,7 +539,42 @@ Community: https://community.cryptoguard.com
               </div>
 
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {/* Trust Timeline */}
+                  {/* Wallet Intelligence */}
+                  <Card className="border-indigo-500/40 bg-black/60 backdrop-blur-sm hover:shadow-[0_0_40px_#6366f133] transition-all group">
+                    <CardContent className="pt-6">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-500/20 to-indigo-600/10 border border-indigo-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <Fingerprint className="w-6 h-6 text-indigo-400" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-indigo-300 mb-2">Wallet Intelligence</h3>
+                      <p className="text-sm text-gray-400 mb-4">
+                        Probabilistic attribution using timezone fingerprinting, cluster analysis, and geo-inference. 
+                        Identify "who" is acting without compromising privacy.
+                      </p>
+                      <ul className="space-y-2 text-xs text-gray-500 mb-4">
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-3 h-3 text-indigo-400" />
+                          Behavioral timezone mapping
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-3 h-3 text-indigo-400" />
+                          Probabilistic geo-inference
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-3 h-3 text-indigo-400" />
+                          Deterministic wallet clustering
+                        </li>
+                      </ul>
+                      <Button 
+                        onClick={() => router.push("/wallet-intelligence")} 
+                        className="w-full bg-indigo-500/20 border border-indigo-500/50 text-indigo-300 hover:bg-indigo-500/30"
+                      >
+                        Run Attribution →
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* Trust Timeline */}
+
                 <Card className="border-cyan-500/40 bg-black/60 backdrop-blur-sm hover:shadow-[0_0_40px_#06b6d433] transition-all group">
                   <CardContent className="pt-6">
                     <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border border-cyan-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
