@@ -175,9 +175,15 @@ export async function GET(
   }
 
   try {
-    const profile = await db.query.timezoneProfiles.findFirst({
-      where: eq(timezoneProfiles.walletAddress, address),
-    })
+    let profile = null
+    
+    try {
+      profile = await db.query.timezoneProfiles.findFirst({
+        where: eq(timezoneProfiles.walletAddress, address),
+      })
+    } catch {
+      // Table may not exist yet
+    }
 
     if (profile && profile.hourlyActivityDistribution && profile.peakHours) {
       const distribution = profile.hourlyActivityDistribution as HourlyActivity[]
