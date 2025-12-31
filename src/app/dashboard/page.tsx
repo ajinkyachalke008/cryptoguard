@@ -53,10 +53,10 @@ const riskDistribution = [
 ]
 
 const recentAlerts = [
-  { id: 1, type: "fraud", message: "High-value transaction flagged", amount: "$45,230", time: "2 min ago", from: "0x7a9f...3d2e", to: "0x4b1c...8f9a" },
-  { id: 2, type: "risk", message: "Unusual transaction pattern", amount: "$12,450", time: "5 min ago", from: "0x3c8e...4a1b", to: "0x9d2f...7e6c" },
-  { id: 3, type: "fraud", message: "Known fraudulent wallet detected", amount: "$28,900", time: "8 min ago", from: "0x1f5a...9c3d", to: "0x6e4b...2a8f" },
-  { id: 4, type: "risk", message: "Multi-hop transaction detected", amount: "$8,340", time: "12 min ago", from: "0x8b3c...5d1e", to: "0x2a9f...4c7b" }
+  { id: 1, type: "fraud", message: "High-value transaction flagged", amount: "$45,230", time: "2 min ago", from: "0x7a9f6e4b2a8f9c3d", to: "0x4b1c8f9a2d3e4f5a" },
+  { id: 2, type: "risk", message: "Unusual transaction pattern", amount: "$12,450", time: "5 min ago", from: "0x3c8e4a1b9d2f7e6c", to: "0x9d2f7e6c3c8e4a1b" },
+  { id: 3, type: "fraud", message: "Known fraudulent wallet detected", amount: "$28,900", time: "8 min ago", from: "0x1f5a9c3d6e4b2a8f", to: "0x6e4b2a8f1f5a9c3d" },
+  { id: 4, type: "risk", message: "Multi-hop transaction detected", amount: "$8,340", time: "12 min ago", from: "0x8b3c5d1e2a9f4c7b", to: "0x2a9f4c7b8b3c5d1e" }
 ]
 
 const topCountries = [
@@ -118,7 +118,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <NavBar />
 
       <div className="mx-auto max-w-7xl px-4 py-8">
@@ -310,20 +310,19 @@ export default function Dashboard() {
             <CardContent>
               <div className="space-y-4">
                 {recentAlerts.map(alert => (
-                  <div key={alert.id} className="flex items-start gap-3 p-3 rounded-lg border border-yellow-500/20 bg-black/40">
+                  <div key={alert.id} className="flex items-start gap-3 p-3 rounded-lg border border-yellow-500/20 bg-black/40 group">
                     {alert.type === "fraud" ? (
                       <XCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
                     ) : (
                       <AlertTriangle className="h-5 w-5 text-orange-400 flex-shrink-0 mt-0.5" />
                     )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-200">{alert.message}</p>
-                        <div className="flex items-center gap-1 mt-1 text-xs text-gray-400">
-                          <BlockchainIdentifier type="address" value={alert.from} />
-                          <span>→</span>
-                          <BlockchainIdentifier type="address" value={alert.to} />
-                        </div>
-                        <div className="flex items-center gap-2 mt-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-200">{alert.message}</p>
+                      <div className="flex flex-col gap-1.5 mt-2">
+                        <BlockchainIdentifier type="address" value={alert.from} label="From" />
+                        <BlockchainIdentifier type="address" value={alert.to} label="To" />
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
                         <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/50">
                           {alert.amount}
                         </Badge>
