@@ -7,6 +7,7 @@ import Footer from "@/components/Footer"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge"
 import { BlockchainIdentifier } from "@/components/BlockchainIdentifier"
 import { 
   Shield, 
@@ -316,12 +317,14 @@ export default function Dashboard() {
                     ) : (
                       <AlertTriangle className="h-5 w-5 text-orange-400 flex-shrink-0 mt-0.5" />
                     )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-200">{alert.message}</p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {alert.from} → {alert.to}
-                      </p>
-                      <div className="flex items-center gap-2 mt-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-200">{alert.message}</p>
+                        <div className="flex items-center gap-1 mt-1 text-xs text-gray-400">
+                          <BlockchainIdentifier type="address" value={alert.from} />
+                          <span>→</span>
+                          <BlockchainIdentifier type="address" value={alert.to} />
+                        </div>
+                        <div className="flex items-center gap-2 mt-2">
                         <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/50">
                           {alert.amount}
                         </Badge>
