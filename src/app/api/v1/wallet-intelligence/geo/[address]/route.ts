@@ -210,9 +210,15 @@ export async function GET(
   }
 
   try {
-    const profile = await db.query.geoInferenceProfiles.findFirst({
-      where: eq(geoInferenceProfiles.walletAddress, address),
-    })
+    let profile = null
+    
+    try {
+      profile = await db.query.geoInferenceProfiles.findFirst({
+        where: eq(geoInferenceProfiles.walletAddress, address),
+      })
+    } catch {
+      // Table may not exist yet
+    }
 
     if (profile && profile.regionProbabilities) {
       const regions = profile.regionProbabilities as RegionProbability[]
