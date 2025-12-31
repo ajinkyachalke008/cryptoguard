@@ -4,7 +4,8 @@ import { useEffect, useState } from "react"
 import { useTransactions } from "@/hooks/useTransactions"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { Clock } from "lucide-react"
+import { Clock, ArrowRight } from "lucide-react"
+import { BlockchainIdentifier } from "@/components/BlockchainIdentifier"
 
 export default function TransactionFeed() {
   const { txs } = useTransactions()
