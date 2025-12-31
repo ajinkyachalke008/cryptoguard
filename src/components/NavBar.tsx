@@ -31,7 +31,8 @@ import {
   MessageSquare,
   ChevronDown,
   TrendingUp,
-  Activity
+  Activity,
+  Fingerprint
 } from "lucide-react"
 
 const mainNavItems = [
