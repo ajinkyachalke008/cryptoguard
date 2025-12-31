@@ -239,15 +239,15 @@ export function TransactionAnalysisModal({
           <DialogTitle className="text-2xl font-bold bg-[linear-gradient(180deg,#fff7cc_0%,#ffd700_50%,#b58100_100%)] bg-clip-text text-transparent">
             Transaction Analysis
           </DialogTitle>
-          <div className="flex items-center gap-2 mt-2">
-            <Badge className="font-mono text-xs">{transaction.hash.slice(0, 20)}...</Badge>
-            <Badge variant="outline" className="text-xs border-yellow-500/30">
-              {transaction.chain}
-            </Badge>
-            <Badge className={`text-xs ${getRiskBg(transaction.riskScore)}`}>
-              Risk: {transaction.riskScore}/100
-            </Badge>
-          </div>
+            <div className="flex items-center gap-2 mt-2">
+              <BlockchainIdentifier type="tx" value={transaction.hash} />
+              <Badge variant="outline" className="text-xs border-yellow-500/30">
+                {transaction.chain}
+              </Badge>
+              <Badge className={`text-xs ${getRiskBg(transaction.riskScore)}`}>
+                Risk: {transaction.riskScore}/100
+              </Badge>
+            </div>
         </DialogHeader>
 
         {loading ? (
