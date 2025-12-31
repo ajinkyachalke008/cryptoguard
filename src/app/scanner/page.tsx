@@ -292,19 +292,16 @@ export default function ScannerPage() {
                     </div>
                   </div>
 
-                  {/* Details */}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-4">
-                      <code className="text-sm text-yellow-300 bg-black/50 px-3 py-1.5 rounded-lg border border-yellow-500/30">
-                        {result.wallet_address}
-                      </code>
-                      <Button variant="ghost" size="sm" onClick={handleCopyAddress} className="text-gray-400 hover:text-yellow-300">
-                        <Copy className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" className="text-gray-400 hover:text-yellow-300">
-                        <ExternalLink className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    {/* Details */}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-4">
+                        <BlockchainIdentifier 
+                          type="address" 
+                          value={result.wallet_address} 
+                          truncate={false} 
+                          className="bg-black/50 px-3 py-1.5 rounded-lg border border-yellow-500/30"
+                        />
+                      </div>
 
                     <p className="text-gray-300 mb-6">{result.ai_explanation}</p>
 
