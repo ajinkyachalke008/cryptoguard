@@ -296,12 +296,18 @@ export default function PatternMatchingPage() {
                           <h2 className="text-2xl font-black text-white italic uppercase tracking-tight">
                             {selectedArchetype.name} Match
                           </h2>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge className={`uppercase text-[10px] font-black border ${getConfidenceColor(selectedArchetype.confidence)}`}>
-                                Confidence: {selectedArchetype.confidence}
-                              </Badge>
-                              <span className="text-gray-600 text-xs font-mono">{"// Case Ref: "}{selectedArchetype.historicalCase}</span>
-                            </div>
+                              <div className="flex flex-wrap items-center gap-4 mt-1">
+                                <Badge className={`uppercase text-[10px] font-black border ${getConfidenceColor(selectedArchetype.confidence)}`}>
+                                  Confidence: {selectedArchetype.confidence}
+                                </Badge>
+                                <span className="text-gray-600 text-xs font-mono">{"// Case Ref: "}{selectedArchetype.historicalCase}</span>
+                                {address && (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Target:</span>
+                                    <BlockchainIdentifier type="address" value={address} truncate={true} />
+                                  </div>
+                                )}
+                              </div>
 
                         </div>
                       </div>
