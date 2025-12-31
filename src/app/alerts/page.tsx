@@ -492,21 +492,21 @@ export default function AlertsPage() {
                     <p className="text-gray-300">{selectedAlert.description}</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500">Wallet Address</p>
-                      <code className="text-sm text-yellow-300">{selectedAlert.wallet_address}</code>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500">Blockchain</p>
-                      <p className="text-sm text-gray-300">{selectedAlert.blockchain}</p>
-                    </div>
-                    {selectedAlert.tx_hash && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <p className="text-xs text-gray-500">Transaction Hash</p>
-                        <code className="text-sm text-gray-300">{selectedAlert.tx_hash}</code>
+                        <p className="text-xs text-gray-500">Wallet Address</p>
+                        <BlockchainIdentifier type="address" value={selectedAlert.wallet_address} truncate={false} />
                       </div>
-                    )}
+                      <div className="space-y-1">
+                        <p className="text-xs text-gray-500">Blockchain</p>
+                        <p className="text-sm text-gray-300">{selectedAlert.blockchain}</p>
+                      </div>
+                      {selectedAlert.tx_hash && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500">Transaction Hash</p>
+                          <BlockchainIdentifier type="tx" value={selectedAlert.tx_hash} truncate={false} />
+                        </div>
+                      )}
                     {selectedAlert.amount && (
                       <div className="space-y-1">
                         <p className="text-xs text-gray-500">Amount</p>
