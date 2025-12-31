@@ -22,8 +22,10 @@ import {
   Clock,
   ArrowUpRight,
   ArrowDownRight,
-  Minus
+  Minus,
+  ExternalLink
 } from "lucide-react"
+import { BlockchainIdentifier } from "@/components/BlockchainIdentifier"
 
 interface DeltaChange {
   id: string
@@ -70,50 +72,51 @@ const mockDeltaChanges: DeltaChange[] = [
     severity: "high",
     timestamp: new Date(Date.now() - 2400000),
     aiExplanation: "Single large liquidity provider removed $430K from the main ETH/TOKEN pool. This matches patterns seen before coordinated exits.",
-    evidence: [
-      "LP Address: 0x7f2a...c891",
-      "Removed: 847,231 LP tokens",
-      "Remaining LPs: 12 → 11",
-      "Slippage impact: +2.3%"
-    ],
-    expanded: false
-  },
-  {
-    id: "3",
-    category: "wallet",
-    title: "New Wallet Clusters",
-    previousValue: "3 clusters",
-    currentValue: "7 clusters",
-    delta: 133,
-    deltaType: "increase",
-    severity: "high",
-    timestamp: new Date(Date.now() - 1800000),
-    aiExplanation: "AI detected 4 new wallet clusters exhibiting coordinated behavior. Transaction timing suggests single entity control across 23 new wallets.",
-    evidence: [
-      "New wallets: 23",
-      "Avg. funding amount: 0.42 ETH",
-      "Common funding source: 0x8a3f...b2c1",
-      "Transaction interval: 12-18 seconds"
-    ],
-    expanded: false
-  },
-  {
-    id: "4",
-    category: "contract",
-    title: "Contract Proxy Update",
-    previousValue: "v1.2.0",
-    currentValue: "v1.2.1",
-    delta: 0,
-    deltaType: "neutral",
-    severity: "medium",
-    timestamp: new Date(Date.now() - 1200000),
-    aiExplanation: "Upgradeable proxy contract was modified. New implementation adds an admin-controlled pause function that could freeze all transfers.",
-    evidence: [
-      "New function: emergencyPause()",
-      "Admin: 0x7a2f...c891 (unchanged)",
-      "Timelock: None detected",
-      "Audit status: Unverified"
-    ],
+      evidence: [
+        "LP Address: 0x7f2a...c891",
+        <BlockchainIdentifier key="lp-addr" type="address" value="0x7f2a12345678901234567890123456789012c891" label="LP" truncate={true} />,
+        "Removed: 847,231 LP tokens",
+        "Remaining LPs: 12 → 11",
+        "Slippage impact: +2.3%"
+      ],
+      expanded: false
+    },
+    {
+      id: "3",
+      category: "wallet",
+      title: "New Wallet Clusters",
+      previousValue: "3 clusters",
+      currentValue: "7 clusters",
+      delta: 133,
+      deltaType: "increase",
+      severity: "high",
+      timestamp: new Date(Date.now() - 1800000),
+      aiExplanation: "AI detected 4 new wallet clusters exhibiting coordinated behavior. Transaction timing suggests single entity control across 23 new wallets.",
+      evidence: [
+        "New wallets: 23",
+        "Avg. funding amount: 0.42 ETH",
+        <BlockchainIdentifier key="funding-source" type="address" value="0x8a3fb2c1d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9" label="Source" truncate={true} />,
+        "Transaction interval: 12-18 seconds"
+      ],
+      expanded: false
+    },
+    {
+      id: "4",
+      category: "contract",
+      title: "Contract Proxy Update",
+      previousValue: "v1.2.0",
+      currentValue: "v1.2.1",
+      delta: 0,
+      deltaType: "neutral",
+      severity: "medium",
+      timestamp: new Date(Date.now() - 1200000),
+      aiExplanation: "Upgradeable proxy contract was modified. New implementation adds an admin-controlled pause function that could freeze all transfers.",
+      evidence: [
+        "New function: emergencyPause()",
+        <BlockchainIdentifier key="admin-addr" type="address" value="0x7a2f12345678901234567890123456789012c891" label="Admin" truncate={true} />,
+        "Timelock: None detected",
+        "Audit status: Unverified"
+      ],
     expanded: false
   },
   {
