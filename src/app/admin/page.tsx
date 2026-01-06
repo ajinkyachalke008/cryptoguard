@@ -1022,11 +1022,21 @@ export default function AdminDashboard() {
                           </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button size="sm" variant="outline" className="border-green-500/50 text-green-400 hover:bg-green-500/20">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="border-green-500/50 text-green-400 hover:bg-green-500/20"
+                          onClick={() => handleResolveAlert(alert.id, 'resolve')}
+                        >
                           <CheckCircle2 className="w-3 h-3 mr-1" />
                           Resolve
                         </Button>
-                        <Button size="sm" variant="outline" className="border-gray-500/50 text-gray-400">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="border-gray-500/50 text-gray-400"
+                          onClick={() => handleResolveAlert(alert.id, 'dismiss')}
+                        >
                           Dismiss
                         </Button>
                       </div>
