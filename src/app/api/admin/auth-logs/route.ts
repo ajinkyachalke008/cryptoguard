@@ -1,9 +1,13 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/db"
 import { authLogs } from "@/db/schema"
 import { desc, eq, and } from "drizzle-orm"
+import { requireAdmin } from "@/lib/middleware/authMiddleware"
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  const auth = requireAdmin(req)
+  if (auth.response) return auth.response
+
   const { searchParams } = new URL(req.url)
   const page = parseInt(searchParams.get("page") || "1")
   const limit = parseInt(searchParams.get("limit") || "15")
