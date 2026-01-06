@@ -221,14 +221,23 @@ export default function NavBar() {
               <DropdownMenuContent className="w-48 bg-black/95 border-yellow-500/30 backdrop-blur-sm">
                 <DropdownMenuLabel className="text-yellow-400">{user?.email}</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-yellow-500/20" />
-                <DropdownMenuItem
-                  onClick={() => router.push("/dashboard")}
-                  className="cursor-pointer text-gray-300 hover:text-yellow-300 hover:bg-yellow-500/10"
-                >
-                  <LayoutDashboard className="size-4 mr-2" />
-                  Dashboard
-                </DropdownMenuItem>
-                <DropdownMenuItem
+                  <DropdownMenuItem
+                    onClick={() => router.push("/dashboard")}
+                    className="cursor-pointer text-gray-300 hover:text-yellow-300 hover:bg-yellow-500/10"
+                  >
+                    <LayoutDashboard className="size-4 mr-2" />
+                    Dashboard
+                  </DropdownMenuItem>
+                  {user?.role === 'admin' && (
+                    <DropdownMenuItem
+                      onClick={() => router.push("/admin")}
+                      className="cursor-pointer text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10"
+                    >
+                      <Shield className="size-4 mr-2" />
+                      Admin Panel
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem
                   onClick={logout}
                   className="cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-500/10"
                 >
