@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
+import { db } from "@/db"
+import { securityAlerts, adminAuditLogs } from "@/db/schema"
+import { desc, eq, and, sql } from "drizzle-orm"
 import { requireAdmin } from "@/lib/middleware/authMiddleware"
 
 export async function GET(req: NextRequest) {
@@ -12,27 +15,65 @@ export async function GET(req: NextRequest) {
   const status = searchParams.get("status") || "active"
   const offset = (page - 1) * limit
 
-  // Mock security alerts
-  const mockAlerts = Array.from({ length: limit }).map((_, i) => ({
-    id: offset + i + 1,
-    userId: 100 + i,
-    userEmail: `user${offset + i}@example.com`,
-    alertType: ["multiple_failed_logins", "geo_anomaly", "bot_activity", "brute_force"][i % 4],
-    description: [
-      "Multiple failed login attempts detected in short interval",
-      "Login detected from unusual geographic location",
-      "Automated bot-like login frequency detected",
-      "Potential brute force attack on account"
-    ][i % 4],
-    severity: severity && severity !== "all" ? severity : (i % 5 === 0 ? "critical" : i % 3 === 0 ? "high" : "medium"),
-    status: status,
-    metadata: {
-      ip: `192.168.1.${10 + i}`,
-      country: ["US", "CN", "RU", "NG"][i % 4],
-      attempts: 5 + i
-    },
-    createdAt: new Date(Date.now() - (i * 45) * 60000).toISOString()
-  }))
+  try {
+    let whereClause = eq(securityAlerts.status, status)
+    
+    if (severity && severity !== "all") {
+      whereClause = and(whereClause, eq(securityAlerts.severity, severity))
+    }
 
-  return NextResponse.json({ alerts: mockAlerts, total: 50 })
+    const alerts = await db.select()
+      .from(securityAlerts)
+      .where(whereClause)
+      .orderBy(desc(securityAlerts.createdAt))
+      .limit(limit)
+      .offset(offset)
+
+    const [totalCount] = await db.select({ value: sql`count(*)` }).from(securityAlerts).where(whereClause)
+
+    return NextResponse.json({ 
+      alerts, 
+      total: Number(totalCount?.value || 0) 
+    })
+  } catch (error) {
+    console.error("Security alerts fetch error:", error)
+    return NextResponse.json({ error: "Failed to fetch alerts" }, { status: 500 })
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  const auth = requireAdmin(req)
+  if (auth.response) return auth.response
+
+  try {
+    const body = await req.json()
+    const { id, action } = body
+
+    if (!id || !action) {
+      return NextResponse.json({ error: "Missing id or action" }, { status: 400 })
+    }
+
+    const status = action === 'resolve' ? 'resolved' : 'dismissed'
+    
+    await db.update(securityAlerts)
+      .set({ 
+        status, 
+        resolvedBy: auth.user!.id,
+        resolvedAt: new Date().toISOString()
+      })
+      .where(eq(securityAlerts.id, id))
+
+    // Log the action
+    await db.insert(adminAuditLogs).values({
+      adminUserId: auth.user!.id,
+      action: `${action}_security_alert`,
+      details: { alertId: id, action, status },
+      createdAt: new Date().toISOString()
+    })
+
+    return NextResponse.json({ success: true, message: `Alert ${status} successfully.` })
+  } catch (error) {
+    console.error("Security alert update error:", error)
+    return NextResponse.json({ error: "Failed to update alert" }, { status: 500 })
+  }
 }
