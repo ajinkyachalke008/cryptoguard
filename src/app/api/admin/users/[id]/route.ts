@@ -45,7 +45,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json(mockUser)
 }
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  const auth = requireAdmin(req)
+  if (auth.response) return auth.response
+
   const body = await req.json()
   const { action, reason } = body
 
