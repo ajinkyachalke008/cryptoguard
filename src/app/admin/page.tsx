@@ -238,6 +238,29 @@ export default function AdminDashboard() {
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth()
   const [activeTab, setActiveTab] = useState("overview")
   const [isLoading, setIsLoading] = useState(true)
+  const [stats, setStats] = useState<AdminStats | null>(null)
+  const [authLogs, setAuthLogs] = useState<AuthLog[]>([])
+  const [users, setUsers] = useState<User[]>([])
+  const [securityAlerts, setSecurityAlerts] = useState<SecurityAlert[]>([])
+  const [sessions, setSessions] = useState<Session[]>([])
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([])
+  
+  const [authLogPage, setAuthLogPage] = useState(1)
+  const [userPage, setUserPage] = useState(1)
+  const [sessionPage, setSessionPage] = useState(1)
+  const [alertPage, setAlertPage] = useState(1)
+  const [auditPage, setAuditPage] = useState(1)
+  
+  const [eventTypeFilter, setEventTypeFilter] = useState("all")
+  const [userStatusFilter, setUserStatusFilter] = useState("all")
+  const [alertSeverityFilter, setAlertSeverityFilter] = useState("all")
+  const [searchQuery, setSearchQuery] = useState("")
+  
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [actionDialogOpen, setActionDialogOpen] = useState(false)
+  const [actionType, setActionType] = useState("")
+  const [actionReason, setActionReason] = useState("")
+  const [isActionLoading, setIsActionLoading] = useState(false)
 
   useEffect(() => {
     if (!isAuthLoading) {
