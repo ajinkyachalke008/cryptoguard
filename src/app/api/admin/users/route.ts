@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
+import { db } from "@/db"
+import { users, userSessions } from "@/db/schema"
+import { desc, eq, and, sql, like, or, count } from "drizzle-orm"
 import { requireAdmin } from "@/lib/middleware/authMiddleware"
 
 export async function GET(req: NextRequest) {
@@ -12,27 +15,63 @@ export async function GET(req: NextRequest) {
   const search = searchParams.get("search")
   const offset = (page - 1) * limit
 
-  // Mock data for user management
-  const mockUsers = Array.from({ length: limit }).map((_, i) => ({
-    id: offset + i + 1,
-    email: `user${offset + i}@example.com`,
-    emailMasked: `u***${offset + i}@e******.com`,
-    role: i % 10 === 0 ? "admin" : "user",
-    status: status && status !== "all" ? status : (i % 15 === 0 ? "suspended" : i % 20 === 0 ? "blocked" : "active"),
-    accountType: ["user", "developer", "enterprise"][i % 3],
-    signupMethod: ["email", "oauth_google", "wallet"][i % 3],
-    emailVerified: i % 5 !== 0,
-    lastLoginAt: new Date(Date.now() - (i * 2) * 3600000).toISOString(),
-    lastLoginCountry: ["US", "GB", "DE", "CN", "RU"][i % 5],
-    loginCount: 10 + i,
-    failedLoginCount: i % 4 === 0 ? 2 : 0,
-    activeSessions: i % 3 === 0 ? 1 : 0,
-    suspendedAt: i % 15 === 0 ? new Date().toISOString() : null,
-    suspendReason: i % 15 === 0 ? "Suspicious activity detected" : null,
-    createdAt: new Date(Date.now() - (i + 10) * 86400000).toISOString(),
-    riskScore: Math.floor(Math.random() * 100),
-    flagged: i % 8 === 0
-  }))
+  try {
+    let whereClause = undefined
+    
+    if (status && status !== "all") {
+      whereClause = eq(users.status, status)
+    }
 
-  return NextResponse.json({ users: mockUsers, total: 500 })
+    if (search) {
+      const searchPattern = `%${search}%`
+      const searchClause = like(users.email, searchPattern)
+      whereClause = whereClause ? and(whereClause, searchClause) : searchClause
+    }
+
+    const usersList = await db.select({
+      id: users.id,
+      email: users.email,
+      role: users.role,
+      status: users.status,
+      accountType: users.accountType,
+      signupMethod: users.signupMethod,
+      emailVerified: users.emailVerified,
+      lastLoginAt: users.lastLoginAt,
+      suspendedAt: users.suspendedAt,
+      suspendReason: users.suspendReason,
+      createdAt: users.createdAt,
+    })
+    .from(users)
+    .where(whereClause)
+    .orderBy(desc(users.createdAt))
+    .limit(limit)
+    .offset(offset)
+
+    // Add active session counts for each user
+    const usersWithSessions = await Promise.all(usersList.map(async (u) => {
+      const [sessionCount] = await db.select({ value: count() })
+        .from(userSessions)
+        .where(and(eq(userSessions.userId, u.id), eq(userSessions.isActive, true)))
+      
+      return {
+        ...u,
+        emailMasked: u.email.replace(/^(.)(.*)(.@.*)$/, (_, f, m, l) => f + "*".repeat(m.length) + l),
+        activeSessions: sessionCount.value,
+        loginCount: 0, // Simplified
+        failedLoginCount: 0,
+        riskScore: 0,
+        flagged: false
+      }
+    }))
+
+    const [totalCount] = await db.select({ value: sql`count(*)` }).from(users).where(whereClause)
+
+    return NextResponse.json({ 
+      users: usersWithSessions, 
+      total: Number(totalCount?.value || 0) 
+    })
+  } catch (error) {
+    console.error("Users fetch error:", error)
+    return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 })
+  }
 }
