@@ -46,17 +46,19 @@ export function BlockchainIdentifier({
   const truncateMiddle = (str: string) => {
     if (!str) return ""
     if (str.length <= 12) return str
+    // Format: 0xABCD…1234
     return `${str.slice(0, 6)}…${str.slice(-4)}`
   }
 
   const handleCopy = async (e?: React.MouseEvent | React.KeyboardEvent) => {
     e?.stopPropagation()
     try {
+      // Ensure we copy the full raw value, excluding labels or extra text
       await navigator.clipboard.writeText(value)
       setCopied(true)
       toast.success("Copied to clipboard", {
-        description: `Public blockchain identifier copied`,
-        duration: 1500
+        description: "Public blockchain identifier",
+        duration: 1500,
       })
       setTimeout(() => setCopied(false), 1500)
     } catch (err) {
