@@ -608,15 +608,17 @@ export default function AdminDashboard() {
                   <CardTitle className="text-yellow-300">Sign-up Methods</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={signupMethodData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                      <XAxis dataKey="name" stroke="#999" />
-                      <YAxis stroke="#999" />
-                      <Tooltip contentStyle={{ backgroundColor: 'rgba(0,0,0,0.9)', border: '1px solid #ffd700' }} />
-                      <Bar dataKey="value" fill="#fbbf24" />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <div className="h-[200px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={signupMethodData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                        <XAxis dataKey="name" stroke="#999" />
+                        <YAxis stroke="#999" />
+                        <Tooltip contentStyle={{ backgroundColor: 'rgba(0,0,0,0.9)', border: '1px solid #ffd700' }} />
+                        <Bar dataKey="value" fill="#fbbf24" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </CardContent>
               </Card>
 
