@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
+import { db } from "@/db"
+import { adminAuditLogs, users } from "@/db/schema"
+import { desc, eq, and, sql } from "drizzle-orm"
 import { requireAdmin } from "@/lib/middleware/authMiddleware"
 
 export async function GET(req: NextRequest) {
@@ -10,24 +13,40 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get("limit") || "15")
   const offset = (page - 1) * limit
 
-  // Mock audit logs
-  const mockLogs = Array.from({ length: limit }).map((_, i) => ({
-    id: offset + i + 1,
-    adminUserId: 1,
-    adminEmail: "admin@cryptoguard.com",
-    targetUserId: 100 + i,
-    targetEmail: `user${offset + i}@example.com`,
-    action: ["suspend_user", "unsuspend_user", "force_logout", "reset_password", "view_details"][i % 5],
-    actionDescription: [
-      "Suspended user account",
-      "Unsuspended user account",
-      "Forced logout for all sessions",
-      "Initiated password reset",
-      "Viewed sensitive user details"
-    ][i % 5],
-    reason: i % 2 === 0 ? "Compliance review" : "Suspicious activity",
-    createdAt: new Date(Date.now() - (i * 120) * 60000).toISOString()
-  }))
+  try {
+    const logs = await db.select({
+      id: adminAuditLogs.id,
+      adminUserId: adminAuditLogs.adminUserId,
+      targetUserId: adminAuditLogs.targetUserId,
+      action: adminAuditLogs.action,
+      reason: adminAuditLogs.reason,
+      details: adminAuditLogs.details,
+      createdAt: adminAuditLogs.createdAt,
+    })
+    .from(adminAuditLogs)
+    .orderBy(desc(adminAuditLogs.createdAt))
+    .limit(limit)
+    .offset(offset)
 
-  return NextResponse.json({ logs: mockLogs, total: 100 })
+    // Enrich with email addresses
+    const enrichedLogs = await Promise.all(logs.map(async (log) => {
+      const details = log.details as any
+      return {
+        ...log,
+        adminEmail: details?.adminEmail || "System",
+        targetEmail: details?.targetEmail || "N/A",
+        actionDescription: details?.actionDescription || log.action.replace(/_/g, ' ')
+      }
+    }))
+
+    const [totalCount] = await db.select({ value: sql`count(*)` }).from(adminAuditLogs)
+
+    return NextResponse.json({ 
+      logs: enrichedLogs, 
+      total: Number(totalCount?.value || 0) 
+    })
+  } catch (error) {
+    console.error("Audit logs fetch error:", error)
+    return NextResponse.json({ error: "Failed to fetch logs" }, { status: 500 })
+  }
 }
