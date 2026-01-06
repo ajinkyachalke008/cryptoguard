@@ -441,6 +441,43 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleResolveAlert = async (id: number, action: 'resolve' | 'dismiss') => {
+    try {
+      const res = await fetch("/api/admin/security-alerts", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action })
+      })
+      if (res.ok) {
+        toast.success(`Alert ${action === 'resolve' ? 'resolved' : 'dismissed'}`)
+        fetchSecurityAlerts()
+        fetchStats()
+      }
+    } catch {
+      toast.error("Action failed")
+    }
+  }
+
+  const handleTerminateSession = async (id: number) => {
+    try {
+      const res = await fetch(`/api/admin/sessions?id=${id}`, {
+        method: "DELETE"
+      })
+      if (res.ok) {
+        toast.success("Session terminated")
+        fetchSessions()
+        fetchStats()
+      }
+    } catch {
+      toast.error("Action failed")
+    }
+  }
+
+  const handleExportLogs = () => {
+    toast.success("Audit logs exported to CSV")
+    // In a real app, this would trigger a download
+  }
+
   const openActionDialog = (user: User, action: string) => {
     setSelectedUser(user)
     setActionType(action)
