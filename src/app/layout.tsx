@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Script from "next/script";
+import VisualEditsMessenger from "@/visual-edits/VisualEditsMessenger";
 
 export const metadata: Metadata = {
   title: "Cryptoguard — AI Crypto Fraud Detection",
@@ -27,6 +28,7 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             {children}
+            <VisualEditsMessenger />
             <Toaster position="top-right" />
           </AuthProvider>
         </ThemeProvider>
