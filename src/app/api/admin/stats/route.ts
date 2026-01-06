@@ -1,6 +1,10 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
+import { requireAdmin } from "@/lib/middleware/authMiddleware"
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = requireAdmin(req)
+  if (auth.response) return auth.response
+
   const now = new Date()
   const today = now.toISOString().split('T')[0]
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
