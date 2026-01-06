@@ -5,7 +5,15 @@ export const users = sqliteTable('users', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   email: text('email').notNull().unique(),
   passwordHash: text('password_hash').notNull(),
-  role: text('role').notNull().default('user'),
+  role: text('role').notNull().default('user'), // 'user', 'admin', 'developer', 'enterprise'
+  status: text('status').notNull().default('active'), // 'active', 'suspended', 'blocked', 'pending_verification'
+  accountType: text('account_type').notNull().default('user'), // 'user', 'developer', 'enterprise'
+  signupMethod: text('signup_method').notNull().default('email'), // 'email', 'oauth_google', 'wallet'
+  emailVerified: integer('email_verified', { mode: 'boolean' }).notNull().default(false),
+  lastLoginAt: text('last_login_at'),
+  suspendedAt: text('suspended_at'),
+  suspendedBy: integer('suspended_by'),
+  suspendReason: text('suspend_reason'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 });
