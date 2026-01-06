@@ -7,6 +7,12 @@ import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { RegistrationModal } from "./RegistrationModal"
 import { useAuth } from "@/contexts/AuthContext"
+
+const ADMIN_WHITELIST = [
+  'ajinkyachalke008@gmail.com',
+  'ajinkyachalke94@gmail.com'
+];
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -228,15 +234,15 @@ export default function NavBar() {
                     <LayoutDashboard className="size-4 mr-2" />
                     Dashboard
                   </DropdownMenuItem>
-                  {user?.role === 'admin' && (
-                    <DropdownMenuItem
-                      onClick={() => router.push("/admin")}
-                      className="cursor-pointer text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10"
-                    >
-                      <Shield className="size-4 mr-2" />
-                      Admin Panel
-                    </DropdownMenuItem>
-                  )}
+                    {user?.role === 'admin' && ADMIN_WHITELIST.includes(user.email.toLowerCase()) && (
+                      <DropdownMenuItem
+                        onClick={() => router.push("/admin")}
+                        className="cursor-pointer text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10"
+                      >
+                        <Shield className="size-4 mr-2" />
+                        Admin Panel
+                      </DropdownMenuItem>
+                    )}
                   <DropdownMenuItem
                   onClick={logout}
                   className="cursor-pointer text-red-400 hover:text-red-300 hover:bg-red-500/10"
