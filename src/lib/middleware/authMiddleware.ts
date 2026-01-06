@@ -12,6 +12,15 @@ import { logger } from '../utils/logger';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_change_in_production';
 
+/**
+ * Hard-coded Admin Whitelist
+ * ONLY these email addresses are allowed to have admin privileges
+ */
+export const ADMIN_WHITELIST = [
+  'ajinkyachalke008@gmail.com',
+  'ajinkyachalke94@gmail.com'
+];
+
 export interface AuthenticatedUser {
   id: number;
   email: string;
