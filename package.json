@@ -71,6 +71,7 @@
         "input-otp": "^1.4.2",
         "jsonwebtoken": "^9.0.3",
         "lucide-react": "^0.544.0",
+        "magic-string": "^0.30.21",
         "mini-svg-data-uri": "^1.4.4",
         "motion": "^12.23.12",
         "motion-dom": "^12.23.12",
