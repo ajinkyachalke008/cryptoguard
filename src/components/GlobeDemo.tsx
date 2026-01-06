@@ -913,15 +913,22 @@ function GlobeDemoComponent() {
     if (!globe) return
 
     const getRiskColor = (riskScore: number, chain: string) => {
-      if (chainFilter !== "all" && CHAIN_COLORS[chain]) {
-        const baseColor = CHAIN_COLORS[chain]
-        return [baseColor + "ee", baseColor + "44"]
-      }
+      // Logic from spec: risk_score >= 70 FRAUD (red), >= 40 RISKY (orange), else SAFE (green)
+      if (riskScore >= 0.7) return ["rgba(255,46,46,0.95)", "rgba(255,46,46,0.4)"]
+      if (riskScore >= 0.4) return ["rgba(255,165,0,0.95)", "rgba(255,165,0,0.4)"]
+      return ["rgba(16,185,129,0.95)", "rgba(16,185,129,0.4)"]
+    }
+
+    const getArcWidth = (tx: Tx) => {
+      // base_width: SAFE: 0.6, RISKY: 1.0, FRAUD: 1.6
+      let width = 0.6
+      if (tx.riskScore >= 0.7) width = 1.6
+      else if (tx.riskScore >= 0.4) width = 1.0
+
+      // modifiers: high_transaction_value: +0.1
+      if (tx.amount > 50000) width += 0.1
       
-      if (riskScore >= 0.85) return ["rgba(255,46,46,0.95)", "rgba(255,46,46,0.4)"]
-      if (riskScore >= 0.6) return ["rgba(255,165,0,0.95)", "rgba(255,165,0,0.4)"]
-      if (riskScore >= 0.3) return ["rgba(255,255,102,0.95)", "rgba(255,255,102,0.4)"]
-      return ["rgba(0,255,157,0.95)", "rgba(0,255,157,0.4)"]
+      return Math.min(Math.max(width, 0.5), 1.8)
     }
 
     const maxArcs = isMobile ? 100 : 300
@@ -935,16 +942,24 @@ function GlobeDemoComponent() {
       color: getRiskColor(t.riskScore, t.chain),
       amount: t.amount,
       chain: t.chain,
+      width: getArcWidth(t)
     }))
 
     globe
       .arcsData(arcsData)
       .arcColor((d: any) => d.color)
-      .arcStroke((d: any) => 0.4 + Math.sqrt(d.amount) * 0.015 + d.riskScore * 0.3)
+      .arcStroke((d: any) => d.width)
       .arcAltitude((d: any) => 0.12 + d.riskScore * 0.3)
-      .arcDashLength(0.6)
-      .arcDashGap(0.15)
-      .arcDashAnimateTime((d: any) => (2200 - d.riskScore * 1000) / playbackSpeed)
+      .arcDashLength(0.4)
+      .arcDashGap(0.02)
+      .arcDashInitialGap((d: any) => Math.random())
+      .arcDashAnimateTime((d: any) => {
+        // speed: SAFE: 0.25, RISKY: 0.35, FRAUD: 0.55
+        let baseTime = 2000
+        if (d.riskScore >= 0.7) baseTime = 1000
+        else if (d.riskScore >= 0.4) baseTime = 1500
+        return baseTime / playbackSpeed
+      })
   }, [filteredTxs, isMobile, chainFilter, playbackSpeed])
 
   useEffect(() => {
