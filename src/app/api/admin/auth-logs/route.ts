@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/db"
 import { authLogs } from "@/db/schema"
-import { desc, eq, and } from "drizzle-orm"
+import { desc, eq, and, sql } from "drizzle-orm"
 import { requireAdmin } from "@/lib/middleware/authMiddleware"
 
 export async function GET(req: NextRequest) {
@@ -15,34 +15,23 @@ export async function GET(req: NextRequest) {
   const offset = (page - 1) * limit
 
   try {
-    // In a real app, we would query the DB
-    // const logs = await db.query.authLogs.findMany({
-    //   where: eventType && eventType !== "all" ? eq(authLogs.eventType, eventType) : undefined,
-    //   orderBy: [desc(authLogs.createdAt)],
-    //   limit,
-    //   offset
-    // })
+    const whereClause = eventType && eventType !== "all" ? eq(authLogs.eventType, eventType) : undefined
 
-    // Returning realistic mock data for the demo
-    const mockLogs = Array.from({ length: limit }).map((_, i) => ({
-      id: offset + i + 1,
-      userId: 100 + i,
-      email: `user${offset + i}@example.com`,
-      eventType: eventType && eventType !== "all" ? eventType : (i % 3 === 0 ? "login_success" : i % 3 === 1 ? "login_failed" : "signup"),
-      loginMethod: i % 2 === 0 ? "password" : "oauth_google",
-      ipHash: "192.168.1.*** (hashed)",
-      deviceType: i % 3 === 0 ? "desktop" : "mobile",
-      browser: i % 2 === 0 ? "Chrome" : "Safari",
-      os: i % 2 === 0 ? "Windows" : "iOS",
-      countryCode: ["US", "GB", "DE", "CN", "RU"][i % 5],
-      countryName: ["United States", "United Kingdom", "Germany", "China", "Russia"][i % 5],
-      failureReason: i % 3 === 1 ? "Wrong password" : null,
-      riskFlags: i % 5 === 0 ? ["multiple_failed"] : [],
-      createdAt: new Date(Date.now() - (offset + i) * 15 * 60000).toISOString()
-    }))
+    const logs = await db.select()
+      .from(authLogs)
+      .where(whereClause)
+      .orderBy(desc(authLogs.createdAt))
+      .limit(limit)
+      .offset(offset)
 
-    return NextResponse.json({ logs: mockLogs, total: 150 })
+    const [totalCount] = await db.select({ value: sql`count(*)` }).from(authLogs).where(whereClause)
+
+    return NextResponse.json({ 
+      logs, 
+      total: Number(totalCount?.value || 0) 
+    })
   } catch (error) {
+    console.error("Auth logs fetch error:", error)
     return NextResponse.json({ error: "Failed to fetch logs" }, { status: 500 })
   }
 }
