@@ -68,6 +68,12 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar } from "recharts"
+import { useAuth } from "@/contexts/AuthContext"
+
+const ADMIN_WHITELIST = [
+  'ajinkyachalke008@gmail.com',
+  'ajinkyachalke94@gmail.com'
+];
 
 interface AdminStats {
   users: {
@@ -229,37 +235,26 @@ const getCountryFlag = (code: string) => {
 
 export default function AdminDashboard() {
   const router = useRouter()
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth()
   const [activeTab, setActiveTab] = useState("overview")
   const [isLoading, setIsLoading] = useState(true)
-  const [stats, setStats] = useState<AdminStats | null>(null)
-  const [authLogs, setAuthLogs] = useState<AuthLog[]>([])
-  const [users, setUsers] = useState<User[]>([])
-  const [securityAlerts, setSecurityAlerts] = useState<SecurityAlert[]>([])
-  const [sessions, setSessions] = useState<Session[]>([])
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([])
-  
-  const [authLogPage, setAuthLogPage] = useState(1)
-  const [userPage, setUserPage] = useState(1)
-  const [sessionPage, setSessionPage] = useState(1)
-  const [alertPage, setAlertPage] = useState(1)
-  const [auditPage, setAuditPage] = useState(1)
-  
-  const [eventTypeFilter, setEventTypeFilter] = useState("all")
-  const [userStatusFilter, setUserStatusFilter] = useState("all")
-  const [alertSeverityFilter, setAlertSeverityFilter] = useState("all")
-  const [searchQuery, setSearchQuery] = useState("")
-  
-  const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const [actionDialogOpen, setActionDialogOpen] = useState(false)
-  const [actionType, setActionType] = useState("")
-  const [actionReason, setActionReason] = useState("")
-  const [isActionLoading, setIsActionLoading] = useState(false)
 
   useEffect(() => {
-    fetchAllData()
-    const interval = setInterval(fetchStats, 30000)
+    if (!isAuthLoading) {
+      if (!isAuthenticated || !user || user.role !== 'admin' || !ADMIN_WHITELIST.includes(user.email.toLowerCase())) {
+        toast.error("Unauthorized access to Admin Panel")
+        router.push("/dashboard")
+        return
+      }
+      fetchAllData()
+    }
+    const interval = setInterval(() => {
+      if (isAuthenticated && user?.role === 'admin' && ADMIN_WHITELIST.includes(user.email.toLowerCase())) {
+        fetchStats()
+      }
+    }, 30000)
     return () => clearInterval(interval)
-  }, [])
+  }, [isAuthLoading, isAuthenticated, user, router])
 
   useEffect(() => {
     fetchAuthLogs()

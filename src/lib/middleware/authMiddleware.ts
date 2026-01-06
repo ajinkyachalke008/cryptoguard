@@ -125,9 +125,10 @@ export function requireAdmin(request: NextRequest): {
     return authResult;
   }
 
-  if (authResult.user.role !== 'admin') {
-    logger.warn('Non-admin user attempted to access admin endpoint', {
+  if (authResult.user.role !== 'admin' || !ADMIN_WHITELIST.includes(authResult.user.email.toLowerCase())) {
+    logger.warn('Non-authorized user attempted to access admin endpoint', {
       userId: authResult.user.id,
+      email: authResult.user.email,
       role: authResult.user.role,
     });
     return {
@@ -136,7 +137,7 @@ export function requireAdmin(request: NextRequest): {
         { 
           error: 'Admin access required',
           code: 'ADMIN_REQUIRED',
-          message: 'This endpoint requires administrator privileges' 
+          message: 'This endpoint requires administrator privileges and authorized email' 
         },
         { status: 403 }
       ),
@@ -167,11 +168,16 @@ export function optionalAuth(request: NextRequest): {
  * Generate JWT token for user
  */
 export function generateToken(user: AuthenticatedUser): string {
+  // Hard-enforce admin role only for whitelisted emails
+  const finalRole = (user.role === 'admin' && ADMIN_WHITELIST.includes(user.email.toLowerCase())) 
+    ? 'admin' 
+    : 'user';
+
   return jwt.sign(
     {
       id: user.id,
       email: user.email,
-      role: user.role,
+      role: finalRole,
     },
     JWT_SECRET,
     {
@@ -184,8 +190,8 @@ export function generateToken(user: AuthenticatedUser): string {
  * Helper: Check if user has permission for resource
  */
 export function hasPermission(user: AuthenticatedUser, resourceUserId?: number | null): boolean {
-  // Admins have access to everything
-  if (user.role === 'admin') {
+  // Admins have access to everything, but only if they are whitelisted
+  if (user.role === 'admin' && ADMIN_WHITELIST.includes(user.email.toLowerCase())) {
     return true;
   }
 
