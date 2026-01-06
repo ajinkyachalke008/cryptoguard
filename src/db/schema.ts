@@ -236,3 +236,66 @@ export const geoInferenceProfiles = sqliteTable('geo_inference_profiles', {
   regionProbabilities: text('region_probabilities', { mode: 'json' }),
   confidence: text('confidence').notNull(), // 'low', 'medium', 'high'
 });
+
+// Authentication logs for admin monitoring
+export const authLogs = sqliteTable('auth_logs', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').references(() => users.id),
+  email: text('email').notNull(),
+  eventType: text('event_type').notNull(), // 'login_success', 'login_failed', 'signup', 'logout', 'password_reset'
+  loginMethod: text('login_method'), // 'password', 'oauth_google', 'wallet'
+  ipHash: text('ip_hash'), // Hashed IP for privacy
+  userAgent: text('user_agent'),
+  deviceType: text('device_type'), // 'desktop', 'mobile', 'tablet'
+  browser: text('browser'),
+  os: text('os'),
+  countryCode: text('country_code'),
+  regionCode: text('region_code'),
+  failureReason: text('failure_reason'),
+  riskFlags: text('risk_flags', { mode: 'json' }), // ['multiple_failed', 'new_device', 'geo_anomaly']
+  createdAt: text('created_at').notNull(),
+});
+
+// User sessions for admin visibility
+export const userSessions = sqliteTable('user_sessions', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').references(() => users.id).notNull(),
+  sessionToken: text('session_token').notNull().unique(),
+  ipHash: text('ip_hash'),
+  userAgent: text('user_agent'),
+  deviceType: text('device_type'),
+  browser: text('browser'),
+  os: text('os'),
+  countryCode: text('country_code'),
+  lastActivityAt: text('last_activity_at').notNull(),
+  createdAt: text('created_at').notNull(),
+  expiresAt: text('expires_at').notNull(),
+  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
+  terminatedBy: text('terminated_by'), // 'user', 'admin', 'system'
+  terminatedAt: text('terminated_at'),
+});
+
+// Admin audit logs for compliance
+export const adminAuditLogs = sqliteTable('admin_audit_logs', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  adminUserId: integer('admin_user_id').references(() => users.id),
+  targetUserId: integer('target_user_id').references(() => users.id),
+  action: text('action').notNull(), // 'suspend_user', 'unsuspend_user', 'force_logout', 'reset_password', 'view_details'
+  reason: text('reason'),
+  details: text('details', { mode: 'json' }),
+  createdAt: text('created_at').notNull(),
+});
+
+// Suspicious activity alerts
+export const securityAlerts = sqliteTable('security_alerts', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').references(() => users.id),
+  alertType: text('alert_type').notNull(), // 'multiple_failed_logins', 'geo_anomaly', 'bot_activity', 'brute_force'
+  severity: text('severity').notNull(), // 'low', 'medium', 'high', 'critical'
+  description: text('description').notNull(),
+  metadata: text('metadata', { mode: 'json' }),
+  status: text('status').notNull().default('active'), // 'active', 'resolved', 'dismissed'
+  resolvedBy: integer('resolved_by').references(() => users.id),
+  resolvedAt: text('resolved_at'),
+  createdAt: text('created_at').notNull(),
+});
