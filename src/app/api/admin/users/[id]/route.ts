@@ -1,6 +1,10 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
+import { requireAdmin } from "@/lib/middleware/authMiddleware"
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  const auth = requireAdmin(req)
+  if (auth.response) return auth.response
+
   const id = params.id
 
   // Comprehensive mock user data with sensitive information as requested
