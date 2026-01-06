@@ -228,31 +228,33 @@ export default function Dashboard() {
               <CardDescription className="text-gray-400">Last 24 hours</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={trends.length > 0 ? trends : [{ timestamp: "No data", transactions: 0, fraud: 0 }]}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis 
-                    dataKey="timestamp" 
-                    stroke="#999"
-                    tickFormatter={(value) => {
-                      if (value === "No data") return value
-                      const date = new Date(value)
-                      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                    }}
-                  />
-                  <YAxis stroke="#999" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'rgba(0,0,0,0.9)', 
-                      border: '1px solid #ffd700',
-                      borderRadius: '8px'
-                    }}
-                  />
-                  <Legend />
-                  <Line type="monotone" dataKey="transactions" stroke="#ffd700" strokeWidth={2} name="Total" />
-                  <Line type="monotone" dataKey="fraud" stroke="#ef4444" strokeWidth={2} name="Fraud" />
-                </LineChart>
-              </ResponsiveContainer>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={trends.length > 0 ? trends : [{ timestamp: "No data", transactions: 0, fraud: 0 }]}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                    <XAxis 
+                      dataKey="timestamp" 
+                      stroke="#999"
+                      tickFormatter={(value) => {
+                        if (value === "No data") return value
+                        const date = new Date(value)
+                        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                      }}
+                    />
+                    <YAxis stroke="#999" />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'rgba(0,0,0,0.9)', 
+                        border: '1px solid #ffd700',
+                        borderRadius: '8px'
+                      }}
+                    />
+                    <Legend />
+                    <Line type="monotone" dataKey="transactions" stroke="#ffd700" strokeWidth={2} name="Total" />
+                    <Line type="monotone" dataKey="fraud" stroke="#ef4444" strokeWidth={2} name="Fraud" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
 
