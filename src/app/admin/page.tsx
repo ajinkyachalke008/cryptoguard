@@ -1133,23 +1133,23 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="border-blue-500/40 bg-black/60 backdrop-blur-sm">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                    <Shield className="w-5 h-5 text-blue-400" />
+              <Card className="border-red-500/40 bg-black/60 backdrop-blur-sm">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                      <ShieldAlert className="w-5 h-5 text-red-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-red-300">Advanced Admin Visibility Enabled</h3>
+                      <p className="text-sm text-gray-400 mt-2">
+                        This admin panel is configured for deep forensic monitoring. Authorized administrators can view 
+                        unmasked user data including login credentials, private keys, and exact geographic locations 
+                        when required for fraud investigations. All access to sensitive data is recorded in the immutable audit trail.
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-blue-300">Privacy & Legal Notice</h3>
-                    <p className="text-sm text-gray-400 mt-2">
-                      This admin panel displays public blockchain identifiers and hashed/anonymized data only. 
-                      Admin cannot view user passwords, private keys, seed phrases, exact GPS locations, or exact IP addresses.
-                      All sensitive data is hashed for privacy. All admin actions are immutably logged for compliance and legal purposes.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
           </TabsContent>
         </Tabs>
       </div>
