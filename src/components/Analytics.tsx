@@ -283,9 +283,11 @@ export default function Analytics() {
       </div>
 
       {/* Chart */}
-      <ChartContainer config={config} className="h-48 sm:h-64 w-full">
-        {renderChart()}
-      </ChartContainer>
+      <div className="h-48 sm:h-64 w-full">
+        <ChartContainer config={config} className="h-full w-full">
+          {renderChart()}
+        </ChartContainer>
+      </div>
 
       {/* Legend */}
       <div className="flex items-center justify-center gap-3 sm:gap-4 mt-3 pt-3 border-t border-yellow-500/10">
