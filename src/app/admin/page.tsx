@@ -978,11 +978,11 @@ export default function AdminDashboard() {
                           <span className="text-sm font-medium text-gray-200">{alert.description}</span>
                           <Badge className={severityColors[alert.severity]}>{alert.severity}</Badge>
                         </div>
-                        <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
-                          <span>User: {alert.userEmail}</span>
-                          <span>Type: {alert.alertType.replace(/_/g, ' ')}</span>
-                          {alert.metadata.country && <span>Country: {getCountryFlag(alert.metadata.country as string)}</span>}
-                        </div>
+                          <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                            <span>User: {alert.userEmail}</span>
+                            <span>Type: {alert.alertType.replace(/_/g, ' ')}</span>
+                            {alert.metadata.country && <span>Country: {getCountryFlag(String(alert.metadata.country))}</span>}
+                          </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <Button size="sm" variant="outline" className="border-green-500/50 text-green-400 hover:bg-green-500/20">
