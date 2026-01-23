@@ -79,6 +79,7 @@ export default function NavBar() {
   const { user, logout, isAuthenticated } = useAuth()
   const [open, setOpen] = useState(false)
   const [askOpen, setAskOpen] = useState(false)
+  const [voiceOpen, setVoiceOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
