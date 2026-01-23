@@ -74,14 +74,15 @@ const toolItems = [
   { href: "/downloads", label: "Downloads", icon: Download },
 ]
 
-export default function NavBar() {
-  const { theme, setTheme } = useTheme()
-  const { user, logout, isAuthenticated } = useAuth()
-  const [open, setOpen] = useState(false)
-  const [askOpen, setAskOpen] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const router = useRouter()
-  const pathname = usePathname()
+  export default function NavBar() {
+    const { theme, setTheme } = useTheme()
+    const { user, logout, isAuthenticated } = useAuth()
+    const [open, setOpen] = useState(false)
+    const [askOpen, setAskOpen] = useState(false)
+    const [voiceOpen, setVoiceOpen] = useState(false)
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const router = useRouter()
+    const pathname = usePathname()
 
   const isPathActive = (href: string) => pathname === href
   const isScannerActive = scannerItems.some(item => pathname === item.href)
