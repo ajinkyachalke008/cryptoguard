@@ -6,6 +6,7 @@ import { useTheme } from "next-themes"
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { RegistrationModal } from "./RegistrationModal"
+import { VoiceAIModal } from "./VoiceAIModal"
 import { useAuth } from "@/contexts/AuthContext"
 
 const ADMIN_WHITELIST = [
