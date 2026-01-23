@@ -103,6 +103,7 @@ function GlobeDemoComponent() {
   const [fraudBursts, setFraudBursts] = useState<FraudBurst[]>([])
   const [isMobile, setIsMobile] = useState(false)
   const [showControls, setShowControls] = useState(true)
+  const [focusTx, setFocusTx] = useState<any>(null)
 
   const globeRef = useRef<any>(null)
   const rendererRef = useRef<any>(null)
@@ -145,7 +146,28 @@ function GlobeDemoComponent() {
       
       const handleResize = () => setIsMobile(window.innerWidth < 768)
       window.addEventListener("resize", handleResize)
-      return () => window.removeEventListener("resize", handleResize)
+      
+      // Global event listener for focusing transactions
+      const handleFocusTx = (e: any) => {
+        const tx = e.detail
+        setFocusTx(tx)
+        
+        // Focus logic
+        if (tx.from_coords && tx.to_coords) {
+          const midLat = (tx.from_coords[0] + tx.to_coords[0]) / 2
+          const midLng = (tx.from_coords[1] + tx.to_coords[1]) / 2
+          zoomToCountry(midLat, midLng, 180)
+          
+          // Reset focus after 5 seconds
+          setTimeout(() => setFocusTx(null), 5000)
+        }
+      }
+      window.addEventListener('CRYPTOGUARD_GLOBE_FOCUS_TX', handleFocusTx)
+
+      return () => {
+        window.removeEventListener("resize", handleResize)
+        window.removeEventListener('CRYPTOGUARD_GLOBE_FOCUS_TX', handleFocusTx)
+      }
     }
   }, [])
 
@@ -919,20 +941,27 @@ function GlobeDemoComponent() {
       return ["rgba(16,185,129,0.95)", "rgba(16,185,129,0.4)"]
     }
 
-    const getArcWidth = (tx: Tx) => {
+    const getArcWidth = (txData: any) => {
+      // If this is the focused transaction, make it thick
+      if (focusTx && txData.tx_id === focusTx.tx_id) return 3.5
+
       // base_width: SAFE: 0.6, RISKY: 1.0, FRAUD: 1.6
       let width = 0.6
-      if (tx.riskScore >= 0.7) width = 1.6
-      else if (tx.riskScore >= 0.4) width = 1.0
+      if (txData.riskScore >= 0.7) width = 1.6
+      else if (txData.riskScore >= 0.4) width = 1.0
 
       // modifiers: high_transaction_value: +0.1
-      if (tx.amount > 50000) width += 0.1
+      if (txData.amount > 50000) width += 0.1
       
-      return Math.min(Math.max(width, 0.5), 1.8)
+      // If another transaction is focused, dim this one
+      if (focusTx) width *= 0.3
+
+      return Math.min(Math.max(width, 0.2), 3.5)
     }
 
     const maxArcs = isMobile ? 100 : 300
     const arcsData = filteredTxs.slice(0, maxArcs).map((t) => ({
+      tx_id: t.id,
       startLat: t.latLngFrom[0],
       startLng: t.latLngFrom[1],
       endLat: t.latLngTo[0],
@@ -942,14 +971,17 @@ function GlobeDemoComponent() {
       color: getRiskColor(t.riskScore, t.chain),
       amount: t.amount,
       chain: t.chain,
-      width: getArcWidth(t)
+      width: getArcWidth({ ...t, tx_id: t.id })
     }))
 
     globe
       .arcsData(arcsData)
       .arcColor((d: any) => d.color)
       .arcStroke((d: any) => d.width)
-      .arcAltitude((d: any) => 0.12 + d.riskScore * 0.3)
+      .arcAltitude((d: any) => {
+        if (focusTx && d.tx_id === focusTx.tx_id) return 0.5
+        return 0.12 + d.riskScore * 0.3
+      })
       .arcDashLength(0.4)
       .arcDashGap(0.02)
       .arcDashInitialGap((d: any) => Math.random())
@@ -960,7 +992,7 @@ function GlobeDemoComponent() {
         else if (d.riskScore >= 0.4) baseTime = 1500
         return baseTime / playbackSpeed
       })
-  }, [filteredTxs, isMobile, chainFilter, playbackSpeed])
+  }, [filteredTxs, isMobile, chainFilter, playbackSpeed, focusTx])
 
   useEffect(() => {
     const globe = globeRef.current as any
@@ -1019,7 +1051,7 @@ function GlobeDemoComponent() {
     setSearchQuery("")
   }
 
-  const zoomToCountry = (lat: number, lng: number) => {
+  const zoomToCountry = (lat: number, lng: number, zoomLevel = 200) => {
     const globe = globeRef.current
     const camera = cameraRef.current
     if (!globe || !camera) return
@@ -1031,7 +1063,7 @@ function GlobeDemoComponent() {
     
     globe.rotation.y = -theta + Math.PI
     globe.rotation.x = -(phi - Math.PI / 2) * 0.5
-    camera.position.z = 200
+    camera.position.z = zoomLevel
 
     setTimeout(() => { if (isPlayingRef.current) autoRotateRef.current = true }, 5000)
   }
@@ -1098,7 +1130,7 @@ function GlobeDemoComponent() {
   }
 
   return (
-    <div className="relative h-[600px] w-full">
+    <div className="relative h-[600px] w-full" id="globe-container">
       <div ref={mountRef} className="h-full w-full rounded-xl bg-black/40 backdrop-blur-sm border border-yellow-500/30 shadow-[0_0_40px_#ffd70033]" />
       
       <Button
@@ -1532,6 +1564,35 @@ function GlobeDemoComponent() {
         </div>
       )}
 
+      {focusTx && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 animate-in fade-in zoom-in duration-300">
+          <div className="px-4 py-3 rounded-xl bg-black/90 border-2 border-yellow-500 shadow-[0_0_20px_rgba(255,215,0,0.5)] backdrop-blur-md min-w-[240px]">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">Focused Intelligence</span>
+              <Button size="icon" variant="ghost" className="h-5 w-5 text-gray-500" onClick={() => setFocusTx(null)}>
+                <X className="w-3 h-3" />
+              </Button>
+            </div>
+            <div className="space-y-1.5">
+              <div className="text-xs font-mono text-yellow-300 truncate">{focusTx.tx_id}</div>
+              <div className="flex justify-between items-center text-sm font-bold">
+                <span className="text-white">${focusTx.amount.toLocaleString()}</span>
+                <span className={`px-2 py-0.5 rounded text-[10px] uppercase ${
+                  focusTx.classification === 'fraud' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 
+                  focusTx.classification === 'risky' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 
+                  'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                }`}>
+                  {focusTx.classification}
+                </span>
+              </div>
+              <div className="text-[10px] text-gray-400 flex items-center gap-1">
+                <MapPin className="w-3 h-3" /> {focusTx.from_country} → {focusTx.to_country}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {fraudBursts.length > 0 && (
         <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/20 border border-red-500/50 backdrop-blur-sm animate-pulse">
@@ -1543,6 +1604,26 @@ function GlobeDemoComponent() {
         </div>
       )}
     </div>
+  )
+}
+
+function MapPin(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
   )
 }
 
