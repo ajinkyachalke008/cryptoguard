@@ -79,7 +79,6 @@ export default function NavBar() {
   const { user, logout, isAuthenticated } = useAuth()
   const [open, setOpen] = useState(false)
   const [askOpen, setAskOpen] = useState(false)
-  const [voiceOpen, setVoiceOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
@@ -202,16 +201,27 @@ export default function NavBar() {
           </Button>
         </nav>
 
-        {/* Actions */}
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="hidden sm:flex border-yellow-500/50 text-yellow-300 hover:text-yellow-200 hover:border-yellow-400 shadow-[0_0_20px_#ffd70033] font-semibold"
-            onClick={() => router.push("/ask-ai")}
-          >
-            <MessageSquare className="size-4 mr-2" /> Ask AI
-          </Button>
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="hidden sm:flex border-yellow-500/50 text-yellow-300 hover:text-yellow-200 hover:border-yellow-400 shadow-[0_0_20px_#ffd70033] font-semibold"
+              onClick={() => router.push("/ask-ai")}
+            >
+              <MessageSquare className="size-4 mr-2" /> Ask AI
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setVoiceOpen(true)}
+              className="hidden sm:flex text-yellow-300 hover:text-yellow-200 hover:bg-yellow-500/10"
+              aria-label="Voice interaction"
+            >
+              <Mic className="size-5" />
+            </Button>
+
           
           {/* Auth Buttons */}
           {isAuthenticated ? (
