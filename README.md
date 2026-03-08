@@ -2,24 +2,31 @@
 
 <div align="center">
 
-![CryptoGuard](https://img.shields.io/badge/CryptoGuard-v2.0-gold?style=for-the-badge)
-![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge\&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge\&logo=typescript)
-![AI Powered](https://img.shields.io/badge/AI-Powered-blueviolet?style=for-the-badge\&logo=openai)
-![Machine Learning](https://img.shields.io/badge/Machine-Learning-orange?style=for-the-badge\&logo=scikitlearn)
-![Blockchain](https://img.shields.io/badge/Blockchain-Intelligence-blue?style=for-the-badge\&logo=bitcoin)
-![Cybersecurity](https://img.shields.io/badge/Cyber-Security-red?style=for-the-badge\&logo=hackthebox)
-![Fraud Detection](https://img.shields.io/badge/Fraud-Detection-critical?style=for-the-badge)
+![CryptoGuard AI](https://img.shields.io/badge/CryptoGuard-AI%20Blockchain%20Security%20Platform-gold?style=for-the-badge\&logo=shield\&logoColor=black)
+![AI Engine](https://img.shields.io/badge/AI-Behavior%20Analysis-blueviolet?style=for-the-badge\&logo=openai)
+![Machine Learning](https://img.shields.io/badge/Machine%20Learning-Risk%20Detection-orange?style=for-the-badge\&logo=scikitlearn)
+![Blockchain Intelligence](https://img.shields.io/badge/Blockchain-Threat%20Intelligence-1E90FF?style=for-the-badge\&logo=bitcoin)
+![Crypto Forensics](https://img.shields.io/badge/Crypto-Forensics-Analytics-blue?style=for-the-badge\&logo=chainlink)
+![Graph Analytics](https://img.shields.io/badge/Graph-Network%20Analysis-yellow?style=for-the-badge)
+![Fraud Detection](https://img.shields.io/badge/Fraud-Detection-red?style=for-the-badge)
 ![Threat Intelligence](https://img.shields.io/badge/Threat-Intelligence-darkred?style=for-the-badge)
-![Blockchain Forensics](https://img.shields.io/badge/Blockchain-Forensics-blue?style=for-the-badge)
-![Graph Analysis](https://img.shields.io/badge/Graph-Analysis-yellow?style=for-the-badge)
-![Risk Scoring](https://img.shields.io/badge/Risk-Scoring-purple?style=for-the-badge)
-![Real-Time Monitoring](https://img.shields.io/badge/Real-Time-Monitoring-success?style=for-the-badge)
-![OSINT](https://img.shields.io/badge/OSINT-Enabled-lightgrey?style=for-the-badge)
-![Investigation Toolkit](https://img.shields.io/badge/Investigation-Toolkit-informational?style=for-the-badge)
-![Hackathon Project](https://img.shields.io/badge/Hackathon-Project-purple?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Prototype-green?style=for-the-badge)
+![Real-Time Monitoring](https://img.shields.io/badge/Real--Time-Blockchain%20Monitoring-green?style=for-the-badge)
+![OSINT Intelligence](https://img.shields.io/badge/OSINT-Threat%20Signals-grey?style=for-the-badge)
+![Cybersecurity](https://img.shields.io/badge/Cyber-Security-Platform-black?style=for-the-badge\&logo=hackthebox)
+
+![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge\&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge\&logo=typescript)
+
+![Project Status](https://img.shields.io/badge/Status-Prototype-brightgreen?style=for-the-badge)
+![Hackathon](https://img.shields.io/badge/Hackathon-Project-purple?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)
+
+
+# 👨‍💻 Developer
+## 🔥 AJINKYA CHALKE 🔥
+
+📧 **Email:** [ajinkyachalke008@gmail.com](mailto:ajinkyachalke008@gmail.com)
+
 
 
 **Real-time blockchain fraud detection with AI-powered risk analysis**
