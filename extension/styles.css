@@ -1,0 +1,51 @@
+/* Styles for CryptoGuard Browser Extension Injections */
+.cg-risk-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 4px;
+  background: #ffd700;
+  border-radius: 4px;
+  color: #000;
+  font-weight: bold;
+  font-size: 10px;
+  cursor: help;
+  vertical-align: middle;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+  transition: transform 0.2s;
+}
+
+.cg-risk-badge:hover {
+  transform: scale(1.2);
+}
+
+.cg-phish-alert {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 12px;
+  background: #ff4444;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  z-index: 999999;
+  font-family: sans-serif;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.cg-phish-alert button {
+  background: white;
+  color: #ff4444;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
