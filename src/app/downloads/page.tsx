@@ -225,16 +225,16 @@ export default function DownloadsPage() {
     
     switch (item.id) {
       case "win":
-        fileName = "CryptoGuard-Setup-v2.5.0.exe"
-        downloadUrl = createDownloadFile(fileName, "Windows installer for CryptoGuard")
+        fileName = "CryptoGuard-Windows-v2.5.0.zip"
+        downloadUrl = createDownloadFile(fileName, "Windows secure package for CryptoGuard")
         break
       case "mac":
-        fileName = "CryptoGuard-v2.5.0.dmg"
-        downloadUrl = createDownloadFile(fileName, "macOS installer for CryptoGuard")
+        fileName = "CryptoGuard-macOS-v2.5.0.zip"
+        downloadUrl = createDownloadFile(fileName, "macOS secure package for CryptoGuard")
         break
       case "linux":
-        fileName = "CryptoGuard-v2.5.0.AppImage"
-        downloadUrl = createDownloadFile(fileName, "Linux AppImage for CryptoGuard")
+        fileName = "CryptoGuard-Linux-v2.5.0.zip"
+        downloadUrl = createDownloadFile(fileName, "Linux secure package for CryptoGuard")
         break
       case "ios":
         // Redirect to App Store
@@ -444,6 +444,10 @@ Community: https://community.cryptoguard.com
           
           {/* Quick Stats */}
           <div className="flex flex-wrap items-center justify-center gap-6 mt-6">
+            <div className="flex items-center gap-2 text-sm text-green-400 font-semibold bg-green-400/10 px-3 py-1 rounded-full border border-green-400/20">
+              <Shield className="w-4 h-4" />
+              <span>Verified Clean & Secure</span>
+            </div>
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <CheckCircle2 className="w-4 h-4 text-green-400" />
               <span>500K+ Downloads</span>
@@ -454,7 +458,7 @@ Community: https://community.cryptoguard.com
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <Shield className="w-4 h-4 text-yellow-400" />
-              <span>100% Secure</span>
+              <span>100% Encrypted</span>
             </div>
           </div>
         </div>

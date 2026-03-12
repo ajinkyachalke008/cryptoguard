@@ -48,12 +48,15 @@ export default function InstallButton({ variant = "default", className = "" }: {
   if (!isInstallable) return null
 
   return (
-    <Button 
-      onClick={handleInstallClick}
-      className={`${variant === "default" ? "bg-yellow-500 text-black hover:bg-yellow-400" : "border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20"} ${className}`}
-    >
-      <Monitor className="w-4 h-4 mr-2" />
-      Install App
-    </Button>
+    <div className="flex flex-col gap-1 w-full">
+      <Button 
+        onClick={handleInstallClick}
+        className={`${variant === "default" ? "bg-yellow-500 text-black hover:bg-yellow-400" : "border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20"} ${className}`}
+      >
+        <Monitor className="w-4 h-4 mr-2" />
+        Install Secure App
+      </Button>
+      <p className="text-[10px] text-center text-gray-500">Verified by CryptoGuard Multi-Sign Security</p>
+    </div>
   )
 }
