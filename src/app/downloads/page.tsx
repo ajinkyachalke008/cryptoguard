@@ -31,6 +31,7 @@ import {
   ArrowRight
 } from "lucide-react"
 import { toast } from "sonner"
+import InstallButton from "@/components/pwa/InstallButton"
 
 interface DownloadItem {
   id: string
@@ -390,23 +391,27 @@ Community: https://community.cryptoguard.com
           </div>
           
           <div className="flex items-center gap-2">
-            <Button
-              onClick={() => handleDownload(item)}
-              disabled={isDownloading}
-              className="flex-1 bg-yellow-500 text-black font-semibold hover:bg-yellow-400 shadow-[0_0_24px_#ffd70066]"
-            >
-              {isDownloading ? (
-                <>
-                  <Download className="w-4 h-4 mr-2 animate-bounce" />
-                  Downloading...
-                </>
-              ) : (
-                <>
-                  <Download className="w-4 h-4 mr-2" />
-                  Download
-                </>
-              )}
-            </Button>
+            {item.platform.includes("Windows") || item.platform.includes("macOS") || item.platform.includes("Linux") ? (
+              <InstallButton className="flex-1 shadow-[0_0_24px_#ffd70066]" />
+            ) : (
+              <Button
+                onClick={() => handleDownload(item)}
+                disabled={isDownloading}
+                className="flex-1 bg-yellow-500 text-black font-semibold hover:bg-yellow-400 shadow-[0_0_24px_#ffd70066]"
+              >
+                {isDownloading ? (
+                  <>
+                    <Download className="w-4 h-4 mr-2 animate-bounce" />
+                    Downloading...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </>
+                )}
+              </Button>
+            )}
             <Button
               variant="outline"
               className="border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20"

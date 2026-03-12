@@ -9,6 +9,17 @@ import VisualEditsMessenger from "@/visual-edits/VisualEditsMessenger";
 export const metadata: Metadata = {
   title: "Cryptoguard — AI Crypto Fraud Detection",
   description: "Futuristic, real-time AI fraud detection with globe visualization, live feed, analytics, and neon-gold UI.",
+  manifest: "/manifest.json",
+  themeColor: "#ffd700",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "CryptoGuard",
+  },
+  icons: {
+    icon: "/favicon.png",
+    apple: "/icon-192x192.png",
+  }
 };
 
 export default function RootLayout({
@@ -30,6 +41,15 @@ export default function RootLayout({
             {children}
             <VisualEditsMessenger />
             <Toaster position="top-right" />
+            <Script id="register-sw" strategy="afterInteractive">
+              {`
+                if ('serviceWorker' in navigator) {
+                  window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js');
+                  });
+                }
+              `}
+            </Script>
           </AuthProvider>
         </ThemeProvider>
       </body>
