@@ -5,10 +5,11 @@ import { eq } from "drizzle-orm"
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const caseId = parseInt(params.id)
+    const { id } = await params;
+    const caseId = parseInt(id)
     
     const caseDetail = await db.query.cases.findFirst({
       where: eq(cases.id, caseId)
@@ -35,10 +36,11 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const caseId = parseInt(params.id)
+    const { id } = await params;
+    const caseId = parseInt(id)
     const body = await req.json()
     const { status, priority, title, description } = body
 

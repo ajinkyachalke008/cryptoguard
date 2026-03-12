@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
       conditions.push(eq(scanLogs.userId, parseInt(userId)));
     }
 
-    let query = db.select().from(scanLogs);
+    let query: any = db.select().from(scanLogs);
 
     if (conditions.length > 0) {
       query = query.where(and(...conditions));

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import NavBar from "@/components/NavBar"
 import Footer from "@/components/Footer"
@@ -130,7 +130,7 @@ const formatConfig: Record<string, any> = {
   csv: { label: "CSV File", icon: TableIcon, extension: ".csv" }
 }
 
-export default function ReportsPage() {
+function ReportsContent() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<ReportType>("wallet")
   const [isGenerating, setIsGenerating] = useState(false)
@@ -559,5 +559,21 @@ export default function ReportsPage() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function ReportsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex flex-col">
+        <NavBar />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 text-yellow-500 animate-spin" />
+        </div>
+        <Footer />
+      </div>
+    }>
+      <ReportsContent />
+    </Suspense>
   )
 }

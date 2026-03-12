@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, ReactNode } from "react"
 import NavBar from "@/components/NavBar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -38,7 +38,7 @@ interface DeltaChange {
   severity: "low" | "medium" | "high" | "critical"
   timestamp: Date
   aiExplanation: string
-  evidence: string[]
+  evidence: ReactNode[]
   expanded: boolean
 }
 

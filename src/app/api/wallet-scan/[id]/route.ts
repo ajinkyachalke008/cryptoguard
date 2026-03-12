@@ -38,24 +38,24 @@ export async function GET(request: NextRequest) {
 
     const scan = scanResult[0];
 
-    // Parse scan_data from JSON string to object
-    let parsedScanData = null;
-    if (scan.scanData) {
+    // Parse rawData from JSON string to object
+    let parsedRawData = null;
+    if (scan.rawData) {
       try {
-        parsedScanData = typeof scan.scanData === 'string' 
-          ? JSON.parse(scan.scanData) 
-          : scan.scanData;
+        parsedRawData = typeof scan.rawData === 'string' 
+          ? JSON.parse(scan.rawData) 
+          : scan.rawData;
       } catch (parseError) {
-        console.error('Error parsing scan_data:', parseError);
+        console.error('Error parsing rawData:', parseError);
         // Keep as string if parsing fails
-        parsedScanData = scan.scanData;
+        parsedRawData = scan.rawData;
       }
     }
 
-    // Return complete scan object with parsed scan_data
+    // Return complete scan object with parsed rawData
     const response = {
       ...scan,
-      scanData: parsedScanData
+      rawData: parsedRawData
     };
 
     return NextResponse.json(response, { status: 200 });

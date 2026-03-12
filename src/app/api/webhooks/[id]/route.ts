@@ -5,10 +5,11 @@ import { eq } from "drizzle-orm"
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const webhookId = parseInt(params.id)
+    const { id } = await params;
+    const webhookId = parseInt(id)
 
     // Verify webhook exists
     const webhook = await db.query.webhooks.findFirst({

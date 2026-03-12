@@ -108,7 +108,7 @@ function generateMockRugPullData(): RugPullData {
     rug_pull_reasons: risk === "LOW" ? [] : [
       risk === "EXTREME" ? "90% of liquidity controlled by one wallet." : "Top wallet holds 45% of liquidity.",
       risk === "EXTREME" || risk === "HIGH" ? "Owner has unlimited mint permissions." : undefined,
-      risk !== "LOW" ? "Liquidity not locked or lock expires soon." : undefined
+      "Liquidity not locked or lock expires soon."
     ].filter(Boolean) as string[],
     liquidity_analysis: {
       total_liquidity_usd: Math.floor(Math.random() * 10000000) + 100000,

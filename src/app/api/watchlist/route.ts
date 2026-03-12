@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') ?? '0');
 
     // Build query with filters
-    let query = db.select().from(watchlists);
+    let query: any = db.select().from(watchlists);
 
     // Filter by user_id = 1
     if (blockchain) {

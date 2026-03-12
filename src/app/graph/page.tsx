@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import NavBar from "@/components/NavBar"
 import Footer from "@/components/Footer"
@@ -77,7 +77,7 @@ const riskColors = {
   critical: "#ef4444"
 }
 
-export default function GraphPage() {
+function GraphContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const svgRef = useRef<SVGSVGElement>(null)
@@ -214,7 +214,7 @@ export default function GraphPage() {
       .data(filteredNodes)
       .join("g")
       .style("cursor", "pointer")
-      .call(d3.drag<SVGGElement, GraphNode>()
+      .call(d3.drag<any, any>()
         .on("start", (event, d) => {
           if (!event.active) simulation.alphaTarget(0.3).restart()
           d.fx = d.x
@@ -657,5 +657,17 @@ export default function GraphPage() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function GraphPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <Loader2 className="w-8 h-8 text-yellow-500 animate-spin" />
+      </div>
+    }>
+      <GraphContent />
+    </Suspense>
   )
 }

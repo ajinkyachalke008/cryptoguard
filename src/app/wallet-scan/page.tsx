@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import NavBar from "@/components/NavBar"
 import Footer from "@/components/Footer"
@@ -158,7 +158,7 @@ function generateMockCrossChainFlow(): CrossChainFlowData {
   }
 }
 
-export default function WalletScanPage() {
+function WalletScanContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialAddress = searchParams.get("address") || ""
@@ -795,5 +795,21 @@ export default function WalletScanPage() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function WalletScanPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex flex-col">
+        <NavBar />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 text-yellow-500 animate-spin" />
+        </div>
+        <Footer />
+      </div>
+    }>
+      <WalletScanContent />
+    </Suspense>
   )
 }

@@ -38,7 +38,7 @@ export function NetworkGraph({ transaction, relatedAddresses }: NetworkGraphProp
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [nodes, setNodes] = useState<Node[]>([])
   const [hoveredNode, setHoveredNode] = useState<Node | null>(null)
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number>(0)
 
   useEffect(() => {
     const canvas = canvasRef.current

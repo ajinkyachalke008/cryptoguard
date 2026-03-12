@@ -5,10 +5,11 @@ import { eq } from "drizzle-orm"
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const caseId = parseInt(params.id)
+    const { id } = await params;
+    const caseId = parseInt(id)
     const body = await req.json()
     const { itemType, itemId } = body
 

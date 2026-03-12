@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     const conditions = [eq(walletScans.userId, userId)];
     
     if (blockchain) {
-      conditions.push(eq(walletScans.blockchain, blockchain));
+      conditions.push(eq(walletScans.chain, blockchain));
     }
 
     const whereCondition = conditions.length > 1 ? and(...conditions) : conditions[0];
@@ -54,24 +54,24 @@ export async function GET(request: NextRequest) {
       .limit(limit)
       .offset(offset);
 
-    // Parse scan_data JSON for each result
+    // Parse rawData JSON for each result
     const parsedScans = scans.map(scan => {
-      let parsedScanData = null;
+      let parsedRawData = null;
       
-      if (scan.scanData) {
+      if (scan.rawData) {
         try {
-          parsedScanData = typeof scan.scanData === 'string' 
-            ? JSON.parse(scan.scanData) 
-            : scan.scanData;
+          parsedRawData = typeof scan.rawData === 'string' 
+            ? JSON.parse(scan.rawData) 
+            : scan.rawData;
         } catch (error) {
-          console.error('Error parsing scan_data for scan ID', scan.id, ':', error);
-          parsedScanData = scan.scanData;
+          console.error('Error parsing rawData for scan ID', scan.id, ':', error);
+          parsedRawData = scan.rawData;
         }
       }
 
       return {
         ...scan,
-        scanData: parsedScanData
+        rawData: parsedRawData
       };
     });
 

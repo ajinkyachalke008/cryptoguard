@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     const roleFilter = searchParams.get('role');
 
-    let query = db.select().from(users);
+    let query: any = db.select().from(users);
 
     // Build WHERE conditions
     const conditions = [];

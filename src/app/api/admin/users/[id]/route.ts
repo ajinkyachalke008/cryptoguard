@@ -4,11 +4,12 @@ import { users, adminAuditLogs, authLogs, userSessions } from "@/db/schema"
 import { eq, desc, and } from "drizzle-orm"
 import { requireAdmin } from "@/lib/middleware/authMiddleware"
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = requireAdmin(req)
   if (auth.response) return auth.response
 
-  const id = parseInt(params.id)
+  const { id: idStr } = await params;
+  const id = parseInt(idStr)
 
   try {
     const [user] = await db.select().from(users).where(eq(users.id, id))
@@ -58,11 +59,12 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
 import { sql } from "drizzle-orm"
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = requireAdmin(req)
   if (auth.response) return auth.response
 
-  const targetUserId = parseInt(params.id)
+  const { id } = await params;
+  const targetUserId = parseInt(id)
   const body = await req.json()
   const { action, reason } = body
 

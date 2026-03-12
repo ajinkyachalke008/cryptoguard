@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
     const riskLevel = searchParams.get('risk_level');
     const userId = searchParams.get('user_id');
 
-    let query = db.select().from(transactionScans);
+    let query: any = db.select().from(transactionScans);
 
     const conditions = [];
     if (chain) {

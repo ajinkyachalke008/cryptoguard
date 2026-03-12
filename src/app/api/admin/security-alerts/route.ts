@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   const offset = (page - 1) * limit
 
   try {
-    let whereClause = eq(securityAlerts.status, status)
+    let whereClause: any = eq(securityAlerts.status, status)
     
     if (severity && severity !== "all") {
       whereClause = and(whereClause, eq(securityAlerts.severity, severity))

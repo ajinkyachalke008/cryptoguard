@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import NavBar from "@/components/NavBar"
 import Footer from "@/components/Footer"
@@ -51,7 +51,7 @@ const exampleTopics = [
   { icon: FileText, label: "Compliance", query: "What is OFAC sanctions screening?" }
 ]
 
-export default function AskAIPage() {
+function AskAIContent() {
   const searchParams = useSearchParams()
   const initialQuery = searchParams.get("q") || ""
   
@@ -370,5 +370,21 @@ export default function AskAIPage() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function AskAIPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex flex-col">
+        <NavBar />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 text-yellow-500 animate-spin" />
+        </div>
+        <Footer />
+      </div>
+    }>
+      <AskAIContent />
+    </Suspense>
   )
 }

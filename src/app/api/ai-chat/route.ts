@@ -57,8 +57,7 @@ export async function POST(request: NextRequest) {
         .values({
           userId: 1,
           contextType: contextType,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          createdAt: new Date().toISOString()
         })
         .returning();
 
@@ -74,7 +73,7 @@ export async function POST(request: NextRequest) {
         conversationId: conversationId,
         role: 'user',
         content: trimmedMessage,
-        createdAt: currentTimestamp
+        timestamp: currentTimestamp
       })
       .returning();
 
@@ -88,7 +87,7 @@ export async function POST(request: NextRequest) {
         conversationId: conversationId,
         role: 'assistant',
         content: aiResponseContent,
-        createdAt: new Date().toISOString()
+        timestamp: new Date().toISOString()
       })
       .returning();
 
@@ -100,12 +99,12 @@ export async function POST(request: NextRequest) {
           {
             role: userMessage[0].role,
             content: userMessage[0].content,
-            timestamp: userMessage[0].createdAt
+            timestamp: userMessage[0].timestamp
           },
           {
             role: aiMessage[0].role,
             content: aiMessage[0].content,
-            timestamp: aiMessage[0].createdAt
+            timestamp: aiMessage[0].timestamp
           }
         ]
       },
@@ -115,7 +114,7 @@ export async function POST(request: NextRequest) {
     console.error('POST error:', error);
     return NextResponse.json(
       { 
-        error: 'Internal server error: ' + error.message 
+        error: 'Internal server error: ' + (error as Error).message 
       },
       { status: 500 }
     );

@@ -1018,7 +1018,7 @@ export default function AdminDashboard() {
                           <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
                             <span>User: {alert.userEmail}</span>
                             <span>Type: {alert.alertType.replace(/_/g, ' ')}</span>
-                            {alert.metadata.country && <span>Country: {getCountryFlag(String(alert.metadata.country))}</span>}
+                            {Boolean((alert.metadata as any)?.country) && <span>Country: {getCountryFlag(String((alert.metadata as any).country))}</span>}
                           </div>
                       </div>
                       <div className="flex items-center gap-2">

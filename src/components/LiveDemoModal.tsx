@@ -27,7 +27,7 @@ export function LiveDemoModal({ open, onOpenChange }: { open: boolean; onOpenCha
     fraud: 0,
     blocked: 0
   })
-  const intervalRef = useRef<NodeJS.Timeout>()
+  const intervalRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
   // Mock transaction generator
   const generateTransaction = (): Transaction => {

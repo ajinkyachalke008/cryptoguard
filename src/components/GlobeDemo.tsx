@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
+import type * as THREE from "three"
 import { useTransactions, COUNTRIES, TxStatus, Tx } from "@/hooks/useTransactions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"

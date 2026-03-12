@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build query
-    let query = db.select().from(walletScans);
+    let query: any = db.select().from(walletScans);
     
     if (conditions.length > 0) {
       query = query.where(and(...conditions));
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
       .offset(offset);
 
     // Get total count for pagination metadata
-    let countQuery = db.select({ count: sql<number>`count(*)` }).from(walletScans);
+    let countQuery: any = db.select({ count: sql<number>`count(*)` }).from(walletScans);
     if (conditions.length > 0) {
       countQuery = countQuery.where(and(...conditions));
     }
@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
     const total = countResult[0]?.count ?? 0;
 
     // Parse JSON fields for each result
-    const parsedResults = results.map(scan => ({
+    const parsedResults = results.map((scan: any) => ({
       ...scan,
       rawData: parseJSONField(scan.rawData),
       tags: parseJSONField(scan.tags),
