@@ -392,6 +392,13 @@ export default function Dashboard() {
           <h2 className="text-xl font-semibold text-yellow-300 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             <Button
+              onClick={() => router.push("/hub")}
+              className="h-auto flex flex-col items-center gap-2 py-4 bg-gold/5 border border-gold/20 text-gold hover:bg-gold/10 hover:border-gold/40 shadow-[0_0_20px_rgba(255,215,0,0.1)]"
+            >
+              <Globe className="size-6" />
+              <span className="font-bold text-sm tracking-tighter">Intel Hub</span>
+            </Button>
+            <Button
               onClick={() => router.push("/scanner")}
               className="h-auto flex flex-col items-center gap-2 py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 hover:border-yellow-500/50"
             >

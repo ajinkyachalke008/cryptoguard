@@ -220,6 +220,13 @@ Community: https://community.cryptoguard.com
             </Button>
             <Button
               variant="outline"
+              onClick={() => router.push("/hub")}
+              className="w-full sm:w-auto h-10 sm:h-11 rounded-full border-gold/40 bg-black/40 px-5 sm:px-6 text-sm sm:text-base text-gold font-bold shadow-[0_0_24px_rgba(255,215,0,0.2)] transition-transform active:scale-95 hover:scale-[1.03] hover:text-white hover:border-gold hover:bg-gold/20"
+            >
+              <Globe className="size-4 mr-2" /> View Intel Hub
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => router.push("/dashboard")}
               className="w-full sm:w-auto h-10 sm:h-11 rounded-full border-yellow-500/70 bg-black/40 px-5 sm:px-6 text-sm sm:text-base text-yellow-300 font-semibold shadow-[0_0_24px_#ffd70040] transition-transform active:scale-95 hover:scale-[1.03] hover:text-yellow-200 hover:border-yellow-400 hover:bg-black/60"
             >

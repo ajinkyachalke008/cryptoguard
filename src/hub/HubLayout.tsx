@@ -5,6 +5,7 @@ import { HUB_ROUTES, SUPPORTED_CHAINS } from './hub.constants';
 import { useHubStore } from './HubStore';
 import { ChainId } from './hub.types';
 import HubBackground from './shared/HubBackground';
+import NavBar from '@/components/NavBar';
 
 export const HubLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
@@ -29,6 +30,7 @@ export const HubLayout: React.FC<{ children: React.ReactNode }> = ({ children })
 
   return (
     <div className="flex flex-col min-h-screen bg-[#050505] text-white selection:bg-gold/30 selection:text-gold">
+      <NavBar />
       <HubBackground />
       
       {/* Hub Sub-Nav */}
