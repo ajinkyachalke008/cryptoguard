@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Clipboard, ExternalLink, Check } from "lucide-react"
+import { Clipboard, ExternalLink, Check, BrainCircuit } from "lucide-react"
+import { useHubLink } from "@/hub/hooks/useHubLink"
 import { toast } from "sonner"
 import { 
   Tooltip, 
@@ -41,7 +42,14 @@ export function BlockchainIdentifier({
   truncate = true,
   variant = "default"
 }: BlockchainIdentifierProps) {
+  const { linkToAddress, linkToTx } = useHubLink()
   const [copied, setCopied] = useState(false)
+
+  const handleIntelligence = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (type === "address") linkToAddress(value)
+    else linkToTx(value)
+  }
 
   const truncateMiddle = (str: string) => {
     if (!str) return ""
@@ -124,6 +132,15 @@ export function BlockchainIdentifier({
               )}
             </button>
           )}
+
+          <button
+            onClick={handleIntelligence}
+            className="p-1 hover:bg-white/10 rounded-md transition-colors text-yellow-500/50 hover:text-yellow-400 focus:outline-none focus:ring-1 focus:ring-yellow-500"
+            aria-label={`View intelligence for ${type}`}
+            title="View Intelligence Hub"
+          >
+            <BrainCircuit className="w-3.5 h-3.5" />
+          </button>
 
           {showLink && (
             <a

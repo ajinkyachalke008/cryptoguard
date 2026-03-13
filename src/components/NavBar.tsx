@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Mic, Sparkles, Sun, Moon, Menu, X, LogOut, User } from "lucide-react"
+import { Mic, Sparkles, Sun, Moon, Menu, X, LogOut, User, Globe } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
@@ -45,6 +45,7 @@ import {
 const mainNavItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/hub", label: "Intelligence Hub", icon: Globe, badge: "NEW" },
 ]
 
 const scannerItems = [

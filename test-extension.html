@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CryptoGuard Extension Test Page</title>
+    <style>
+        body { font-family: sans-serif; padding: 40px; background: #1a1a1a; color: white; }
+        .container { max-width: 800px; margin: 0 auto; background: #2a2a2a; padding: 20px; border-radius: 8px; border: 1px solid #444; }
+        h1 { color: #ffd700; }
+        .address { font-family: monospace; background: #000; padding: 4px 8px; border-radius: 4px; color: #0f0; }
+        .test-section { margin-bottom: 30px; border-bottom: 1px solid #444; padding-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CryptoGuard Extension Test Page</h1>
+        
+        <div class="test-section">
+            <h2>1. Address Detection Test</h2>
+            <p>The extension should find the addresses below and inject a shield badge next to them.</p>
+            <p>Wallet 1: <span class="address">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</span></p>
+            <p>Wallet 2 (Vitalik): <span class="address">0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045</span></p>
+            <p>Wallet 3 (Binance): <span class="address">0x3f5CE5FBFe3E9af3971dD833D26bA9b5C936f0bE</span></p>
+        </div>
+
+        <div class="test-section">
+            <h2>2. Dynamic Content Test</h2>
+            <p>Addresses inside paragraphs should also be caught:</p>
+            <p>Send funds to 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48 for USDC deposits.</p>
+        </div>
+
+        <div class="test-section">
+            <h2>3. Phishing Link Simulation</h2>
+            <p>Note: Phishing alerts trigger based on the actual domain name in the address bar.</p>
+            <p>Domain to test (if resolving): <code>scam-uniswap.com</code></p>
+        </div>
+    </div>
+</body>
+</html>
