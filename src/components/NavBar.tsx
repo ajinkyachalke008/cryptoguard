@@ -92,6 +92,27 @@ const toolItems = [
 
   return (
     <div className="sticky top-0 z-50 w-full glass-card border-b border-gold/30 shadow-[0_4px_30px_rgba(255,215,0,0.1)]">
+      {/* Top OSINT Ticker Sub-bar */}
+      <div className="h-10 bg-black border-b border-gold/20 overflow-hidden flex items-center relative z-40">
+        <div className="flex-shrink-0 bg-gold px-4 h-full flex items-center gap-2 text-black font-black text-[10px] uppercase tracking-widest z-10">
+          <Activity size={14} className="animate-pulse" /> LIVE_OSINT_SYBILS
+        </div>
+        <div className="flex-nowrap whitespace-nowrap animate-[marquee_30s_linear_infinite] flex gap-12 text-[9px] font-mono text-gold/60 items-center">
+          {[
+            "WHALE ALERT: 42,000 ETH MOVED TO COINBASE",
+            "SCAMSNIFFER: NEW PHISHING DETECTED ON SEPOLIA",
+            "NETWORK: BINANCE HOT WALLET WITHDRAWALS SPIKING",
+            "POLYGON: LIQUIDITY DROP IN PEPE/WETH POOL",
+            "CHAINABUSE: 412 NEW SCAM REPORTS IN 24HRS",
+            "FEDERAL_UPLINK: ACTIVE MONITORING COMMENCED"
+          ].map((msg, i) => (
+            <span key={i} className="flex items-center gap-3">
+              <span className="text-gold">◈</span> {msg}
+            </span>
+          ))}
+        </div>
+      </div>
+
       <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <div 
