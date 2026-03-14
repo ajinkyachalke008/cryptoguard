@@ -18,6 +18,10 @@ Real-time monitoring • Wallet Intelligence • Transaction Forensics • AI Ri
 
 ---
 
+<p align="center">
+  <a href="https://cryptoguard-flame.vercel.app/"><strong>Live Demo</strong></a> •
+  <a href="https://github.com/ajinkyachalke008/cryptoguard"><strong>GitHub Repository</strong></a>
+</p>
 
 ---
 
@@ -327,7 +331,7 @@ CryptoGuard includes multiple security protections:
 # 🚀 Getting Started
 
 ```bash
-git clone https://github.com/yourusername/cryptoguard.git
+git clone https://github.com/ajinkyachalke008/cryptoguard.git
 cd cryptoguard
 npm install
 npm run dev
