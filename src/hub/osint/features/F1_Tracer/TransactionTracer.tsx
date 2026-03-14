@@ -115,7 +115,7 @@ const TransactionTracer: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0">
         <div className="lg:col-span-6 relative rounded-[2.5rem] overflow-hidden border border-white/5 bg-black/40 backdrop-blur-xl group">
-          <NeoGalaxyCanvas nodes={data?.nodes || []} edges={data?.edges || []} isLoading={loading} />
+          <NeoGalaxyCanvas nodes={data?.nodes || []} edges={data?.edges || []} />
           
           <div className="absolute top-6 left-6 flex items-center space-x-2 bg-black/80 border border-white/10 px-4 py-2 rounded-full backdrop-blur-xl z-20">
              <div className={`size-2 rounded-full ${loading ? 'bg-gold animate-ping' : 'bg-emerald-500'}`} />

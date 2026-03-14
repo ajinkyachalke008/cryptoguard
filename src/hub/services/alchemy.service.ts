@@ -1,19 +1,20 @@
 // src/hub/services/alchemy.service.ts
-export const AlchemyService = {
-  get KEY() { return process.env.HUB_ALCHEMY_API_KEY || ''; },
-  
-  get NETWORKS() {
-    return {
-      eth:      `https://eth-mainnet.g.alchemy.com/v2/${this.KEY}`,
-      polygon:  `https://polygon-mainnet.g.alchemy.com/v2/${this.KEY}`,
-      arbitrum: `https://arb-mainnet.g.alchemy.com/v2/${this.KEY}`,
-      optimism: `https://opt-mainnet.g.alchemy.com/v2/${this.KEY}`,
-      base:     `https://base-mainnet.g.alchemy.com/v2/${this.KEY}`,
-    };
-  },
+const ALCHEMY_KEY = process.env.HUB_ALCHEMY_API_KEY || '';
 
-  async rpc(network: keyof typeof AlchemyService['NETWORKS'], method: string, params: any[] = []) {
-    const url = this.NETWORKS[network];
+const ALCHEMY_NETWORKS = {
+  eth:      `https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}`,
+  polygon:  `https://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}`,
+  arbitrum: `https://arb-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}`,
+  optimism: `https://opt-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}`,
+  base:     `https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}`,
+};
+
+export const AlchemyService = {
+  get KEY() { return ALCHEMY_KEY; },
+  get NETWORKS() { return ALCHEMY_NETWORKS; },
+
+  async rpc(network: keyof typeof ALCHEMY_NETWORKS, method: string, params: any[] = []) {
+    const url = ALCHEMY_NETWORKS[network];
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

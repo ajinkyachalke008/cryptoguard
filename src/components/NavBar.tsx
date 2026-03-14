@@ -89,7 +89,7 @@ const toolItems = [
   const isScannerActive = scannerItems.some(item => pathname === item.href)
 
   return (
-    <div className="sticky top-0 z-40 w-full backdrop-blur bg-background/90 border-b border-yellow-500/30">
+    <div className="sticky top-0 z-50 w-full backdrop-blur bg-background/90 border-b border-yellow-500/30">
       <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <div 

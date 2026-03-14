@@ -1,3 +1,4 @@
+"use client"
 // src/hub/HubLayout.tsx
 import React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -24,7 +25,6 @@ export const HubLayout: React.FC<{ children: React.ReactNode }> = ({ children })
     { name: 'Sentiment', path: HUB_ROUTES.SENTIMENT },
     { name: 'Health', path: HUB_ROUTES.API_HEALTH },
     { name: 'Networks', path: HUB_ROUTES.CHAIN },
-    { name: 'OSINT Intel', path: '/hub/osint' },
     { name: 'Resources', path: HUB_ROUTES.RESOURCES },
   ];
 
@@ -34,7 +34,7 @@ export const HubLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       <HubBackground />
       
       {/* Hub Sub-Nav */}
-      <div className="sticky top-0 z-50 w-full border-b border-white/5 bg-black/40 backdrop-blur-2xl">
+      <div className="sticky top-[64px] z-40 w-full border-b border-white/5 bg-black/40 backdrop-blur-2xl">
         <div className="flex items-center justify-between px-6 h-14">
           <div className="flex items-center space-x-1 overflow-x-auto no-scrollbar py-2">
             {tabs.map((tab) => (
