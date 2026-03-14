@@ -114,7 +114,7 @@ export const ThreatGlobe: React.FC = () => {
 
     const pointData = scamReports.map(r => {
         const loc = COUNTRIES[Math.floor(Math.random() * COUNTRIES.length)];
-        return { lat: loc.lat, lng: loc.lng, size: 0.8, color: '#FF2E2E', name: r.label || 'REPORTED_SCAM' };
+        return { lat: loc.lat, lng: loc.lng, size: 0.8, color: '#FF2E2E', name: r.scamType || 'REPORTED_SCAM' };
     });
 
     const labelData = whalePings.slice(0, 5).map((p, i) => {
