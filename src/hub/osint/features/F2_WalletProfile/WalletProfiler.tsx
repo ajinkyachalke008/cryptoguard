@@ -102,7 +102,7 @@ const WalletProfiler: React.FC = () => {
       {profile && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-3 space-y-6">
-            <HubCard title="Digital Fingerprint" resourceId="F2_FP" dataSource="Entity_Graph_V2">
+            <HubCard title="Digital Fingerprint" resourceId="F2_FP" dataSource="Entity_Graph_V2" dataSourceUrl="https://walletexplorer.com">
               <div className="flex flex-col items-center py-6">
                 <div className="size-24 rounded-full bg-gold/5 border-2 border-gold/20 flex items-center justify-center mb-6 relative">
                   <Fingerprint className="size-12 text-gold relative" />
@@ -111,7 +111,7 @@ const WalletProfiler: React.FC = () => {
                 <p className="text-[10px] text-gray-500 font-mono mt-2">{osintUtils.maskAddress(profile.address)}</p>
               </div>
             </HubCard>
-            <HubCard title="Behavioral Signals" dataSource="Risk">
+            <HubCard title="Behavioral Signals" dataSource="Risk" dataSourceUrl="https://gopluslabs.io">
               <div className="space-y-4">
                 {profile.signals.map((s, i) => (
                   <div key={i} className="p-3 rounded-xl bg-red-500/5 border border-red-500/10 text-[9px] font-bold text-red-400">
@@ -123,7 +123,7 @@ const WalletProfiler: React.FC = () => {
           </div>
 
           <div className="lg:col-span-6">
-            <HubCard title="AI Intelligence Report" dataSource="ARIA_Clinical_Audit">
+            <HubCard title="AI Intelligence Report" dataSource="ARIA_Clinical_Audit" dataSourceUrl="#">
               <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center space-x-2">
                   <BrainCircuit className="text-purple-400 size-5" />
@@ -138,7 +138,7 @@ const WalletProfiler: React.FC = () => {
           </div>
 
           <div className="lg:col-span-3 space-y-6">
-            <HubCard title="Network DNA" dataSource="Blockstream">
+            <HubCard title="Network DNA" dataSource="Blockstream" dataSourceUrl="https://blockstream.info">
               <div className="space-y-4 text-[10px] font-black uppercase tracking-widest text-gray-500">
                  <div className="flex justify-between"><span>First Seen</span><span className="text-white">{new Date(profile.firstSeen).toLocaleDateString()}</span></div>
                  <div className="flex justify-between"><span>Last Seen</span><span className="text-white">{new Date(profile.lastSeen).toLocaleDateString()}</span></div>

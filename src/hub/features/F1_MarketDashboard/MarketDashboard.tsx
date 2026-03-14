@@ -41,21 +41,22 @@ const MarketDashboard: React.FC = () => {
   return (
     <div className="space-y-8 pb-20">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-gold/10 pb-10 relative">
+        <div className="absolute -bottom-px left-0 w-48 h-[2px] bg-gold shadow-[0_0_20px_rgba(255,215,0,0.6)]" />
         <div>
-          <div className="flex items-center space-x-2 text-gold/60 text-[10px] font-black uppercase tracking-[0.4em] mb-2">
-            <Globe className="size-3" />
+          <div className="flex items-center space-x-3 text-gold/60 text-[10px] font-black uppercase tracking-[0.6em] mb-3">
+            <Globe className="size-3 text-gold" />
             <span>Real-Time Market Intelligence</span>
           </div>
-          <h1 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">
+          <h1 className="text-6xl font-black text-white tracking-tighter uppercase leading-none">
             GLOBAL<span className="text-gold">·</span>ASSETS
           </h1>
         </div>
-        <div className="flex items-center space-x-3 bg-white/5 border border-white/10 px-4 py-2 rounded-2xl backdrop-blur-md">
-          <Zap className="text-gold size-4 animate-pulse" />
+        <div className="flex items-center space-x-4 bg-black/60 border border-gold/10 px-6 py-4 rounded-2xl backdrop-blur-3xl shadow-[inset_0_0_20px_rgba(255,215,0,0.05)]">
+          <Zap className="text-gold size-5 animate-pulse" />
           <div className="flex flex-col">
-            <span className="text-[9px] font-bold text-gray-500 uppercase">Status</span>
-            <span className="text-xs font-black text-white uppercase font-mono">Synchronized 100%</span>
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-0.5">Stream Status</span>
+            <span className="text-xs font-black text-white uppercase font-mono tracking-tighter">Synchronized 100%</span>
           </div>
         </div>
       </div>
@@ -80,7 +81,7 @@ const MarketDashboard: React.FC = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.05 }}
           >
-            <HubCard className="h-full group hover:bg-white/[0.02]" resourceId="F1_MARKET" dataSource="CoinGecko">
+            <HubCard className="h-full group hover:bg-white/[0.02]" resourceId="F1_MARKET" dataSource="CoinGecko" dataSourceUrl="https://www.coingecko.com">
               <div className="flex items-start justify-between mb-6">
                 <div className="flex items-center space-x-4">
                   <div className="relative">

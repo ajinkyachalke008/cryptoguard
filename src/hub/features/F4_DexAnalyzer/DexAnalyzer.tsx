@@ -3,7 +3,8 @@ import { DexScreenerService } from '../../services/dexScreener.service';
 import { GeckoTerminalService } from '../../services/geckoTerminal.service';
 import { HubCard } from '../../shared/HubCard';
 import { HubBadge } from '../../shared/HubBadge';
-import { Search, AlertTriangle, Droplets, BarChart3, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Search, AlertTriangle, Droplets, BarChart3, ExternalLink, ShieldCheck, Activity } from 'lucide-react';
+import { ExportButton } from '../../reports/components/ExportButton';
 
 const DexAnalyzer: React.FC = () => {
   const [query, setQuery] = useState('');
@@ -30,23 +31,29 @@ const DexAnalyzer: React.FC = () => {
         <p className="text-gray-400 text-sm italic">Liquidity depth, price impact, and smart contract risk flags</p>
       </div>
 
-      <div className="flex gap-2">
-        <div className="relative flex-1">
+      <div className="flex gap-4">
+        <div className="relative flex-1 group">
+          <div className="absolute -inset-0.5 bg-gold/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500" />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by Token Name, Symbol or Contract Address..."
-            className="w-full bg-black/40 border border-gold/20 rounded-xl px-12 py-4 text-white outline-none focus:border-gold/50 transition-all font-mono text-sm"
+            className="relative w-full bg-black/60 border border-gold/20 rounded-2xl pl-14 pr-4 py-5 text-white outline-none focus:border-gold/50 transition-all font-mono text-sm backdrop-blur-xl"
           />
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gold/50 size-5" />
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gold/50 size-6" />
         </div>
         <button
           onClick={handleSearch}
           disabled={loading}
-          className="bg-gold text-black px-8 rounded-xl font-bold uppercase tracking-widest hover:bg-yellow-400 disabled:opacity-50 transition-all shadow-[0_0_15px_rgba(255,215,0,0.3)]"
+          className="bg-gold text-black px-10 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-yellow-400 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(255,215,0,0.2)] active:scale-95"
         >
-          {loading ? 'RESEARCHING...' : 'SEARCH'}
+          {loading ? (
+            <div className="flex items-center gap-2">
+              <Activity className="size-3 animate-spin" />
+              <span>RESEARCHING</span>
+            </div>
+          ) : 'SEARCH_TOKEN'}
         </button>
       </div>
 
@@ -54,7 +61,7 @@ const DexAnalyzer: React.FC = () => {
         {results.map((pair, i) => {
           const risk = DexScreenerService.analyzeRisk(pair);
           return (
-            <HubCard key={i} className="group overflow-hidden border-gold/10 hover:border-gold/30" resourceId="F4_DEX" dataSource="DexScreener Indexer">
+            <HubCard key={i} className="group overflow-hidden border-gold/10 hover:border-gold/30" resourceId="F4_DEX" dataSource="DexScreener Indexer" dataSourceUrl="https://dexscreener.com">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="flex -space-x-2">
@@ -109,14 +116,31 @@ const DexAnalyzer: React.FC = () => {
                 </div>
               </div>
 
-              <a 
-                href={pair.url} 
-                target="_blank" 
-                rel="noreferrer"
-                className="mt-4 flex items-center justify-center w-full py-2 bg-gold/5 hover:bg-gold/10 border border-gold/10 hover:border-gold/30 rounded-lg text-xs font-bold text-gold transition-all uppercase gap-2"
-              >
-                View on {pair.dexId} <ExternalLink className="size-3" />
-              </a>
+              <div className="flex gap-2">
+                <a 
+                  href={pair.url} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="mt-4 flex items-center justify-center flex-1 py-2 bg-gold/5 hover:bg-gold/10 border border-gold/10 hover:border-gold/30 rounded-lg text-xs font-bold text-gold transition-all uppercase gap-2"
+                >
+                  View on {pair.dexId} <ExternalLink className="size-3" />
+                </a>
+                <ExportButton 
+                  label="Dossier"
+                  className="mt-4 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-[9px] font-black text-gold hover:text-white transition-all uppercase"
+                  dossier={{
+                    entity: { address: pair.baseToken.address, chain: pair.chainId, type: 'CONTRACT', tags: ['DEX_TOKEN'], isDeterministic: false },
+                    financials: { netWorth: pair.liquidity?.usd || 0, assets: [], history: [] },
+                    security: { 
+                      riskScore: risk.flags.length * 20, 
+                      riskLevel: risk.flags.length > 2 ? 'High' : 'Low',
+                      isSanctioned: false,
+                      maliciousFlags: risk.flags,
+                      riskAnalysis: risk
+                    }
+                  }} 
+                />
+              </div>
             </HubCard>
           );
         })}

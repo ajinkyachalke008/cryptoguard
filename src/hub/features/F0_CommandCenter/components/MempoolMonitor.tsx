@@ -51,6 +51,7 @@ const MempoolMonitor: React.FC = () => {
       title="NETWORK HEALTH" 
       icon={<Server className="text-gold size-4" />}
       dataSource="Mempool.space + Blockstream"
+      dataSourceUrl="https://mempool.space"
     >
       <div className="space-y-4">
         <div className="space-y-3">

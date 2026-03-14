@@ -8,7 +8,7 @@ interface HubBadgeProps {
 
 export const HubBadge: React.FC<HubBadgeProps> = ({ children, variant = 'gold' }) => {
   const styles = {
-    gold: 'bg-gold/10 text-gold border-gold/30',
+    gold: 'bg-gold/10 text-gold border-gold/40 shadow-[0_0_10px_-2px_rgba(255,215,0,0.2)]',
     green: 'bg-green-500/10 text-green-400 border-green-500/30',
     red: 'bg-red-500/10 text-red-400 border-red-500/30',
     gray: 'bg-gray-500/10 text-gray-400 border-gray-500/30',

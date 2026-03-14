@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { HubCard } from '../../../shared/HubCard';
 import { HubBadge } from '../../../shared/HubBadge';
 import { FileText, Plus, Save, Trash2, Download, Search, Clock, Shield } from 'lucide-react';
+import { ExportButton } from '../../../reports/components/ExportButton';
 
 const CaseManager: React.FC = () => {
   const [cases, setCases] = useState<any[]>([
@@ -26,7 +27,7 @@ const CaseManager: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-1 space-y-6">
-           <HubCard title="Dossier Statistics" dataSource="Case_Management_V1">
+           <HubCard title="Dossier Statistics" dataSource="Case_Management_V1" dataSourceUrl="#">
               <div className="space-y-4">
                  <div className="p-4 rounded-xl bg-gold/10 border border-gold/20">
                     <div className="text-[10px] text-gold font-black uppercase tracking-widest mb-1">Active Investigations</div>
@@ -52,7 +53,7 @@ const CaseManager: React.FC = () => {
         </div>
 
         <div className="lg:col-span-3">
-          <HubCard title="Investigative Dossiers" dataSource="Internal_Evidence_Store">
+          <HubCard title="Investigative Dossiers" dataSource="Internal_Evidence_Store" dataSourceUrl="#">
              <div className="space-y-4">
                 {cases.map((cs, i) => (
                   <div key={i} className="p-4 rounded-xl bg-black/40 border border-gold/10 group hover:border-gold/30 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -76,7 +77,21 @@ const CaseManager: React.FC = () => {
                           <div className="text-[9px] text-gray-500 font-bold uppercase">Last Update</div>
                           <div className="text-[10px] text-white font-black italic">{cs.updated}</div>
                        </div>
-                       <button className="p-2 rounded-lg bg-gold/10 text-gold hover:bg-gold/20 transition-all"><Download className="size-4" /></button>
+                       <ExportButton 
+                         label="" 
+                         className="p-2 rounded-lg bg-gold/10 text-gold hover:bg-gold/20 transition-all flex items-center justify-center min-w-[36px]"
+                         dossier={{
+                           entity: { address: cs.id, chain: 'MULTI', type: 'UNKNOWN', tags: ['CASE_FILE'], isDeterministic: true },
+                           financials: { netWorth: 0, assets: [], history: [] },
+                           security: { 
+                             riskScore: cs.priority === 'CRITICAL' ? 95 : 70, 
+                             riskLevel: cs.priority === 'CRITICAL' ? 'Critical' : 'High',
+                             isSanctioned: false,
+                             maliciousFlags: [cs.title],
+                             riskAnalysis: cs
+                           }
+                         }} 
+                       />
                        <button className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-all"><Trash2 className="size-4" /></button>
                     </div>
                   </div>

@@ -7,6 +7,7 @@ import FlowDataTable from './components/FlowDataTable';
 import ChainFlowSummary from './components/ChainFlowSummary';
 import { useGlobalPulse } from '../../hooks/useGlobalPulse';
 import { HubCard } from '../../shared/HubCard';
+import { Activity } from 'lucide-react';
 
 const GlobalPulse: React.FC = () => {
   const { flows, loading } = useGlobalPulse();
@@ -15,10 +16,16 @@ const GlobalPulse: React.FC = () => {
 
   return (
     <div className="space-y-6 flex flex-col h-[calc(100vh-120px)]">
-      <div className="flex justify-between items-center shrink-0">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-gold/10 pb-10 relative mb-4 shrink-0">
+        <div className="absolute -bottom-px left-0 w-48 h-[2px] bg-gold shadow-[0_0_20px_rgba(255,215,0,0.6)]" />
         <div>
-          <h1 className="text-4xl font-black text-gold tracking-tighter uppercase italic">Global Pulse Matrix</h1>
-          <p className="text-gray-400 text-sm font-bold tracking-widest uppercase opacity-50">Real-Time Cross-Chain Liquidity Map</p>
+          <div className="flex items-center space-x-3 text-gold/60 text-[10px] font-black uppercase tracking-[0.6em] mb-3">
+            <Activity className="size-3 text-gold animate-pulse" />
+            <span>Interactive Cross-Chain Liquidity Map</span>
+          </div>
+          <h1 className="text-6xl font-black text-white tracking-tighter uppercase leading-none">
+            GLOBAL<span className="text-gold">·</span>PULSE
+          </h1>
         </div>
         <ChainFlowSummary />
       </div>
@@ -40,11 +47,11 @@ const GlobalPulse: React.FC = () => {
         </div>
 
         <div className="w-full lg:w-96 flex flex-col gap-6 overflow-y-auto pr-2">
-           <HubCard title="Active Flow Ledger" dataSource="DeFiLlama_Pulse_Node">
+           <HubCard title="Active Flow Ledger" dataSource="DeFiLlama_Pulse_Node" dataSourceUrl="https://defillama.com">
              <FlowDataTable flows={flows} />
            </HubCard>
            
-           <HubCard title="Ecosystem Intensity" dataSource="DexScreener_V3">
+           <HubCard title="Ecosystem Intensity" dataSource="DexScreener_V3" dataSourceUrl="https://dexscreener.com">
              <div className="space-y-4">
                 <div className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Network Congestion</div>
                 <div className="grid grid-cols-2 gap-4">

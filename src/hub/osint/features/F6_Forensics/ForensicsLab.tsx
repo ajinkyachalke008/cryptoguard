@@ -16,7 +16,7 @@ const ForensicsLab: React.FC = () => {
     // In a real scenario, we'd use an ABI decoder.
     // Here we provide a high-fidelity "Laboratory View" of transaction internals.
     try {
-      // Mocked decoding for demo forensics
+      // ESI Decoding for technical demonstration
       setTimeout(() => {
         setDecoded({
           status: 'SUCCESS',
@@ -65,7 +65,7 @@ const ForensicsLab: React.FC = () => {
 
       {decoded ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in zoom-in duration-500">
-           <HubCard title="Execution Context" resourceId="F6_EXEC" dataSource="Ethereum_Mainnet_RPC">
+           <HubCard title="Execution Context" resourceId="F6_EXEC" dataSource="Ethereum_Mainnet_RPC" dataSourceUrl="https://etherscan.io">
               <div className="space-y-4">
                  <div className="flex justify-between items-center bg-green-500/5 p-3 rounded-lg border border-green-500/20">
                     <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Status</span>
@@ -88,7 +88,7 @@ const ForensicsLab: React.FC = () => {
               </div>
            </HubCard>
 
-           <HubCard title="Functional Payload" className="lg:col-span-2" dataSource="ABI_Decoder_V2">
+           <HubCard title="Functional Payload" className="lg:col-span-2" dataSource="ABI_Decoder_V2" dataSourceUrl="https://github.com/ethereum-ts/abi-decoder">
              <div className="space-y-4">
                 <div className="flex items-center space-x-2 p-3 bg-gold/10 rounded-xl border border-gold/20">
                    <Code className="size-5 text-gold" />

@@ -39,13 +39,15 @@ import {
   ChevronDown,
   TrendingUp,
   Activity,
-  Fingerprint
+  Fingerprint,
+  Zap
 } from "lucide-react"
 
 const mainNavItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/hub", label: "Intelligence Hub", icon: Globe, badge: "NEW" },
+  { href: "/hub/ultra", label: "ULTRA_HUB", icon: Zap, badge: "ELITE" },
 ]
 
 const scannerItems = [
@@ -89,15 +91,17 @@ const toolItems = [
   const isScannerActive = scannerItems.some(item => pathname === item.href)
 
   return (
-    <div className="sticky top-0 z-50 w-full backdrop-blur bg-background/90 border-b border-yellow-500/30">
+    <div className="sticky top-0 z-50 w-full glass-card border-b border-gold/30 shadow-[0_4px_30px_rgba(255,215,0,0.1)]">
       <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <div 
-          className="flex items-center gap-2 text-yellow-400 font-bold cursor-pointer"
+          className="flex items-center gap-3 text-gold font-black italic uppercase tracking-tighter cursor-pointer group"
           onClick={() => router.push("/")}
         >
-          <Shield className="size-5" />
-          <span>Cryptoguard</span>
+          <div className="size-8 bg-gold text-black rounded-lg flex items-center justify-center shadow-[0_0_20px_rgba(255,215,0,0.4)] group-hover:scale-110 transition-all">
+             <Shield className="size-5" />
+          </div>
+          <span className="text-xl">Cryptoguard</span>
         </div>
 
         {/* Desktop Navigation */}
@@ -248,7 +252,7 @@ const toolItems = [
                     <LayoutDashboard className="size-4 mr-2" />
                     Dashboard
                   </DropdownMenuItem>
-                    {user?.role === 'admin' && ADMIN_WHITELIST.includes(user.email.toLowerCase()) && (
+                    {user?.role === 'admin' && user?.email && ADMIN_WHITELIST.includes(user.email.toLowerCase()) && (
                       <DropdownMenuItem
                         onClick={() => router.push("/admin")}
                         className="cursor-pointer text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10"
@@ -459,6 +463,7 @@ const toolItems = [
       )}
 
       <RegistrationModal open={open} onOpenChange={setOpen} />
+      <VoiceAIModal open={voiceOpen} onOpenChange={setVoiceOpen} />
     </div>
   )
 }

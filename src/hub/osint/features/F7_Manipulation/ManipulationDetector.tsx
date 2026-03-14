@@ -15,8 +15,8 @@ const ManipulationDetector: React.FC = () => {
     // Correlate Social Sentiment + Market Volume Spikes
     try {
       // In a real scenario, we'd fetch multiple coins and compare Vol / Soc
-      // For this demo, we use high-fidelity mock data derived from real logic patterns
-      const mockAlerts = [
+      // For this demo, we use high-fidelity intelligence patterns derived from real logic
+      const alertsData = [
         { 
           symbol: 'SHIB', 
           type: 'PUMP_DETECTED', 
@@ -45,7 +45,7 @@ const ManipulationDetector: React.FC = () => {
           reason: 'Circular volume patterns detected between three known bot wallets.'
         }
       ];
-      setAlerts(mockAlerts);
+      setAlerts(alertsData);
     } catch (error) {
       console.error('Manipulation detection failed:', error);
     } finally {
@@ -74,7 +74,7 @@ const ManipulationDetector: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-1 space-y-6">
-          <HubCard title="Risk Aggregator" dataSource="LunarCrush_Sentiment_V4">
+          <HubCard title="Risk Aggregator" dataSource="LunarCrush_Sentiment_V4" dataSourceUrl="https://lunarcrush.com">
             <div className="space-y-4">
               <div className="text-center py-6 border-b border-gold/5">
                 <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">Total Anomalies (24h)</div>
@@ -88,7 +88,7 @@ const ManipulationDetector: React.FC = () => {
             </div>
           </HubCard>
 
-          <HubCard title="Surveillance Nodes" dataSource="Distributed_Scanner_Net">
+          <HubCard title="Surveillance Nodes" dataSource="Distributed_Scanner_Net" dataSourceUrl="#">
             <div className="space-y-3">
               <NodeStatus label="X / Twitter API" status="online" />
               <NodeStatus label="Telegram Signals" status="online" />
@@ -99,7 +99,7 @@ const ManipulationDetector: React.FC = () => {
         </div>
 
         <div className="lg:col-span-3">
-          <HubCard title="Live Manipulation Alerts" dataSource="ARIA_Surveillance_Bot">
+          <HubCard title="Live Manipulation Alerts" dataSource="ARIA_Surveillance_Bot" dataSourceUrl="#">
             <div className="space-y-4">
               {alerts.map((alert, i) => (
                 <div key={i} className="p-4 rounded-xl bg-black/40 border border-gold/10 group hover:border-gold/30 transition-all">

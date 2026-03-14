@@ -4,6 +4,7 @@ import { HubCard } from '../../../shared/HubCard';
 import { HubBadge } from '../../../shared/HubBadge';
 import { Search, Shield, AlertTriangle, CheckCircle, Info, Lock, Code } from 'lucide-react';
 import { GoPlusService } from '../../services/intelligence/goplus.service';
+import { ExportButton } from '../../../reports/components/ExportButton';
 import { osintUtils } from '../../osint.utils';
 import { TokenAuditResult } from '../../osint.types';
 
@@ -95,7 +96,7 @@ const ContractAuditor: React.FC = () => {
 
       {audit && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <HubCard title="Security Summary" className="lg:col-span-1" resourceId="F8_AUDIT" dataSource="GoPlus_Security_V3">
+          <HubCard title="Security Summary" className="lg:col-span-1" resourceId="F8_AUDIT" dataSource="GoPlus_Security_V3" dataSourceUrl="https://gopluslabs.io">
             <div className="flex flex-col items-center justify-center py-6">
               <div className={`text-7xl font-black mb-2 ${
                 audit.grade === 'A' ? 'text-green-500' : 
@@ -118,10 +119,27 @@ const ContractAuditor: React.FC = () => {
                 <span className="text-gray-500 uppercase font-bold">Network</span>
                 <span className="text-white">{audit.chain}</span>
               </div>
+              <div className="pt-4 mt-2 border-t border-gold/5">
+                <ExportButton 
+                  label="Export Security Dossier"
+                  className="w-full justify-center py-2 bg-white/5 border border-white/10 rounded-lg"
+                  dossier={{
+                    entity: { address: audit.contractAddress, chain: chainId, type: 'CONTRACT', tags: ['SECURITY_AUDIT'], isDeterministic: false },
+                    financials: { netWorth: 0, assets: [], history: [] },
+                    security: { 
+                      riskScore: audit.grade === 'F' ? 100 : audit.grade === 'D' ? 70 : 15, 
+                      riskLevel: audit.riskLevel,
+                      isSanctioned: false,
+                      maliciousFlags: audit.ownerPrivileges,
+                      riskAnalysis: audit
+                    }
+                  }} 
+                />
+              </div>
             </div>
           </HubCard>
 
-          <HubCard title="Attack Surface Analysis" className="lg:col-span-2" dataSource="OSINT_Engine_Audit">
+          <HubCard title="Attack Surface Analysis" className="lg:col-span-2" dataSource="OSINT_Engine_Audit" dataSourceUrl="#">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-gold/5 border border-gold/10 space-y-4">
                 <h3 className="text-xs font-bold text-gold uppercase flex items-center">

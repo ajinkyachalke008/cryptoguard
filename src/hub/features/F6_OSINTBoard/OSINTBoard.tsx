@@ -4,6 +4,7 @@ import '@xyflow/react/dist/style.css';
 import { HubCard } from '../../shared/HubCard';
 import { HubBadge } from '../../shared/HubBadge';
 import { Search, Database, Share2, PlusCircle } from 'lucide-react';
+import { ExportButton } from '../../reports/components/ExportButton';
 
 const initialNodes = [
   { id: '1', position: { x: 250, y: 5 }, data: { label: 'Target Wallet' }, type: 'input', style: { background: '#000', color: '#ffb700', border: '1px solid #ffb700' } },
@@ -47,11 +48,27 @@ const OSINTBoard: React.FC = () => {
           <button onClick={addEntity} className="text-gold hover:text-white transition-colors">
             <PlusCircle className="size-5" />
           </button>
+          <div className="h-6 w-px bg-gold/10 mx-2" />
+          <ExportButton 
+            label="Export_Board_Snapshot"
+            className="px-4 py-1.5 bg-cyan-500/10 text-cyan-500 border border-cyan-500/20 rounded-lg hover:bg-cyan-500/20 transition-all"
+            dossier={{
+              entity: { address: 'OSINT_BOARD_NODE', chain: 'GRAU_INTEL', type: 'UNKNOWN', tags: ['BOARD_SNAPSHOT'], isDeterministic: true },
+              financials: { netWorth: 0, assets: [], history: [] },
+              security: { 
+                riskScore: 30, 
+                riskLevel: 'Medium',
+                isSanctioned: false,
+                maliciousFlags: nodes.map(n => n.data.label as string),
+                riskAnalysis: { nodes: nodes.length, edges: edges.length }
+              }
+            }} 
+          />
         </div>
       </div>
 
       <div className="flex-1 border border-gold/10 rounded-2xl overflow-hidden bg-[#050505] relative shadow-inner">
-        <HubCard className="absolute top-4 right-4 z-40 w-64 bg-black/80 backdrop-blur-md" title="OSINT Intelligence" resourceId="F6_OSINT" dataSource="Entity_Graph_Indexer_v2">
+        <HubCard className="absolute top-4 right-4 z-40 w-64 bg-black/80 backdrop-blur-md" title="OSINT Intelligence" resourceId="F6_OSINT" dataSource="Entity_Graph_Indexer_v2" dataSourceUrl="https://xyflow.com">
           <p className="text-[10px] text-gray-400 italic">Tracking entity movements and social signals in real-time space.</p>
         </HubCard>
         <ReactFlow

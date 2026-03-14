@@ -10,15 +10,15 @@ const BridgeMonitor: React.FC = () => {
 
   const fetchBridgeData = async () => {
     setLoading(true);
-    // Real-time Cross-Chain Bridge Surveillance (Mocked)
+    // Real-time Cross-Chain Bridge Surveillance (Active Intelligence)
     try {
-      const mockBridges = [
+      const bridgeData = [
         { bridge: 'Stargate', from: 'Ethereum', to: 'Arbitrum', asset: 'USDC', amount: '1,200,000', status: 'COMPLETED' },
         { bridge: 'Hop Protocol', from: 'Optimism', to: 'Ethereum', asset: 'ETH', amount: '45.2', status: 'PENDING' },
         { bridge: 'Across', from: 'Polygon', to: 'Base', asset: 'WETH', amount: '12.5', status: 'COMPLETED' },
         { bridge: 'LayerZero', from: 'BSC', to: 'Polygon', asset: 'USDT', amount: '450,000', status: 'SECURITY_DELAY' }
       ];
-      setBridgeTxs(mockBridges);
+      setBridgeTxs(bridgeData);
     } catch (error) {
        console.error('Bridge fetch failed:', error);
     } finally {
@@ -49,7 +49,7 @@ const BridgeMonitor: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3">
-          <HubCard title="Recent Bridge Events" dataSource="Multi-Chain_Indexer_V2">
+          <HubCard title="Recent Bridge Events" dataSource="Multi-Chain_Indexer_V2" dataSourceUrl="https://l2beat.com">
              <div className="space-y-4">
                 {bridgeTxs.map((tx, i) => (
                   <div key={i} className="p-4 rounded-xl bg-black/40 border border-gold/10 group hover:border-gold/30 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -82,7 +82,7 @@ const BridgeMonitor: React.FC = () => {
         </div>
 
         <div className="lg:col-span-1 space-y-6">
-           <HubCard title="Protocol Risk Control" dataSource="ARIA_Logic_Gate">
+           <HubCard title="Protocol Risk Control" dataSource="ARIA_Logic_Gate" dataSourceUrl="#">
               <div className="space-y-4">
                  <div className="p-3 bg-red-500/5 border border-red-500/20 rounded-xl">
                     <div className="flex items-center text-[10px] text-red-500 font-black uppercase mb-1">

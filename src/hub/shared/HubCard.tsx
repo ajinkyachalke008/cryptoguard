@@ -11,9 +11,10 @@ interface HubCardProps {
   glow?: boolean;
   resourceId?: string;
   dataSource?: string;
+  dataSourceUrl?: string;
 }
 
-export const HubCard: React.FC<HubCardProps> = ({ title, icon, children, className = '', glow = true, resourceId, dataSource }) => {
+export const HubCard: React.FC<HubCardProps> = ({ title, icon, children, className = '', glow = true, resourceId, dataSource, dataSourceUrl }) => {
   const [showInfo, setShowInfo] = useState(false);
   const resource = resourceId ? HUB_RESOURCES[resourceId] : null;
 
@@ -21,8 +22,14 @@ export const HubCard: React.FC<HubCardProps> = ({ title, icon, children, classNa
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`relative p-6 rounded-xl bg-black/40 border border-gold/20 backdrop-blur-md overflow-hidden ${glow ? 'hover:border-gold/50 transition-colors shadow-[0_0_15px_-5px_rgba(255,215,0,0.1)] hover:shadow-[0_0_20px_-5px_rgba(255,215,0,0.3)]' : ''} ${className}`}
+      className={`relative p-6 rounded-2xl bg-black/60 border border-gold/10 backdrop-blur-3xl overflow-hidden group transition-all duration-500 ${glow ? 'hover:border-gold/40 shadow-[0_0_20px_-10px_rgba(255,215,0,0.1)] hover:shadow-[0_0_30px_-5px_rgba(255,215,0,0.2)]' : ''} ${className}`}
     >
+      {/* Scanning effect */}
+      <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold/5 to-transparent h-1/2 w-full animate-scan-line" />
+      </div>
+
+      <div className="absolute inset-0 bg-gradient-to-br from-gold/[0.03] to-transparent pointer-events-none" />
       <div className="flex justify-between items-start mb-4">
         {title && (
           <h3 className="text-xl font-bold text-gold uppercase tracking-wider flex items-center gap-2">
@@ -120,12 +127,25 @@ export const HubCard: React.FC<HubCardProps> = ({ title, icon, children, classNa
       <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-gold/10 pointer-events-none" />
       
       {dataSource && (
-        <div className="absolute bottom-2 left-6 right-6 flex items-center justify-between pointer-events-none">
-          <div className="h-[1px] flex-1 bg-white/5 mr-4" />
-          <div className="flex items-center space-x-1 font-mono text-[7px] font-black text-gray-500 uppercase tracking-widest bg-[#0a0a0a] px-2">
-            <span className="text-gold/50 tracking-tighter mr-1">DATA_SRC:</span>
-            {dataSource}
-          </div>
+        <div className="absolute bottom-3 left-6 right-6 flex items-center justify-between z-20">
+          <div className="h-[1px] flex-1 bg-gold/20 mr-4" />
+          {dataSourceUrl ? (
+            <a 
+              href={dataSourceUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center space-x-2 font-mono text-[9px] font-black text-gray-300 uppercase tracking-[0.2em] bg-[#0a0a0a] px-3 py-1 border border-gold/30 rounded-full hover:border-gold hover:text-gold hover:scale-105 transition-all pointer-events-auto"
+            >
+              <span className="text-gold tracking-tighter mr-1 shadow-[0_0_10px_rgba(255,215,0,0.3)]">INTEL_SOURCE:</span>
+              {dataSource}
+              <ExternalLink size={8} className="ml-1 opacity-50" />
+            </a>
+          ) : (
+            <div className="flex items-center space-x-2 font-mono text-[9px] font-black text-gray-300 uppercase tracking-[0.2em] bg-[#0a0a0a] px-3 py-1 border border-gold/10 rounded-full">
+              <span className="text-gold tracking-tighter mr-1 shadow-[0_0_10px_rgba(255,215,0,0.3)]">INTEL_SOURCE:</span>
+              {dataSource}
+            </div>
+          )}
         </div>
       )}
     </motion.div>

@@ -19,24 +19,24 @@ export const IntelligentForensicsService = {
     }
 
     const prompt = `
-      You are ARIA, the Advanced Risk Intelligence Analyst for CryptoGuard. 
-      Analyze the following blockchain transaction graph and provide a professional, cinematic forensic narrative.
+      You are an Advanced Risk Intelligence System (ARIS). 
+      Perform a clinical forensic analysis on the provided blockchain entity data.
       
-      GRAPH DATA:
-      Nodes: ${JSON.stringify(data.nodes)}
-      Edges: ${JSON.stringify(data.edges)}
+      ENTITY_DATA:
+      Nodes (Entities): ${JSON.stringify(data.nodes)}
+      Edges (Flows): ${JSON.stringify(data.edges)}
 
-      FORMAT YOUR RESPONSE AS JSON:
+      FORMAT_JSON_SPECIFICATION:
       {
-        "title": "A high-impact title for the investigation",
-        "summary": "A 2-3 sentence cinematic overview of the fund movement",
-        "incidents": ["List 3-4 specific behavioral signals or pattern matches detected"],
-        "riskAssessment": "A technical assessment of the threat level and attribution",
-        "recommendation": "Calculated investigative next steps"
+        "title": "Technical Investigative Title",
+        "summary": "Clinical executive summary of entity behavior and flow velocity.",
+        "incidents": ["Specific technical pattern matches or behavioral anomalies detected"],
+        "riskAssessment": "Professional threat-level assessment and attribution analysis",
+        "recommendation": "Technical investigative next steps"
       }
       
-      Focus on patterns like "Peeling Chain", "Structuring", "Mixer Interaction", or "Whale Accumulation".
-      Be concise, clinical, and futuristic.
+      Detection Focus: Peeling Chains, Structuring (Smurfing), Mixer Latency, Fog-of-Transaction patterns, and Institutional Accumulation.
+      Maintain a precise, neutralized, and high-fidelity technical tone.
     `;
 
     try {

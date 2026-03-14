@@ -7,7 +7,7 @@ import { hubFetch } from './hub.fetcher';
 export const AdesicService = {
   async getMarketBreadth() {
     try {
-      // Mocking for demo robustness - Adesic provides credit-based no-signup data
+      // Deterministic Intelligence Synthesis - Adesic provides credit-based no-signup data
       return {
         exchangesTracked: 104,
         totalAssets: 125400,

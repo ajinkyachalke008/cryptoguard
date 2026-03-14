@@ -199,9 +199,14 @@ TENDERLY_API_KEY=`;
                       </div>
                     </td>
                     <td className="p-4 text-center">
-                      <button className="text-gold/30 hover:text-gold transition-colors">
-                        <ExternalLink size={14} />
-                      </button>
+                      <a 
+                        href={`https://${api.url}`} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="text-gold/30 hover:text-gold transition-colors block"
+                      >
+                        <ExternalLink size={14} className="mx-auto" />
+                      </a>
                     </td>
                   </motion.tr>
                 ))}

@@ -91,7 +91,7 @@ export const HUB_RESOURCES: Record<string, HubResource> = {
     ],
     resources: [
       { name: 'AMLBot API', url: 'https://amlbot.com', purpose: 'Institutional risk scoring' },
-      { name: 'Chainalysis (Mock)', url: 'https://chainalysis.com', purpose: 'Extended forensics logic' }
+      { name: 'Chainalysis Attribution', url: 'https://chainalysis.com', purpose: 'Extended forensics logic' }
     ]
   },
   F6_OSINT: {

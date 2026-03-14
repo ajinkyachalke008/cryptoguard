@@ -46,13 +46,26 @@ const SentimentMonitor: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col space-y-2">
-        <h1 className="text-3xl font-bold text-gold tracking-tighter uppercase">Social & Sentiment Monitor</h1>
-        <p className="text-gray-400 text-sm italic">Aggregate social volume, whale alerts, and community health</p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-gold/10 pb-10 relative mb-10">
+        <div className="absolute -bottom-px left-0 w-48 h-[2px] bg-gold shadow-[0_0_20px_rgba(255,215,0,0.6)]" />
+        <div>
+          <div className="flex items-center space-x-3 text-gold/60 text-[10px] font-black uppercase tracking-[0.6em] mb-3">
+            <Users className="size-3 text-gold" />
+            <span>Social Pulse & Behavioral Sentiment</span>
+          </div>
+          <h1 className="text-6xl font-black text-white tracking-tighter uppercase leading-none">
+            SENTIMENT<span className="text-gold">·</span>FLOW
+          </h1>
+        </div>
+        <div className="max-w-md">
+          <p className="text-gray-500 text-[11px] font-bold uppercase tracking-widest leading-relaxed italic text-right">
+            "Real-time aggregation of social volume, whale alerts, and community sentiment metrics."
+          </p>
+        </div>
       </div>
 
       {globalSentiment && (
-        <HubCard title="Global Fear & Greed Index" resourceId="F7_SENTIMENT" dataSource="CoinyBubble Multi-Source" glow={true} className="border-gold/30">
+        <HubCard title="Global Fear & Greed Index" resourceId="F7_SENTIMENT" dataSource="CoinyBubble Multi-Source" dataSourceUrl="https://coinybubble.com" glow={true} className="border-gold/30">
           <div className="flex flex-col md:flex-row items-center justify-between p-4">
             <div className="flex items-center space-x-6">
               <div className="relative size-32">
@@ -88,7 +101,7 @@ const SentimentMonitor: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {socialData.map((item: any, i: number) => (
-          <HubCard key={i} className="relative overflow-hidden group" resourceId="F7_SOCIAL" dataSource="LunarCrush Alpha">
+          <HubCard key={i} className="relative overflow-hidden group" resourceId="F7_SOCIAL" dataSource="LunarCrush Alpha" dataSourceUrl="https://lunarcrush.com">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
                 <Users className="text-gold size-4" />
@@ -128,7 +141,7 @@ const SentimentMonitor: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <HubCard title="Live Whale Movement" dataSource="WhaleAlert.io">
+        <HubCard title="Live Whale Movement" dataSource="WhaleAlert.io" dataSourceUrl="https://whale-alert.io">
           <div className="space-y-4 pr-2 custom-scrollbar">
             {[1, 2, 3].map((_, i) => (
               <div key={i} className="flex items-start space-x-3 p-3 rounded-lg bg-black/40 border border-gold/5 hover:border-gold/20 transition-all">
@@ -151,7 +164,7 @@ const SentimentMonitor: React.FC = () => {
           </div>
         </HubCard>
 
-        <HubCard title="Trending Social Phrases (Alpha)" dataSource="LunarCrush Real-time">
+        <HubCard title="Trending Social Phrases (Alpha)" dataSource="LunarCrush Real-time" dataSourceUrl="https://lunarcrush.com">
           <div className="flex flex-wrap gap-2 py-4">
             {['$SOL', 'ETF Approval', 'L2 Summer', 'Airdrop Season', 'Mainnet Launch', 'RWA', 'Restaking'].map((tag, i) => (
               <span key={i} className="px-4 py-2 rounded-full bg-gold/5 border border-gold/10 hover:border-gold/40 text-xs font-bold text-gold transition-all cursor-pointer">

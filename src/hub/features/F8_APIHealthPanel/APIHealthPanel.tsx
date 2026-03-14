@@ -28,23 +28,29 @@ const APIHealthPanel: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-gold/10 pb-10 relative mb-10">
+        <div className="absolute -bottom-px left-0 w-48 h-[2px] bg-gold shadow-[0_0_20px_rgba(255,215,0,0.6)]" />
         <div>
-          <h1 className="text-3xl font-bold text-gold tracking-tighter uppercase">API Health & Status</h1>
-          <p className="text-gray-400 text-sm italic">Operational status of Intelligence Hub data sources</p>
+          <div className="flex items-center space-x-3 text-gold/60 text-[10px] font-black uppercase tracking-[0.6em] mb-3">
+            <Server className="size-3 text-gold" />
+            <span>Real-time Integration Monitoring</span>
+          </div>
+          <h1 className="text-6xl font-black text-white tracking-tighter uppercase leading-none">
+            API<span className="text-gold">·</span>HEALTH
+          </h1>
         </div>
         <button 
           onClick={runChecks}
           disabled={loading}
-          className="px-6 py-2 bg-gold/10 border border-gold/30 rounded-xl text-xs font-bold text-gold uppercase hover:bg-gold/20 transition-all disabled:opacity-50"
+          className="px-8 py-3 bg-gold text-black rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-yellow-400 transition-all disabled:opacity-50 shadow-[0_0_20px_rgba(255,215,0,0.2)] active:scale-95"
         >
-          {loading ? 'RE-CHECKING...' : 'REFRESH STATUS'}
+          {loading ? 'RE_CHECKING_NODES...' : 'REFRESH_INTEGRATION_PULSE'}
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {Object.entries(healthData).map(([name, data]) => (
-          <HubCard key={name} glow={false} className="border-gold/10" resourceId="F8_HEALTH" dataSource="Live Pulse">
+          <HubCard key={name} glow={false} className="border-gold/10" resourceId="F8_HEALTH" dataSource="Live Pulse" dataSourceUrl="https://betteruptime.com">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
                 <Server className={`size-4 ${data.status === 'UP' ? 'text-green-500' : 'text-red-500'}`} />
@@ -71,7 +77,7 @@ const APIHealthPanel: React.FC = () => {
         ))}
       </div>
 
-      <HubCard title="System Diagnostics" className="bg-gold/5" dataSource="HealthMonitor Engine">
+      <HubCard title="System Diagnostics" className="bg-gold/5" dataSource="HealthMonitor Engine" dataSourceUrl="#">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center space-x-4">
             <div className="size-12 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 shadow-[0_0_15px_rgba(34,197,94,0.3)]">

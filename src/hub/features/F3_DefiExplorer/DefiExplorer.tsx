@@ -26,13 +26,26 @@ const DefiExplorer: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col space-y-2">
-        <h1 className="text-3xl font-bold text-gold tracking-tighter uppercase">DeFi Protocol Explorer</h1>
-        <p className="text-gray-400 text-sm italic">Aggregate TVL, yield, and protocol health metrics</p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-gold/10 pb-10 relative mb-10">
+        <div className="absolute -bottom-px left-0 w-48 h-[2px] bg-gold shadow-[0_0_20px_rgba(255,215,0,0.6)]" />
+        <div>
+          <div className="flex items-center space-x-3 text-gold/60 text-[10px] font-black uppercase tracking-[0.6em] mb-3">
+            <Layers className="size-3 text-gold" />
+            <span>Cross-Protocol Liquidity Analysis</span>
+          </div>
+          <h1 className="text-6xl font-black text-white tracking-tighter uppercase leading-none">
+            DEFI<span className="text-gold">·</span>EXPLORER
+          </h1>
+        </div>
+        <div className="max-w-md">
+          <p className="text-gray-500 text-[11px] font-bold uppercase tracking-widest leading-relaxed italic text-right">
+            "Aggregate TVL, yield, and protocol health metrics across all major DeFi layers."
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <HubCard title="Protocol TVL Metrics" className="bg-gradient-to-br from-gold/10 to-transparent border-gold/30" resourceId="F3_DEFI" dataSource="DefiLlama API">
+        <HubCard title="Protocol TVL Metrics" className="bg-gradient-to-br from-gold/10 to-transparent border-gold/30" resourceId="F3_DEFI" dataSource="DefiLlama API" dataSourceUrl="https://defillama.com">
           <div className="flex items-center space-x-3 mb-2">
             <Trophy className="text-gold size-5" />
             <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Total Protocols Tracked</span>
@@ -40,7 +53,7 @@ const DefiExplorer: React.FC = () => {
           <div className="text-3xl font-black text-white">{protocols.length}+</div>
         </HubCard>
         
-        <HubCard title="Sector Analysis" className="bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/30" resourceId="F3_DEFI" dataSource="DefiLlama API">
+        <HubCard title="Sector Analysis" className="bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/30" resourceId="F3_DEFI" dataSource="DefiLlama API" dataSourceUrl="https://defillama.com">
           <div className="flex items-center space-x-3 mb-2">
             <Layers className="text-blue-400 size-5" />
             <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Largest Sector</span>
@@ -48,7 +61,7 @@ const DefiExplorer: React.FC = () => {
           <div className="text-3xl font-black text-white">LIQUID STAKING</div>
         </HubCard>
 
-        <HubCard title="Network Trends" className="bg-gradient-to-br from-green-500/10 to-transparent border-green-500/30" resourceId="F3_DEFI" dataSource="DefiLlama API">
+        <HubCard title="Network Trends" className="bg-gradient-to-br from-green-500/10 to-transparent border-green-500/30" resourceId="F3_DEFI" dataSource="DefiLlama API" dataSourceUrl="https://defillama.com">
           <div className="flex items-center space-x-3 mb-2">
             <Activity className="text-green-400 size-5" />
             <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Network Dominance</span>

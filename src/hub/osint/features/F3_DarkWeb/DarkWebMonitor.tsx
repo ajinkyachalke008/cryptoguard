@@ -66,7 +66,7 @@ const DarkWebMonitor: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-1 space-y-6">
-          <HubCard title="Threat Radar" resourceId="F3_RADAR" dataSource="Ransomwhere_Intelligence">
+          <HubCard title="Threat Radar" resourceId="F3_RADAR" dataSource="Ransomwhere_Intelligence" dataSourceUrl="https://ransomwhere.org">
             <div className="space-y-4">
               <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20">
                 <div className="text-[10px] text-red-500 font-black uppercase tracking-widest mb-1">Active Ransomware Families</div>
@@ -83,7 +83,7 @@ const DarkWebMonitor: React.FC = () => {
             </div>
           </HubCard>
 
-          <HubCard title="Risk Topology" dataSource="OSINT_Forensics_V1">
+          <HubCard title="Risk Topology" dataSource="OSINT_Forensics_V1" dataSourceUrl="#">
             <div className="space-y-3">
               <div className="flex items-center justify-between text-[10px] font-bold uppercase">
                 <span className="text-gray-500">Mixer Activity</span>
@@ -102,7 +102,7 @@ const DarkWebMonitor: React.FC = () => {
         </div>
 
         <div className="lg:col-span-3">
-          <HubCard title="Real-Time Ransomware Feed" dataSource="Aggregated_Threat_Pulse">
+          <HubCard title="Real-Time Ransomware Feed" dataSource="Aggregated_Threat_Pulse" dataSourceUrl="#">
             {loading ? (
               <div className="h-96 flex items-center justify-center">
                 <Activity className="size-8 text-gold animate-pulse" />

@@ -14,6 +14,7 @@ const APIHealthPanel = lazy(() => import('./features/F8_APIHealthPanel/APIHealth
 const ResourceGuide = lazy(() => import('./features/F9_ResourceGuide/ResourceGuide'));
 const ChainAnalysis = lazy(() => import('./features/F11_ChainAnalysis/ChainAnalysis'));
 const CommandCenter = lazy(() => import('./features/F0_CommandCenter/CommandCenter'));
+const Investigator = lazy(() => import('./features/F12_UniversalInvestigator/Investigator'));
 
 import { HubErrorBoundary } from './shared/HubErrorBoundary';
 
@@ -32,6 +33,7 @@ export const HubRouter: React.FC<{ activeTab?: string }> = ({ activeTab = HUB_RO
         {activeTab === HUB_ROUTES.API_HEALTH && <APIHealthPanel />}
         {activeTab === HUB_ROUTES.CHAIN && <ChainAnalysis />}
         {activeTab === HUB_ROUTES.RESOURCES && <ResourceGuide />}
+        {activeTab === HUB_ROUTES.INVESTIGATOR && <Investigator />}
         {activeTab === HUB_ROUTES.ROOT && <CommandCenter />}
       </Suspense>
     </HubErrorBoundary>

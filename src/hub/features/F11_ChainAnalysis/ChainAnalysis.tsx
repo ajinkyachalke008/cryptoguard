@@ -39,33 +39,36 @@ const ChainAnalysis: React.FC = () => {
   return (
     <div className="space-y-10 pb-20 max-w-7xl mx-auto">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-gold/10 pb-10 relative mb-10">
+        <div className="absolute -bottom-px left-0 w-48 h-[2px] bg-gold shadow-[0_0_20px_rgba(255,215,0,0.6)]" />
         <div>
-          <div className="flex items-center space-x-2 text-gold/60 text-[10px] font-black uppercase tracking-[0.4em] mb-2">
-            <Globe className="size-3" />
+          <div className="flex items-center space-x-3 text-gold/60 text-[10px] font-black uppercase tracking-[0.6em] mb-3">
+            <Globe className="size-3 text-gold" />
             <span>Multi-Chain Infrastructure Intelligence</span>
           </div>
-          <h1 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">
-            BLOCKCHAIN<span className="text-gold">·</span>ANALYSIS
+          <h1 className="text-6xl font-black text-white tracking-tighter uppercase leading-none">
+            CHAIN<span className="text-gold">·</span>ANALYSIS
           </h1>
         </div>
         
         <div className="flex items-center space-x-4">
           <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gold/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500" />
             <input 
               type="text" 
               placeholder="Inject Chain Parameter..."
-              className="bg-white/5 border border-white/10 rounded-2xl px-10 py-3 text-xs text-white outline-none focus:border-gold/30 transition-all font-bold uppercase tracking-widest w-64"
+              className="relative bg-black/60 border border-gold/20 rounded-2xl px-12 py-4 text-[10px] text-white outline-none focus:border-gold/50 transition-all font-black uppercase tracking-[0.2em] w-72 backdrop-blur-3xl"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 size-4" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gold/50 size-5" />
           </div>
           <button 
             onClick={fetchChains}
-            className="p-3 bg-gold/10 border border-gold/30 rounded-2xl hover:bg-gold/20 transition-all text-gold group"
+            className="p-4 bg-gold text-black rounded-2xl hover:bg-yellow-400 transition-all shadow-[0_0_20px_rgba(255,215,0,0.2)] active:scale-95 group"
           >
-            <Activity className={`size-5 ${loading ? 'animate-pulse' : 'group-hover:rotate-12'} transition-transform`} />
+            <Activity className={`size-5 ${loading ? 'animate-spin' : 'group-hover:rotate-12'} transition-transform`} />
           </button>
         </div>
       </div>
@@ -88,6 +91,7 @@ const ChainAnalysis: React.FC = () => {
                 className="h-full group hover:border-gold/30 transition-all overflow-hidden bg-black/40" 
                 resourceId="F11_CHAIN" 
                 dataSource="Blockchair Pulse"
+                dataSourceUrl="https://blockchair.com"
               >
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center space-x-4">

@@ -43,11 +43,20 @@ const TransactionTracer: React.FC = () => {
         const ethRes = await EthereumOSINTService.getTxList(address);
         txs = ethRes?.result?.slice(0, 10) || [];
         txs.forEach((tx: any) => {
-          const target = tx.to === address.toLowerCase() ? tx.from : tx.to;
-          if (!nodes.find(n => n.id === target)) {
-            nodes.push({ id: target, label: osintUtils.maskAddress(target), type: tx.to === address.toLowerCase() ? 'inflow' : 'outflow' });
+          const fromAddr = tx.from?.toLowerCase();
+          const toAddr = tx.to?.toLowerCase();
+          const target = fromAddr === address.toLowerCase() ? toAddr : fromAddr;
+          
+          if (target && !nodes.find(n => n.id === target)) {
+            nodes.push({ 
+              id: target, 
+              label: osintUtils.maskAddress(target), 
+              type: toAddr === address.toLowerCase() ? 'inflow' : 'outflow' 
+            });
           }
-          edges.push({ source: tx.from, target: tx.to, amount: tx.value });
+          if (fromAddr && toAddr) {
+            edges.push({ source: fromAddr, target: toAddr, amount: tx.value });
+          }
         });
       }
 
@@ -130,7 +139,7 @@ const TransactionTracer: React.FC = () => {
         </div>
 
         <div className="lg:col-span-3 flex flex-col gap-6 overflow-hidden">
-          <HubCard title="Audit Ledger" resourceId="TRACE_LEDGER" dataSource="OSINT_V3" className="flex-1 overflow-hidden flex flex-col">
+          <HubCard title="Audit Ledger" resourceId="TRACE_LEDGER" dataSource="OSINT_V3" dataSourceUrl="https://mempool.space" className="flex-1 overflow-hidden flex flex-col">
              <div className="space-y-4 overflow-y-auto flex-1 pr-2 custom-scrollbar">
                {data && data.edges.length > 0 ? (
                  data.edges.map((edge, i) => (

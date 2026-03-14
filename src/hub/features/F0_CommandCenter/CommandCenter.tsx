@@ -63,25 +63,29 @@ const CommandCenter: React.FC = () => {
   return (
     <div className="space-y-10 max-w-[1700px] mx-auto pb-20">
       {/* Header Bar */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-gold/10 pb-10 relative">
+        <div className="absolute -bottom-px left-0 w-48 h-[2px] bg-gold shadow-[0_0_20px_rgba(255,215,0,0.6)]" />
         <div>
-          <div className="flex items-center space-x-2 text-gold/60 text-[10px] font-black uppercase tracking-[0.4em] mb-2">
-            <Radio className="size-3 animate-pulse" />
+          <div className="flex items-center space-x-3 text-gold/60 text-[10px] font-black uppercase tracking-[0.6em] mb-3">
+            <Radio className="size-3 animate-pulse text-gold" />
             <span>Encrypted Intelligence Stream</span>
           </div>
-          <h1 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">
+          <h1 className="text-6xl font-black text-white tracking-tighter uppercase leading-none">
             INTEL<span className="text-gold">·</span>HUB
           </h1>
         </div>
-        <div className="flex items-center space-x-8 bg-white/5 border border-white/10 px-6 py-3 rounded-2xl backdrop-blur-md">
+        <div className="flex items-center space-x-10 bg-black/60 border border-gold/10 px-8 py-5 rounded-2xl backdrop-blur-3xl shadow-[inset_0_0_20px_rgba(255,215,0,0.05)]">
           <div className="flex flex-col">
-            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">System Latency</span>
-            <span className="text-sm font-black text-white font-mono">14ms</span>
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">System Latency</span>
+            <div className="flex items-center space-x-2">
+              <div className="size-1.5 rounded-full bg-emerald-500" />
+              <span className="text-lg font-black text-white font-mono">14<span className="text-[10px] text-gray-500 ml-1">MS</span></span>
+            </div>
           </div>
-          <div className="h-8 w-[1px] bg-white/10" />
+          <div className="h-10 w-[1px] bg-gold/10" />
           <div className="flex flex-col items-end">
-            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Active nodes</span>
-            <span className="text-sm font-black text-gold font-mono">1,204</span>
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Active nodes</span>
+            <span className="text-lg font-black text-gold font-mono">1,204</span>
           </div>
         </div>
       </div>
@@ -125,9 +129,16 @@ const CommandCenter: React.FC = () => {
                 animate={{ opacity: 1 }}
                 className="space-y-6"
               >
-                <div className="p-4 rounded-2xl bg-black/60 border border-white/5 font-mono text-sm text-blue-100 leading-relaxed relative">
-                  <Terminal className="absolute top-4 right-4 text-white/5 size-12" />
-                  <span className="text-purple-500 mr-2 font-black">&gt;</span>
+                <div className="p-6 rounded-2xl bg-black/80 border border-gold/10 font-mono text-sm text-blue-100 leading-relaxed relative overflow-hidden group/term">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-gold/40" />
+                  <Terminal className="absolute top-4 right-4 text-white/5 size-16 group-hover/term:text-gold/5 transition-colors" />
+                  <div className="flex items-center space-x-2 mb-4 opacity-50">
+                    <div className="size-2 rounded-full bg-red-500/50" />
+                    <div className="size-2 rounded-full bg-yellow-500/50" />
+                    <div className="size-2 rounded-full bg-green-500/50" />
+                    <span className="text-[8px] font-bold ml-2 tracking-widest uppercase">INTEL_TERMINAL_v4.2</span>
+                  </div>
+                  <span className="text-gold mr-3 font-black animate-pulse">&gt;_</span>
                   {briefing.summary}
                 </div>
 
@@ -177,7 +188,7 @@ const CommandCenter: React.FC = () => {
         <div className="lg:col-span-3 space-y-8">
           <MempoolMonitor />
           
-          <HubCard title="Risk Vector Attribution" dataSource="AI_Engine_v4">
+          <HubCard title="Risk Vector Attribution" dataSource="AI_Engine_v4" dataSourceUrl="#">
             <div className="space-y-6">
               {[
                 { label: 'Structuring', score: 85, color: 'from-red-500 to-red-900', icon: <Cpu className="size-3" /> },

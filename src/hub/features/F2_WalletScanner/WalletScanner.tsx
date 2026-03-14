@@ -9,6 +9,7 @@ import { HubBadge } from '../../shared/HubBadge';
 import { Search, ShieldAlert, ShieldCheck, History, Wallet, Globe, Radar, Activity, Scale, Box } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ForensicGraph from './components/ForensicGraph';
+import { ExportButton } from '../../reports/components/ExportButton';
 
 const WalletScanner: React.FC = () => {
   const { wallet, setWallet, selectedChain } = useHubStore();
@@ -30,8 +31,8 @@ const WalletScanner: React.FC = () => {
 
       setScanResult({
         balances: balances || [],
-        sanctions,
-        history: (history.result || []).slice(0, 15),
+        sanctions: sanctions || { isSanctioned: false },
+        history: (history?.result || []).slice(0, 15),
         transfers: (transfers?.transfers || []).slice(0, 10),
         netWorth: netWorth?.total_net_worth_usd || 0
       });
@@ -45,33 +46,60 @@ const WalletScanner: React.FC = () => {
   return (
     <div className="space-y-10 max-w-7xl mx-auto pb-20">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-gold/10 pb-10 relative">
+        <div className="absolute -bottom-px left-0 w-32 h-[2px] bg-gold shadow-[0_0_15px_rgba(255,215,0,0.5)]" />
         <div>
-          <div className="flex items-center space-x-2 text-gold/60 text-[10px] font-black uppercase tracking-[0.4em] mb-2">
+          <div className="flex items-center space-x-3 text-gold/60 text-[10px] font-black uppercase tracking-[0.5em] mb-3">
+            <div className="size-1 rounded-full bg-gold animate-ping" />
             <Radar className="size-3" />
             <span>Multi-Chain Forensics & Attribution</span>
           </div>
-          <h1 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">
+          <h1 className="text-6xl font-black text-white tracking-tighter uppercase leading-none">
             WALLET<span className="text-gold">·</span>INTELLIGENCE
           </h1>
+          {scanResult && (
+            <div className="mt-4">
+              <ExportButton 
+                dossier={{
+                  entity: { address: inputAddr, chain: selectedChain, type: 'WALLET', tags: ['SCANNED_WALLET'], isDeterministic: false },
+                  financials: { netWorth: scanResult.netWorth, assets: scanResult.balances, history: scanResult.history },
+                  security: { 
+                    riskScore: scanResult.sanctions.isSanctioned ? 100 : 15, 
+                    riskLevel: scanResult.sanctions.isSanctioned ? 'Critical' : 'Low',
+                    isSanctioned: scanResult.sanctions.isSanctioned,
+                    maliciousFlags: [],
+                    riskAnalysis: null
+                  }
+                }} 
+              />
+            </div>
+          )}
         </div>
-        <div className="w-full md:w-[450px]">
+        <div className="w-full md:w-[500px]">
           <div className="relative group">
-            <input
-              type="text"
-              value={inputAddr}
-              onChange={(e) => setInputAddr(e.target.value)}
-              placeholder="Inject Address (EVM / BTC)..."
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-12 py-4 text-white outline-none focus:border-gold/30 focus:bg-white/[0.08] transition-all font-mono text-sm"
-            />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gold/50 size-5" />
-            <button
-              onClick={handleScan}
-              disabled={loading}
-              className="absolute right-2 top-2 bottom-2 bg-gold text-black px-6 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 disabled:opacity-50 transition-all shadow-lg active:scale-95"
-            >
-              {loading ? 'ANALYZING' : 'SCAN'}
-            </button>
+            <div className="absolute -inset-1 bg-gradient-to-r from-gold/20 to-transparent rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200" />
+            <div className="relative flex items-center">
+              <input
+                type="text"
+                value={inputAddr}
+                onChange={(e) => setInputAddr(e.target.value)}
+                placeholder="Inject Address (EVM / BTC)..."
+                className="w-full bg-black/60 border border-gold/20 rounded-2xl pl-14 pr-32 py-5 text-white outline-none focus:border-gold/50 focus:bg-black/80 transition-all font-mono text-sm backdrop-blur-xl"
+              />
+              <Search className="absolute left-5 text-gold/50 size-6" />
+              <button
+                onClick={handleScan}
+                disabled={loading}
+                className="absolute right-3 bg-gold text-black px-8 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-widest hover:bg-yellow-400 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(255,215,0,0.2)] active:scale-95 group-hover:shadow-[0_0_30px_rgba(255,215,0,0.4)]"
+              >
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <Activity className="size-3 animate-spin" />
+                    ANALYZING
+                  </span>
+                ) : 'SCAN_LINK'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -138,7 +166,7 @@ const WalletScanner: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               <div className="lg:col-span-8 space-y-8">
                 <ForensicGraph centerAddress={inputAddr} />
-                <HubCard title="Asset Portfolio Distribution" resourceId="F2_WALLET" dataSource="Moralis API">
+                <HubCard title="Asset Portfolio Distribution" resourceId="F2_WALLET" dataSource="Moralis API" dataSourceUrl="https://moralis.io">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {scanResult.balances.map((t: any, i: number) => (
                       <div key={i} className="group p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-white/20 transition-all flex items-center justify-between">
@@ -163,7 +191,7 @@ const WalletScanner: React.FC = () => {
 
               {/* Right Sidebar: Timeline & Signals */}
               <div className="lg:col-span-4 space-y-8">
-                <HubCard title="Behavioral Timeline" resourceId="F2_WALLET" dataSource="Alchemy Indexer">
+                <HubCard title="Behavioral Timeline" resourceId="F2_WALLET" dataSource="Alchemy Indexer" dataSourceUrl="https://www.alchemy.com">
                   <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                     {scanResult.history.map((tx: any, i: number) => (
                       <div key={i} className="relative pl-6 pb-6 last:pb-0 group">

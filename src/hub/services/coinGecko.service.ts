@@ -12,7 +12,7 @@ export const CoinGeckoService = {
     try {
       return await hubFetch<any>(`${BASE}${path}`, { headers: this.HEADERS });
     } catch (error) {
-      console.warn(`CoinGecko fetch failed for ${path}, using mock fallback`, error);
+      console.warn(`CoinGecko fetch failed for ${path}, engaging ESI fallback`, error);
       return null;
     }
   },

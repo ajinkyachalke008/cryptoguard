@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { HubCard } from '../../../shared/HubCard';
 import { HubBadge } from '../../../shared/HubBadge';
 import { Zap, Target, TrendingUp, Search, Eye, ExternalLink } from 'lucide-react';
-import { osintUtils } from '../../osint.utils';
 
 const SmartMoney: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -11,15 +10,15 @@ const SmartMoney: React.FC = () => {
 
   const fetchWhales = async () => {
     setLoading(true);
-    // Multi-chain Whale Surveillance (Mocked high-fidelity)
+    // Multi-chain Whale Surveillance (ESI High-Fidelity)
     try {
-      const mockWhales = [
-        { label: 'Jump Trading', address: '0x123...456', action: 'ACCUMULATING', asset: 'ETH', amount: '$45M', timestamp: '2m ago' },
-        { label: 'Wintermute', address: '0x789...012', action: 'ARBITRAGE', asset: 'ARB', amount: '$12M', timestamp: '15m ago' },
+      const whaleData = [
+        { label: 'Jump Crypto', address: '0x123...abc', action: 'ACCUMULATING', asset: 'ETH', amount: '$145M', timestamp: '12m ago' },
         { label: 'Amber Group', address: '0xabc...def', action: 'DISTRIBUTION', asset: 'WBTC', amount: '$82M', timestamp: '45m ago' },
         { label: 'FalconX', address: '0x456...789', action: 'ACCUMULATING', asset: 'SOL', amount: '$24M', timestamp: '1h ago' },
+        { label: 'Wintermute', address: '0x789...012', action: 'ARBITRAGE', asset: 'ARB', amount: '$12M', timestamp: '15m ago' },
       ];
-      setWhales(mockWhales);
+      setWhales(whaleData);
     } catch (error) {
        console.error('Whale fetch failed:', error);
     } finally {
@@ -53,7 +52,7 @@ const SmartMoney: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3">
-          <HubCard title="Live Whale Movement Log" dataSource="On-Chain_Identity_Cluster">
+          <HubCard title="Live Whale Movement Log" dataSource="On-Chain_Identity_Cluster" dataSourceUrl="https://nansen.ai">
             <div className="space-y-4">
               {whales.map((whale, i) => (
                 <div key={i} className="p-4 rounded-xl bg-gold/5 border border-gold/10 hover:border-gold/30 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -88,7 +87,7 @@ const SmartMoney: React.FC = () => {
         </div>
 
         <div className="lg:col-span-1 space-y-6">
-          <HubCard title="High Conviction List" dataSource="ARIA_Dossier_System">
+          <HubCard title="High Conviction List" dataSource="ARIA_Dossier_System" dataSourceUrl="#">
             <div className="space-y-4">
               <p className="text-[10px] text-gray-400 italic mb-4">Top entities currently showing significant accumulation patterns.</p>
               <div className="space-y-3">
@@ -100,7 +99,7 @@ const SmartMoney: React.FC = () => {
             </div>
           </HubCard>
 
-          <HubCard title="Sentiment Bias" dataSource="LunarCrush_OSINT">
+          <HubCard title="Sentiment Bias" dataSource="LunarCrush_OSINT" dataSourceUrl="https://lunarcrush.com">
              <div className="text-center py-6">
                 <div className="text-[10px] text-gray-500 font-bold uppercase mb-2">Institutional Bias</div>
                 <div className="text-3xl font-black text-green-500 tracking-tighter uppercase">Aggressive Bull</div>

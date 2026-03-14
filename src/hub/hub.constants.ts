@@ -14,6 +14,7 @@ export const HUB_ROUTES = {
   API_HEALTH: "/hub/api-health",
   RESOURCES:  "/hub/resources",
   CHAIN:      "/hub/chain",
+  INVESTIGATOR: "/hub/investigator",
 } as const;
 
 export const SUPPORTED_CHAINS: Record<ChainId, ChainConfig> = {

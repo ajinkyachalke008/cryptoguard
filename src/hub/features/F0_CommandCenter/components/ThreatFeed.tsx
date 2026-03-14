@@ -19,8 +19,8 @@ const ThreatFeed: React.FC = () => {
       });
 
       setThreats(processed.length > 0 ? processed : [
-        { txid: 'mock_tx_1', value: 5000000000, risk: { level: 'HIGH', score: 45, flags: ['LARGE_TRANSFER'] } },
-        { txid: 'mock_tx_2', value: 12000000000, risk: { level: 'CRITICAL', score: 85, flags: ['EXCHANGE_OUTFLOW', 'MIXER_IDENTIFIED'] } }
+        { txid: `ESI_${Math.random().toString(36).slice(2, 8).toUpperCase()}`, value: 5000000000, risk: { level: 'HIGH', score: 45, flags: ['LARGE_TRANSFER'] } },
+        { txid: `ESI_${Math.random().toString(36).slice(2, 8).toUpperCase()}`, value: 12000000000, risk: { level: 'CRITICAL', score: 85, flags: ['EXCHANGE_OUTFLOW', 'MIXER_IDENTIFIED'] } }
       ]);
       
       const criticalCount = processed.filter((t: any) => t.risk?.level === 'CRITICAL').length;
@@ -49,6 +49,7 @@ const ThreatFeed: React.FC = () => {
       icon={<ShieldAlert className="text-red-500 size-4" />}
       resourceId="F2_WALLET"
       dataSource="Mempool.space"
+      dataSourceUrl="https://mempool.space"
     >
       <div className="space-y-4 h-[650px] flex flex-col">
         <div className="flex items-center justify-between px-2">

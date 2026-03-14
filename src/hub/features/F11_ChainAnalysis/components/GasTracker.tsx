@@ -50,6 +50,7 @@ const GasTracker: React.FC = () => {
       icon={<Gauge className="text-gold size-4 animate-pulse" />}
       resourceId="F11_CHAIN"
       dataSource="Multi-Chain RPC Index"
+      dataSourceUrl="https://etherscan.io/gastracker"
       className="bg-black/60 border-gold/20 relative"
     >
       <div className="absolute top-4 right-4 flex items-center space-x-2">
