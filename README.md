@@ -248,6 +248,7 @@ These triggers produce an initial **risk score**.
 
 ## 4️⃣ Graph Intelligence Engine
 
+
 The graph engine builds transaction networks connecting wallets.
 
 Graph analysis helps detect:
