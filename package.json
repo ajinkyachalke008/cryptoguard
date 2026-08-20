@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "next dev --turbopack",
+        "dev": "next dev -H 0.0.0.0 -p 3000",
         "build": "next build",
         "start": "next start",
         "lint": "next lint"
@@ -121,7 +121,6 @@
         "@types/react-dom": "^19",
         "@types/react-syntax-highlighter": "^15.5.13",
         "@types/three": "^0.178.1",
-        "d3-force-3d": "^3.0.6",
         "eslint": "^9.35.0",
         "eslint-config-next": "^15.5.3",
         "gsap": "^3.14.2",

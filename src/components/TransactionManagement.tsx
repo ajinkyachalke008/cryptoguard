@@ -1,6 +1,5 @@
-"use client"
-
 import { useState, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import { useTransactions, Tx, TxStatus } from "@/hooks/useTransactions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -67,6 +66,7 @@ interface TransactionPattern {
 }
 
 export default function TransactionManagement() {
+  const router = useRouter()
   const { txs } = useTransactions()
   const [filter, setFilter] = useState<FilterStatus>("all")
   const [searchQuery, setSearchQuery] = useState("")
@@ -206,10 +206,19 @@ export default function TransactionManagement() {
     }
   }
 
-  const formatTime = (id: string) => {
-    const timestamp = parseInt(id.split("-")[0])
-    const date = new Date(timestamp)
-    return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+  const formatTime = (ts?: number | string) => {
+    try {
+      let num = typeof ts === "number" ? ts : Date.now()
+      if (typeof ts === "string") {
+        const parsed = parseInt(ts)
+        num = !isNaN(parsed) && parsed > 1600000000000 && parsed < 2500000000000 ? parsed : Date.now()
+      }
+      const date = new Date(num || Date.now())
+      if (isNaN(date.getTime())) return "12:00:00"
+      return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })
+    } catch {
+      return "12:00:00"
+    }
   }
 
   const stats = useMemo(() => {
@@ -250,15 +259,15 @@ export default function TransactionManagement() {
                 </div>
               </div>
               <div>
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-yellow-200 via-yellow-400 to-yellow-200 bg-clip-text text-transparent flex items-center gap-2">
+                <h2 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-yellow-200 via-yellow-400 to-yellow-200 bg-clip-text text-transparent flex items-center gap-3 drop-shadow-[0_0_12px_#ffd70044]">
                   Transaction Control Center
-                  <span className="flex items-center gap-1 px-2 py-0.5 text-xs font-normal bg-yellow-500/20 border border-yellow-500/40 rounded-full text-yellow-400">
-                    <Radio className="size-3 animate-pulse" /> LIVE
+                  <span className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-black bg-yellow-500/20 border border-yellow-500/50 rounded-full text-yellow-300 shadow-[0_0_10px_#ffd70033]">
+                    <Radio className="size-3 animate-pulse text-yellow-400" /> LIVE STREAM
                   </span>
                 </h2>
-                <p className="text-gray-400 text-sm mt-1 flex items-center gap-2">
-                  <Zap className="size-3 text-yellow-500" />
-                  AI-powered monitoring • Real-time threat analysis
+                <p className="text-gray-300 text-sm mt-1.5 flex items-center gap-2 font-medium">
+                  <Zap className="size-3.5 text-yellow-400" />
+                  AI-powered real-time mempool surveillance & threat isolation engine
                 </p>
               </div>
             </div>
@@ -354,53 +363,57 @@ export default function TransactionManagement() {
                   
                   <div className="relative flex flex-col lg:flex-row lg:items-center gap-4">
                     {/* Status Indicator */}
-                    <div className="flex items-center gap-3 min-w-[180px]">
-                      <div className={`relative p-2.5 rounded-lg ${getStatusBg(tx.status)} ${getStatusColor(tx.status)}`}>
+                    <div className="flex items-center gap-3 min-w-[170px] shrink-0">
+                      <div className={`relative p-2.5 rounded-lg ${getStatusBg(tx.status)} ${getStatusColor(tx.status)} shrink-0`}>
                         <div className={`absolute inset-0 rounded-lg animate-ping opacity-20 ${
                           tx.status === "fraud" ? "bg-rose-500" : tx.status === "risky" ? "bg-amber-500" : "bg-emerald-500"
                         }`} />
                         {getStatusIcon(tx.status)}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <Hash className="size-3 text-gray-600" />
-                          <span className="text-xs text-gray-500 font-mono tracking-wider">{tx.id}</span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <Hash className="size-3 text-yellow-500/60 shrink-0" />
+                          <span className="text-xs text-gray-400 font-mono truncate" title={tx.id}>
+                            {tx.id.length > 16 ? `${tx.id.slice(0, 8)}...${tx.id.slice(-6)}` : tx.id}
+                          </span>
                         </div>
-                        <div className={`text-sm font-bold ${getStatusColor(tx.status)} uppercase tracking-wider`}>
+                        <div className={`text-xs font-bold ${getStatusColor(tx.status)} uppercase tracking-wider`}>
                           {tx.status === "safe" ? "VERIFIED" : tx.status === "risky" ? "FLAGGED" : "THREAT"}
                         </div>
                       </div>
                     </div>
 
                     {/* Amount with glow */}
-                    <div className="flex items-center gap-2 min-w-[130px]">
-                      <DollarSign className="size-4 text-yellow-500" />
-                      <span className="text-white font-bold font-mono text-lg tracking-wider">
-                        {tx.amount.toLocaleString()}
+                    <div className="flex items-center gap-1.5 min-w-[130px] shrink-0 whitespace-nowrap">
+                      <DollarSign className="size-4 text-yellow-400 shrink-0" />
+                      <span className="text-yellow-300 font-black font-mono text-base tracking-wider drop-shadow-[0_0_8px_#ffd70044]">
+                        ${tx.amount.toLocaleString()}
                       </span>
                     </div>
 
                     {/* Route Visualization */}
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/30">
-                        <MapPin className="size-3 text-blue-400" />
-                        <span className="text-blue-300 text-sm font-mono">{tx.from}</span>
+                    <div className="flex items-center gap-2 flex-1 min-w-0 flex-wrap sm:flex-nowrap">
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/15 border border-blue-500/40 shrink-0">
+                        <MapPin className="size-3 text-blue-400 shrink-0" />
+                        <span className="text-blue-200 text-xs font-bold font-mono truncate max-w-[110px]">{tx.from}</span>
                       </div>
-                      <div className="flex items-center">
-                        <div className="w-8 h-px bg-gradient-to-r from-blue-500 to-yellow-500" />
-                        <ArrowRight className="size-4 text-yellow-500 -mx-1" />
-                        <div className="w-8 h-px bg-gradient-to-r from-yellow-500 to-purple-500" />
+                      <div className="flex items-center shrink-0">
+                        <div className="w-4 sm:w-6 h-px bg-gradient-to-r from-blue-500 to-yellow-500" />
+                        <ArrowRight className="size-3.5 text-yellow-400 -mx-0.5 shrink-0" />
+                        <div className="w-4 sm:w-6 h-px bg-gradient-to-r from-yellow-500 to-purple-500" />
                       </div>
-                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/30">
-                        <MapPin className="size-3 text-purple-400" />
-                        <span className="text-purple-300 text-sm font-mono">{tx.to}</span>
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/15 border border-purple-500/40 shrink-0">
+                        <MapPin className="size-3 text-purple-400 shrink-0" />
+                        <span className="text-purple-200 text-xs font-bold font-mono truncate max-w-[110px]">{tx.to}</span>
                       </div>
                     </div>
 
-                    {/* Timestamp */}
-                    <div className="flex items-center gap-2 min-w-[110px]">
-                      <Clock className="size-4 text-gray-600" />
-                      <span className="text-gray-400 text-sm font-mono">{formatTime(tx.id)}</span>
+                    {/* Bold Timestamp */}
+                    <div className="flex items-center gap-1.5 min-w-[130px] px-2.5 py-1 rounded-lg bg-black/70 border border-yellow-500/25">
+                      <Clock className="size-3.5 text-yellow-400 shrink-0" />
+                      <span className="text-yellow-300 text-xs sm:text-sm font-black font-mono tracking-tight drop-shadow-[0_0_6px_#ffd70044]">
+                        {formatTime(tx.timestamp || Date.now())}
+                      </span>
                     </div>
 
                     {/* Frozen Badge */}
@@ -412,6 +425,15 @@ export default function TransactionManagement() {
 
                     {/* Action Buttons */}
                     <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => router.push(`/graph?address=${tx.id}`)}
+                        className="border-yellow-500/40 text-yellow-400 hover:bg-yellow-500/20 hover:border-yellow-500/60 hover:text-yellow-300 transition-all font-mono text-xs"
+                      >
+                        <Network className="size-4 mr-1" />
+                        GRAPH
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"

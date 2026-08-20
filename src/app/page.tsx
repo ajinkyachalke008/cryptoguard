@@ -18,7 +18,7 @@ import SecurityFeatures from "@/components/SecurityFeatures"
 import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Sparkles, Zap, Download, Monitor, Smartphone, Chrome, ArrowRight, Shield, CheckCircle2, Store, AlertTriangle, Network, TrendingUp, Fingerprint, Target, Globe } from "lucide-react"
+import { Sparkles, Zap, Download, Monitor, Smartphone, Chrome, ArrowRight, Shield, CheckCircle2, Store, AlertTriangle, Network, TrendingUp, Fingerprint, Target, Globe, Wallet } from "lucide-react"
 import { LiveDemoModal } from "@/components/LiveDemoModal"
 import { TypeWriter } from "@/components/TypeWriter"
 import { FloatingStats } from "@/components/FloatingStats"
@@ -40,6 +40,8 @@ const GlobeDemo = dynamic(() => import("@/components/GlobeDemo"), {
 export default function Home() {
   const [demoOpen, setDemoOpen] = useState(false)
   const [downloading, setDownloading] = useState<string | null>(null)
+  const [heroAddress, setHeroAddress] = useState("")
+  const [heroChain, setHeroChain] = useState("ethereum")
   const router = useRouter()
 
   const handleDownload = async (platform: string, e: React.MouseEvent) => {
@@ -220,18 +222,99 @@ Community: https://community.cryptoguard.com
             </Button>
             <Button
               variant="outline"
+              onClick={() => router.push("/graph")}
+              className="w-full sm:w-auto h-10 sm:h-11 rounded-full border-yellow-500/50 bg-black/40 px-5 sm:px-6 text-sm sm:text-base text-yellow-300 font-bold shadow-[0_0_24px_rgba(255,215,0,0.2)] transition-transform active:scale-95 hover:scale-[1.03] hover:text-white hover:border-yellow-400 hover:bg-yellow-500/20"
+            >
+              <Network className="size-4 mr-2 text-yellow-400" /> Forensic Graph Explorer
+            </Button>
+            <Button
+              variant="outline"
               onClick={() => router.push("/hub")}
               className="w-full sm:w-auto h-10 sm:h-11 rounded-full border-gold/40 bg-black/40 px-5 sm:px-6 text-sm sm:text-base text-gold font-bold shadow-[0_0_24px_rgba(255,215,0,0.2)] transition-transform active:scale-95 hover:scale-[1.03] hover:text-white hover:border-gold hover:bg-gold/20"
             >
               <Globe className="size-4 mr-2" /> View Intel Hub
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => router.push("/dashboard")}
-              className="w-full sm:w-auto h-10 sm:h-11 rounded-full border-yellow-500/70 bg-black/40 px-5 sm:px-6 text-sm sm:text-base text-yellow-300 font-semibold shadow-[0_0_24px_#ffd70040] transition-transform active:scale-95 hover:scale-[1.03] hover:text-yellow-200 hover:border-yellow-400 hover:bg-black/60"
-            >
-              View Dashboard
-            </Button>
+          </div>
+
+          {/* ⚡ HERO INSTANT WALLET & FRAUD SCANNER BAR */}
+          <div className="mt-8 mx-auto max-w-3xl px-2">
+            <div className="p-3 sm:p-4 rounded-2xl border border-yellow-500/40 bg-black/80 backdrop-blur-xl shadow-[0_0_50px_rgba(255,215,0,0.2)]">
+              <div className="flex flex-col sm:flex-row items-center gap-2">
+                <div className="relative flex-1 w-full">
+                  <Wallet className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-400/80" />
+                  <input
+                    type="text"
+                    value={heroAddress}
+                    onChange={(e) => setHeroAddress(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        const addr = heroAddress.trim() || "0x742d35Cc6634C0532925a3b844Bc9e7595f2bd3e"
+                        router.push(`/scanner?address=${encodeURIComponent(addr)}&chain=${heroChain}`)
+                      }
+                    }}
+                    placeholder="Enter any wallet address, tx hash, or ENS (e.g. 0x742d35...)"
+                    className="w-full h-11 pl-10 pr-4 rounded-xl bg-black/60 border border-white/15 text-xs sm:text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-all font-mono"
+                  />
+                </div>
+                <select
+                  value={heroChain}
+                  onChange={(e) => setHeroChain(e.target.value)}
+                  className="h-11 px-3 rounded-xl bg-black/60 border border-white/15 text-xs text-yellow-300 font-medium focus:outline-none focus:border-yellow-500"
+                >
+                  <option value="ethereum">Ethereum (ETH)</option>
+                  <option value="bitcoin">Bitcoin (BTC)</option>
+                  <option value="solana">Solana (SOL)</option>
+                  <option value="bsc">BNB Chain (BSC)</option>
+                  <option value="arbitrum">Arbitrum (ARB)</option>
+                  <option value="polygon">Polygon (MATIC)</option>
+                </select>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Button
+                    onClick={() => {
+                      const addr = heroAddress.trim() || "0x742d35Cc6634C0532925a3b844Bc9e7595f2bd3e"
+                      router.push(`/scanner?address=${encodeURIComponent(addr)}&chain=${heroChain}`)
+                    }}
+                    className="flex-1 sm:flex-none h-11 px-5 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-black font-bold text-xs shadow-[0_0_15px_#ffd70066]"
+                  >
+                    <Zap className="w-3.5 h-3.5 mr-1.5" />
+                    Scan
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const addr = heroAddress.trim() || "0x742d35Cc6634C0532925a3b844Bc9e7595f2bd3e"
+                      router.push(`/graph?address=${encodeURIComponent(addr)}`)
+                    }}
+                    variant="outline"
+                    className="flex-1 sm:flex-none h-11 px-4 rounded-xl border-yellow-500/40 text-yellow-300 hover:bg-yellow-500/20 text-xs font-bold"
+                  >
+                    <Network className="w-3.5 h-3.5 mr-1.5" />
+                    Graph
+                  </Button>
+                </div>
+              </div>
+
+              {/* Quick Scenario Chips */}
+              <div className="mt-3 pt-2.5 border-t border-white/10 flex flex-wrap items-center gap-1.5 justify-center sm:justify-start text-[11px]">
+                <span className="text-gray-400 font-mono">Quick Scenarios:</span>
+                {[
+                  { label: "🌪️ Tornado Cash", addr: "0x742d35Cc6634C0532925a3b844Bc9e7595f2bd3e" },
+                  { label: "🛑 Permit2 Drainer", addr: "0xdac17f958d2ee523a2206206994597c13d831ec7" },
+                  { label: "💀 Lazarus APT", addr: "0x098B716B8Aaf21512996dC57EB0615e2383E2f96" },
+                  { label: "🛡️ Institutional Vault", addr: "0x8ba1f109551bD432803012645Ac136ddd64DBA72" }
+                ].map((chip) => (
+                  <button
+                    key={chip.label}
+                    onClick={() => {
+                      setHeroAddress(chip.addr)
+                      router.push(`/scanner?address=${encodeURIComponent(chip.addr)}&chain=${heroChain}`)
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-gray-300 hover:text-yellow-300 hover:border-yellow-500/40 hover:bg-yellow-500/10 transition-all font-mono"
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Floating Stats */}
@@ -296,25 +379,24 @@ Community: https://community.cryptoguard.com
         {/* Detailed Feature Explanation Section */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-16">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold bg-[linear-gradient(180deg,#fff7cc_0%,#ffd700_50%,#b58100_100%)] bg-clip-text text-transparent mb-4">
-              Platform Features
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight bg-[linear-gradient(180deg,#fff7cc_0%,#ffd700_50%,#b58100_100%)] bg-clip-text text-transparent mb-4 drop-shadow-[0_0_20px_#ffd70044]">
+              Institutional Platform Features
             </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
-              Comprehensive tools for crypto fraud detection, risk assessment, and compliance
+            <p className="text-gray-300 font-medium max-w-2xl mx-auto text-sm sm:text-base">
+              Comprehensive enterprise toolset for blockchain forensics, multi-chain risk assessment, and regulatory AML compliance.
             </p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {/* Wallet Scanner */}
-            <Card className="border-yellow-500/40 bg-black/60 backdrop-blur-sm hover:shadow-[0_0_40px_#ffd70033] transition-all">
+            <Card className="border-2 border-yellow-500/40 bg-black/80 backdrop-blur-md hover:shadow-[0_0_40px_#ffd70033] transition-all">
               <CardContent className="pt-6">
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30 flex items-center justify-center mb-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/40 flex items-center justify-center mb-4 shadow-[0_0_15px_#38bdf833]">
                   <Shield className="w-6 h-6 text-blue-400" />
                 </div>
-                <h3 className="text-xl font-semibold text-yellow-300 mb-2">Wallet Scanner</h3>
-                <p className="text-sm text-gray-400 mb-4">
-                  Comprehensive multi-chain risk assessment with sanctions screening, PEP checks, and AI-powered analysis. 
-                  Get detailed compliance reports for regulatory requirements.
+                <h3 className="text-xl font-bold text-yellow-300 mb-2">Multi-Chain Wallet Scanner</h3>
+                <p className="text-sm text-gray-300 mb-4 leading-relaxed">
+                  Comprehensive multi-chain risk assessment with OFAC sanctions screening, PEP checks, and AI forensic analysis.
                 </p>
                 <ul className="space-y-2 text-xs text-gray-500 mb-4">
                   <li className="flex items-center gap-2">

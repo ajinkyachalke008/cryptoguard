@@ -1,4 +1,4 @@
-import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, integer, text, index } from 'drizzle-orm/sqlite-core';
 
 // Users table
 export const users = sqliteTable('users', {
@@ -18,7 +18,7 @@ export const users = sqliteTable('users', {
   updatedAt: text('updated_at').notNull(),
 });
 
-// Wallet scans table - renamed fields to match new schema
+// Wallet scans table - with performance indexes
 export const walletScans = sqliteTable('wallet_scans', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   userId: integer('user_id').references(() => users.id),
@@ -31,9 +31,13 @@ export const walletScans = sqliteTable('wallet_scans', {
   aiExplanation: text('ai_explanation'),
   ruleBasedFlags: text('rule_based_flags', { mode: 'json' }),
   createdAt: text('created_at').notNull(),
-});
+}, (table) => ({
+  walletAddressIdx: index('wallet_scans_wallet_address_idx').on(table.walletAddress),
+  chainIdx: index('wallet_scans_chain_idx').on(table.chain),
+  createdAtIdx: index('wallet_scans_created_at_idx').on(table.createdAt),
+}));
 
-// Transaction scans table
+// Transaction scans table - with performance indexes
 export const transactionScans = sqliteTable('transaction_scans', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   userId: integer('user_id').references(() => users.id),
@@ -46,7 +50,11 @@ export const transactionScans = sqliteTable('transaction_scans', {
   aiExplanation: text('ai_explanation'),
   ruleBasedFlags: text('rule_based_flags', { mode: 'json' }),
   createdAt: text('created_at').notNull(),
-});
+}, (table) => ({
+  txHashIdx: index('transaction_scans_tx_hash_idx').on(table.txHash),
+  chainIdx: index('transaction_scans_chain_idx').on(table.chain),
+  createdAtIdx: index('transaction_scans_created_at_idx').on(table.createdAt),
+}));
 
 // Scan logs table
 export const scanLogs = sqliteTable('scan_logs', {

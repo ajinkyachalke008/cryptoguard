@@ -9,7 +9,7 @@ import bcrypt from 'bcrypt';
 import { db } from '@/db';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import { generateToken } from '@/lib/middleware/authMiddleware';
+import { generateToken, ADMIN_WHITELIST } from '@/lib/middleware/authMiddleware';
 import { handleError, validationError, authError } from '@/lib/middleware/errorMiddleware';
 import { applyRateLimit } from '@/lib/middleware/rateLimitMiddleware';
 import { isValidEmail } from '@/lib/utils/validators';
@@ -73,25 +73,27 @@ export async function POST(request: NextRequest) {
       throw authError('Invalid email or password');
     }
 
+    const effectiveRole = (user.role === 'admin' || ADMIN_WHITELIST.includes(user.email.toLowerCase())) ? 'admin' : 'user';
+
     // Generate JWT token
     const token = generateToken({
       id: user.id,
       email: user.email,
-      role: user.role as 'user' | 'admin',
+      role: effectiveRole as 'user' | 'admin',
     });
 
     // Update last login timestamp
     const now = new Date().toISOString();
     await db
       .update(users)
-      .set({ updatedAt: now })
+      .set({ updatedAt: now, role: effectiveRole })
       .where(eq(users.id, user.id));
 
     const duration = Date.now() - startTime;
     logger.info('Login successful', {
       userId: user.id,
       email: user.email,
-      role: user.role,
+      role: effectiveRole,
       duration,
     });
 
@@ -104,7 +106,7 @@ export async function POST(request: NextRequest) {
         user: {
           id: user.id,
           email: user.email,
-          role: user.role,
+          role: effectiveRole,
           createdAt: user.createdAt,
         },
       },

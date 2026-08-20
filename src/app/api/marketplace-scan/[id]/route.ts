@@ -3,10 +3,14 @@ import { db } from '@/db';
 import { marketplaceScans } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
+    const params = await context.params;
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
+    const id = params?.id || searchParams.get('id');
 
     if (!id || isNaN(parseInt(id))) {
       return NextResponse.json(

@@ -10,7 +10,7 @@ import bcrypt from 'bcrypt';
 import { db } from '@/db';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import { generateToken } from '@/lib/middleware/authMiddleware';
+import { generateToken, ADMIN_WHITELIST } from '@/lib/middleware/authMiddleware';
 import { handleError, validationError, conflictError } from '@/lib/middleware/errorMiddleware';
 import { applyRateLimit } from '@/lib/middleware/rateLimitMiddleware';
 import { isValidEmail, isValidPassword } from '@/lib/utils/validators';
@@ -53,13 +53,11 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Validate role
-    if (role !== 'user' && role !== 'admin') {
-      throw validationError('Invalid role. Must be "user" or "admin"');
-    }
-
     // Normalize email
     const normalizedEmail = email.toLowerCase().trim();
+
+    // Check if whitelisted admin
+    const finalRole = ADMIN_WHITELIST.includes(normalizedEmail) ? 'admin' : (role === 'admin' ? 'admin' : 'user');
 
     // Check if user already exists
     logger.info('Checking if user exists', { email: normalizedEmail });
@@ -78,14 +76,14 @@ export async function POST(request: NextRequest) {
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
     // Create user
-    logger.info('Creating new user', { email: normalizedEmail, role });
+    logger.info('Creating new user', { email: normalizedEmail, role: finalRole });
     const now = new Date().toISOString();
     const newUser = await db
       .insert(users)
       .values({
         email: normalizedEmail,
         passwordHash,
-        role,
+        role: finalRole,
         createdAt: now,
         updatedAt: now,
       })

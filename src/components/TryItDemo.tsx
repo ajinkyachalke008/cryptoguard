@@ -1,24 +1,28 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, AlertTriangle, CheckCircle, XCircle, ArrowRight, Loader2, TrendingUp, Clock, Link2 } from "lucide-react"
+import { Search, AlertTriangle, CheckCircle, XCircle, ArrowRight, Loader2, TrendingUp, Clock, Link2, ShieldAlert, Sparkles, Activity } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
+import { resolveForensicEntity, RiskLevel } from "@/lib/services/forensicEngine"
 
 const sampleWallets = [
-  { address: "0x742d35Cc6634C0532925a3b844Bc9e7595f2bd3e", label: "Known Fraud Wallet", risk: "high" },
-  { address: "0x8ba1f109551bD432803012645Ac136ddd64DBA72", label: "Exchange Hot Wallet", risk: "low" },
-  { address: "0x3f5CE5FBFe3E9af3971dD833D26BA9b5C936f0bE", label: "Suspicious Activity", risk: "medium" },
+  { address: "0x742d35Cc6634C0532925a3b844Bc9e7595f2bd3e", label: "🚨 Known Fraud / Mixer", risk: "high" },
+  { address: "0x8ba1f109551bD432803012645Ac136ddd64DBA72", label: "🛡️ Exchange Hot Wallet", risk: "low" },
+  { address: "0x3f5CE5FBFe3E9af3971dD833D26BA9b5C936f0bE", label: "⚠️ High Velocity DEX", risk: "medium" },
 ]
 
 interface ScanResult {
   address: string
   riskScore: number
-  riskLevel: "low" | "medium" | "high" | "critical"
+  riskLevel: RiskLevel
   transactionCount: number
   totalVolume: string
   riskyConnections: number
   lastSeen: string
+  fraudPattern: string
+  chain: string
+  country: string
 }
 
 export function TryItDemo() {
@@ -27,34 +31,37 @@ export function TryItDemo() {
   const [result, setResult] = useState<ScanResult | null>(null)
   const router = useRouter()
 
-  const handleScan = async () => {
-    if (!address.trim()) return
+  const handleScan = async (targetAddr?: string) => {
+    const addrToScan = (targetAddr || address).trim()
+    if (!addrToScan) return
     
+    setAddress(addrToScan)
     setIsScanning(true)
     setResult(null)
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 300))
     
-    // Generate mock result based on address
-    const hash = address.split("").reduce((a, b) => a + b.charCodeAt(0), 0)
-    const riskScore = (hash % 100)
+    const forensic = resolveForensicEntity(addrToScan, "ethereum")
     
     setResult({
-      address: address,
-      riskScore,
-      riskLevel: riskScore > 75 ? "critical" : riskScore > 50 ? "high" : riskScore > 25 ? "medium" : "low",
-      transactionCount: Math.floor(hash % 10000) + 100,
-      totalVolume: `$${((hash % 1000) * 1000 + 50000).toLocaleString()}`,
-      riskyConnections: Math.floor(riskScore / 10),
-      lastSeen: "2 hours ago",
+      address: forensic.fromAddress,
+      riskScore: forensic.riskScore,
+      riskLevel: forensic.riskLevel,
+      transactionCount: Math.floor(forensic.amountUSD / 35) + 42,
+      totalVolume: `$${forensic.amountUSD.toLocaleString()}`,
+      riskyConnections: forensic.riskScore > 60 ? Math.floor(forensic.riskScore / 12) + 2 : 0,
+      lastSeen: "Just now",
+      fraudPattern: forensic.fraudPattern,
+      chain: forensic.chain.toUpperCase(),
+      country: `${forensic.fromCountry.name} (${forensic.fromCountry.code})`
     })
     
     setIsScanning(false)
   }
 
-  const getRiskColor = (level: string) => {
-    switch (level) {
+  const getRiskColor = (level?: string) => {
+    const norm = (level || "").toLowerCase()
+    switch (norm) {
       case "low": return "text-green-400 bg-green-500/20 border-green-500/50"
       case "medium": return "text-orange-400 bg-orange-500/20 border-orange-500/50"
       case "high": return "text-red-400 bg-red-500/20 border-red-500/50"
@@ -63,13 +70,14 @@ export function TryItDemo() {
     }
   }
 
-  const getRiskIcon = (level: string) => {
-    switch (level) {
+  const getRiskIcon = (level?: string) => {
+    const norm = (level || "").toLowerCase()
+    switch (norm) {
       case "low": return <CheckCircle className="size-5" />
       case "medium": return <AlertTriangle className="size-5" />
       case "high": 
       case "critical": return <XCircle className="size-5" />
-      default: return null
+      default: return <CheckCircle className="size-5" />
     }
   }
 
@@ -104,7 +112,7 @@ export function TryItDemo() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-gray-500" />
             </div>
             <Button
-              onClick={handleScan}
+              onClick={() => handleScan()}
               disabled={isScanning || !address.trim()}
               className="rounded-xl bg-yellow-500 px-6 text-black font-semibold hover:bg-yellow-400 disabled:opacity-50 shadow-[0_0_20px_#ffd70066] transition-all"
             >
@@ -120,18 +128,21 @@ export function TryItDemo() {
           </div>
 
           {/* Sample Wallets */}
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="text-xs text-gray-500">Try sample:</span>
+          <div className="mt-4 flex flex-wrap items-center gap-2 pt-3 border-t border-yellow-500/15">
+            <span className="text-xs text-gray-400 font-medium">Try sample:</span>
             {sampleWallets.map((wallet, idx) => (
               <button
                 key={idx}
-                onClick={() => setAddress(wallet.address)}
-                className={`text-xs px-2 py-1 rounded-md border transition-all ${
+                onClick={() => {
+                  setAddress(wallet.address)
+                  handleScan(wallet.address)
+                }}
+                className={`text-xs px-2.5 py-1 rounded-full border transition-all hover:scale-[1.02] ${
                   wallet.risk === "high" 
-                    ? "border-red-500/30 text-red-400 hover:bg-red-500/10" 
+                    ? "border-red-500/40 text-red-300 bg-red-500/10 hover:bg-red-500/20" 
                     : wallet.risk === "medium"
-                    ? "border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
-                    : "border-green-500/30 text-green-400 hover:bg-green-500/10"
+                    ? "border-orange-500/40 text-orange-300 bg-orange-500/10 hover:bg-orange-500/20" 
+                    : "border-green-500/40 text-green-300 bg-green-500/10 hover:bg-green-500/20"
                 }`}
               >
                 {wallet.label}
@@ -161,10 +172,14 @@ export function TryItDemo() {
         {/* Result */}
         {result && !isScanning && (
           <div className="mt-6 rounded-2xl border border-yellow-500/40 bg-black/60 p-6 backdrop-blur-sm shadow-[0_0_40px_#ffd70022] animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex items-start justify-between gap-4 mb-6">
+            <div className="flex items-start justify-between gap-4 mb-4">
               <div>
-                <p className="text-xs text-gray-500 mb-1">Wallet Address</p>
+                <p className="text-xs text-gray-500 mb-1">Wallet Address ({result.chain})</p>
                 <p className="text-sm text-gray-300 font-mono break-all">{result.address}</p>
+                <p className="text-xs text-yellow-500/80 mt-1 flex items-center gap-1">
+                  <Activity className="size-3" />
+                  Origin: {result.country} • {result.fraudPattern}
+                </p>
               </div>
               <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${getRiskColor(result.riskLevel)}`}>
                 {getRiskIcon(result.riskLevel)}
@@ -186,7 +201,7 @@ export function TryItDemo() {
                     result.riskScore > 25 ? "bg-gradient-to-r from-yellow-500 to-orange-500" :
                     "bg-gradient-to-r from-green-500 to-yellow-500"
                   }`}
-                  style={{ width: `${result.riskScore}%` }}
+                  style={{ width: `${Math.min(100, Math.max(0, result.riskScore))}%` }}
                 />
               </div>
             </div>

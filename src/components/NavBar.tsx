@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Mic, Sparkles, Sun, Moon, Menu, X, LogOut, User, Globe } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -173,19 +174,21 @@ const toolItems = [
                 const Icon = item.icon
                 return (
                   <DropdownMenuItem
+                    asChild
                     key={item.href}
-                    onClick={() => router.push(item.href)}
                     className={`cursor-pointer ${
                       isPathActive(item.href)
                         ? "bg-yellow-500/20 text-yellow-300"
                         : "text-gray-300 hover:text-yellow-300 hover:bg-yellow-500/10"
                     }`}
                   >
-                    <Icon className="size-4 mr-2 text-yellow-500" />
-                    <div>
-                      <div className="font-medium">{item.label}</div>
-                      <div className="text-xs text-gray-500">{item.description}</div>
-                    </div>
+                    <Link href={item.href} className="flex items-center w-full px-2 py-1.5">
+                      <Icon className="size-4 mr-2 text-yellow-500 shrink-0" />
+                      <div>
+                        <div className="font-medium text-sm">{item.label}</div>
+                        <div className="text-xs text-gray-500">{item.description}</div>
+                      </div>
+                    </Link>
                   </DropdownMenuItem>
                 )
               })}

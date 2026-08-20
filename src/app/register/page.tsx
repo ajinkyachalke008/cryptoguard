@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/contexts/AuthContext"
 import { Shield, Loader2, ArrowLeft } from "lucide-react"
+import { toast } from "sonner"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -26,7 +27,8 @@ export default function RegisterPage() {
     e.preventDefault()
     
     if (formData.password !== formData.confirmPassword) {
-      return // Error will be shown by validation
+      toast.error('Passwords do not match')
+      return
     }
 
     setLoading(true)
@@ -117,10 +119,10 @@ export default function RegisterPage() {
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
-                minLength={8}
+                minLength={6}
                 className="bg-black/40 border-yellow-500/30 focus:border-yellow-500/60"
               />
-              <p className="text-xs text-gray-500">Minimum 8 characters</p>
+              <p className="text-xs text-gray-500">Minimum 6 characters</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword" className="text-gray-300">Confirm Password</Label>
@@ -131,7 +133,7 @@ export default function RegisterPage() {
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 required
-                minLength={8}
+                minLength={6}
                 className="bg-black/40 border-yellow-500/30 focus:border-yellow-500/60"
               />
               {formData.confirmPassword && formData.password !== formData.confirmPassword && (

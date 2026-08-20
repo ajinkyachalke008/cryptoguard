@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useState } from "react"
 import { useAuth } from "@/contexts/AuthContext"
+import { toast } from "sonner"
 
 export function RegistrationModal({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const { register } = useAuth()
@@ -22,6 +23,7 @@ export function RegistrationModal({ open, onOpenChange }: { open: boolean; onOpe
     e.preventDefault()
     
     if (formData.password !== formData.confirmPassword) {
+      toast.error('Passwords do not match')
       return
     }
 
@@ -95,10 +97,10 @@ export function RegistrationModal({ open, onOpenChange }: { open: boolean; onOpe
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required 
               placeholder="••••••••"
-              minLength={8}
+              minLength={6}
               className="bg-black/40 border-yellow-500/30 focus:border-yellow-500/60" 
             />
-            <p className="text-xs text-gray-500">Minimum 8 characters</p>
+            <p className="text-xs text-gray-500">Minimum 6 characters</p>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="confirmPw" className="text-gray-300">Confirm Password</Label>
@@ -110,7 +112,7 @@ export function RegistrationModal({ open, onOpenChange }: { open: boolean; onOpe
               onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
               required 
               placeholder="••••••••"
-              minLength={8}
+              minLength={6}
               className="bg-black/40 border-yellow-500/30 focus:border-yellow-500/60" 
             />
             {formData.confirmPassword && formData.password !== formData.confirmPassword && (

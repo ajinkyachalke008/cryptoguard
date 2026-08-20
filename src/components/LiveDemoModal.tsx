@@ -5,7 +5,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Play, Pause, RotateCcw, Zap, Shield, AlertTriangle, TrendingUp } from "lucide-react"
-import GlobeDemo from "@/components/GlobeDemo"
+import dynamic from "next/dynamic"
+
+const GlobeDemo = dynamic(() => import("@/components/GlobeDemo"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[450px] w-full rounded-xl bg-black/40 backdrop-blur-sm border border-yellow-500/30 flex items-center justify-center">
+      <div className="w-12 h-12 rounded-full border-4 border-yellow-500/30 border-t-yellow-500 animate-spin" />
+    </div>
+  ),
+})
 
 interface Transaction {
   id: string

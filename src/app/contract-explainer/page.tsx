@@ -214,12 +214,15 @@ export default function ContractExplainerPage() {
   const [expandedClauses, setExpandedClauses] = useState<Set<string>>(new Set(["1"]))
   const [viewMode, setViewMode] = useState<"beginner" | "developer" | "investor">("beginner")
 
-  const handleScan = () => {
+  const handleScan = (targetAddr?: string) => {
+    if (targetAddr) {
+      setAddress(targetAddr)
+    }
     setIsScanning(true)
     setTimeout(() => {
       setIsScanning(false)
       setShowResults(true)
-    }, 2500)
+    }, 250)
   }
 
   const toggleClause = (id: string) => {
@@ -237,6 +240,12 @@ export default function ContractExplainerPage() {
   const criticalCount = mockClauses.filter(c => c.risk === "critical").length
   const dangerCount = mockClauses.filter(c => c.risk === "danger").length
   const safeCount = mockClauses.filter(c => c.risk === "safe").length
+
+  const sampleContracts = [
+    { label: "🚨 Unlimited Mint Backdoor", value: "0xdac17f958d2ee523a2206206994597c13d831ec7" },
+    { label: "🔒 Timelocked Vault", value: "0x742d35Cc6634C0532925a3b844Bc9e7595f2bd3e" },
+    { label: "🛡️ Renounced Ownable ERC-20", value: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984" }
+  ]
 
   return (
     <div className="min-h-screen bg-[#05060a] text-white">
@@ -261,14 +270,15 @@ export default function ContractExplainerPage() {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                 <Input
-                  placeholder="Enter smart contract address..."
+                  placeholder="Enter smart contract address (0x...)..."
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleScan()}
                   className="pl-10 bg-black/40 border-yellow-500/30 text-white placeholder:text-gray-500"
                 />
               </div>
               <Button 
-                onClick={handleScan}
+                onClick={() => handleScan()}
                 disabled={isScanning}
                 className="bg-emerald-500 hover:bg-emerald-400 text-black font-semibold"
               >
@@ -284,6 +294,20 @@ export default function ContractExplainerPage() {
                   </>
                 )}
               </Button>
+            </div>
+
+            {/* Quick Presets */}
+            <div className="mt-4 flex flex-wrap items-center gap-2 pt-3 border-t border-emerald-500/15">
+              <span className="text-xs text-gray-400 font-mono">Sample Contracts:</span>
+              {sampleContracts.map((sc, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleScan(sc.value)}
+                  className="text-xs px-2.5 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 transition-all font-mono hover:scale-[1.02]"
+                >
+                  {sc.label}
+                </button>
+              ))}
             </div>
           </CardContent>
         </Card>

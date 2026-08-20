@@ -1,22 +1,23 @@
-// Minimal Service Worker for PWA Installability
-const CACHE_NAME = 'cryptoguard-v1';
-const ASSETS_TO_CACHE = [
-  '/',
-  '/manifest.json'
-];
+// CryptoGuard Service Worker
+const CACHE_NAME = 'cryptoguard-v2';
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((name) => caches.delete(name))
+      );
+    }).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', (event) => {
+  // Network first strategy - always fetch fresh content from server
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
+    fetch(event.request).catch(() => caches.match(event.request))
   );
 });

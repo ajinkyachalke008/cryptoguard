@@ -322,50 +322,50 @@ export default function TransactionCenter() {
                   <tbody>
                     {filteredTransactions.map((tx) => (
                       <tr key={tx.id} className="border-b border-yellow-500/10 hover:bg-yellow-500/5 transition-colors">
-                        <td className="py-4 pr-4">
-                          <div className="font-mono text-xs text-gray-300">
-                            {tx.hash.slice(0, 10)}...{tx.hash.slice(-8)}
+                        <td className="py-3.5 pr-4 whitespace-nowrap">
+                          <code className="font-mono text-xs text-yellow-300/90 bg-black/50 px-2 py-1 rounded border border-yellow-500/20">
+                            {tx.hash.slice(0, 8)}...{tx.hash.slice(-6)}
+                          </code>
+                        </td>
+                        <td className="py-3.5 pr-4 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5">
+                            {tx.type === "send" && <ArrowUpRight className="w-3.5 h-3.5 text-red-400" />}
+                            {tx.type === "receive" && <ArrowDownLeft className="w-3.5 h-3.5 text-green-400" />}
+                            {tx.type === "swap" && <RefreshCw className="w-3.5 h-3.5 text-blue-400" />}
+                            <span className="text-xs capitalize text-gray-200 font-medium">{tx.type}</span>
                           </div>
                         </td>
-                        <td className="py-4 pr-4">
-                          <div className="flex items-center gap-1">
-                            {tx.type === "send" && <ArrowUpRight className="w-3 h-3 text-red-400" />}
-                            {tx.type === "receive" && <ArrowDownLeft className="w-3 h-3 text-green-400" />}
-                            {tx.type === "swap" && <RefreshCw className="w-3 h-3 text-blue-400" />}
-                            <span className="text-xs capitalize text-gray-300">{tx.type}</span>
+                        <td className="py-3.5 pr-4 whitespace-nowrap">
+                          <div className="text-xs font-bold text-white font-mono">
+                            {tx.amount.toFixed(4)} <span className="text-yellow-400 font-normal">{tx.currency}</span>
                           </div>
                         </td>
-                        <td className="py-4 pr-4">
-                          <div className="text-sm font-semibold text-white">
-                            {tx.amount.toFixed(4)} {tx.currency}
-                          </div>
-                        </td>
-                        <td className="py-4 pr-4">
-                          <Badge variant="outline" className="text-xs border-yellow-500/30 text-yellow-300">
+                        <td className="py-3.5 pr-4 whitespace-nowrap">
+                          <Badge variant="outline" className="text-[10px] border-yellow-500/30 text-yellow-300 bg-yellow-500/5 font-mono">
                             {tx.chain}
                           </Badge>
                         </td>
-                        <td className="py-4 pr-4">
-                          <div className="flex items-center gap-1 text-xs text-gray-400">
-                            <Clock className="w-3 h-3" />
+                        <td className="py-3.5 pr-4 whitespace-nowrap">
+                          <div className="flex items-center gap-1 text-xs text-gray-400 font-mono">
+                            <Clock className="w-3 h-3 text-yellow-500/60" />
                             {new Date(tx.timestamp).toLocaleDateString()}
                           </div>
                         </td>
-                        <td className="py-4 pr-4">
-                          <Badge className={`text-xs capitalize ${getStatusColor(tx.status)}`}>
+                        <td className="py-3.5 pr-4 whitespace-nowrap">
+                          <Badge className={`text-[10px] capitalize ${getStatusColor(tx.status)}`}>
                             {tx.status}
                           </Badge>
                         </td>
-                        <td className="py-4 pr-4">
-                          <Badge className={`text-xs ${getRiskColor(tx.riskScore)}`}>
+                        <td className="py-3.5 pr-4 whitespace-nowrap">
+                          <Badge className={`text-[10px] ${getRiskColor(tx.riskScore)}`}>
                             {getRiskLabel(tx.riskScore)} ({tx.riskScore})
                           </Badge>
                         </td>
-                        <td className="py-4">
+                        <td className="py-3.5 whitespace-nowrap">
                           <Button
                             onClick={() => handleAnalyze(tx)}
                             size="sm"
-                            className="bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/30 border border-yellow-500/50"
+                            className="bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/30 border border-yellow-500/50 text-xs h-7 px-2.5"
                           >
                             <Eye className="w-3 h-3 mr-1" />
                             Analyze

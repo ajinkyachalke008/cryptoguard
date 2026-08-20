@@ -3,9 +3,6 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
   const { address } = await req.json();
 
-  // Simulate processing time
-  await new Promise(resolve => setTimeout(resolve, 2000));
-
   // Determine risk profile based on address (mock logic)
   const isHighRisk = address?.toLowerCase().startsWith('0x') && address.length > 20;
   const botMultiplier = isHighRisk ? 2.5 : 1;

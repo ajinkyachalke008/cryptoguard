@@ -52,7 +52,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || 'Login failed')
+        const errorMsg = data.details?.errors?.join('. ') || data.error || 'Login failed'
+        throw new Error(errorMsg)
       }
 
       // Save token and user
@@ -81,11 +82,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || 'Registration failed')
+        const errorMsg = data.details?.errors?.join('. ') || data.error || 'Registration failed'
+        throw new Error(errorMsg)
       }
 
-      toast.success('Account created successfully! Please log in.')
-      router.push('/login')
+      // If token and user returned, auto log in
+      if (data.token && data.user) {
+        localStorage.setItem('auth_token', data.token)
+        localStorage.setItem('auth_user', JSON.stringify(data.user))
+        setToken(data.token)
+        setUser(data.user)
+        toast.success('Account created successfully! Welcome to CryptoGuard.')
+        router.push('/dashboard')
+      } else {
+        toast.success('Account created successfully! Please log in.')
+        router.push('/login')
+      }
     } catch (error) {
       toast.error((error as Error).message)
       throw error
@@ -121,7 +133,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext)
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    return {
+      user: null,
+      token: null,
+      isLoading: false,
+      login: async () => {},
+      register: async () => {},
+      logout: () => {},
+      isAuthenticated: false
+    }
   }
   return context
 }

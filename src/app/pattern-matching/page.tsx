@@ -133,7 +133,7 @@ export default function PatternMatchingPage() {
   const [address, setAddress] = useState("")
   const [isScanning, setIsScanning] = useState(false)
   const [selectedArchetype, setSelectedArchetype] = useState<ScamArchetype>(ARCHETYPES.classic_rug_pull)
-  const [showResults, setShowResults] = useState(false)
+  const [showResults, setShowResults] = useState(true)
 
   const currentTimeline = useMemo(() => 
     MOCK_CURRENT_TIMELINE[selectedArchetype.key] || MOCK_CURRENT_TIMELINE.classic_rug_pull
@@ -143,12 +143,15 @@ export default function PatternMatchingPage() {
     HISTORICAL_TIMELINES[selectedArchetype.key] || HISTORICAL_TIMELINES.classic_rug_pull
   , [selectedArchetype])
 
-  const handleScan = () => {
+  const handleScan = (targetAddr?: string) => {
+    if (targetAddr) {
+      setAddress(targetAddr)
+    }
     setIsScanning(true)
     setTimeout(() => {
       setIsScanning(false)
       setShowResults(true)
-    }, 2000)
+    }, 400)
   }
 
   const getConfidenceColor = (level: string) => {
@@ -159,6 +162,13 @@ export default function PatternMatchingPage() {
       default: return "text-gray-400"
     }
   }
+
+  const sampleTokens = [
+    { label: "🚨 $SQUID (Classic Rug)", value: "0x87230146E138d3F296a9a77e497A2A83012e9Bc5" },
+    { label: "⚠️ $TITAN (Lock Bypass)", value: "0xaaa5b9e6c589642f98a1cda99b9d024b8407285a" },
+    { label: "🍯 Honeypot Token", value: "0x12d597081461141444047a0fd7254589d9eb8417" },
+    { label: "👥 $EMAX (Insider Ring)", value: "0x1580710f01b0f55a029929864ed543d4903a4973" }
+  ]
 
   return (
     <div className="min-h-screen bg-[#05060a] text-white selection:bg-red-500/30">
@@ -195,11 +205,12 @@ export default function PatternMatchingPage() {
                     placeholder="ENTER TOKEN CONTRACT OR WALLET ADDRESS..."
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleScan()}
                     className="pl-10 bg-black/60 border-red-500/20 text-white placeholder:text-gray-600 font-mono focus-visible:ring-red-500/50"
                   />
                 </div>
                 <Button 
-                  onClick={handleScan}
+                  onClick={() => handleScan()}
                   disabled={isScanning}
                   className="bg-red-600 hover:bg-red-500 text-white font-black px-8 shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all hover:scale-105 active:scale-95"
                 >
@@ -212,6 +223,20 @@ export default function PatternMatchingPage() {
                     "MATCH PATTERNS"
                   )}
                 </Button>
+              </div>
+
+              {/* Sample Presets */}
+              <div className="mt-4 flex flex-wrap items-center gap-2 pt-3 border-t border-red-500/15">
+                <span className="text-xs text-gray-400 font-mono">Archetype Samples:</span>
+                {sampleTokens.map((st, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleScan(st.value)}
+                    className="text-xs px-2.5 py-1 rounded-full border border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20 transition-all font-mono hover:scale-[1.02]"
+                  >
+                    {st.label}
+                  </button>
+                ))}
               </div>
             </CardContent>
           </Card>

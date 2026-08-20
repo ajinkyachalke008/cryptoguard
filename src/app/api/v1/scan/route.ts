@@ -8,8 +8,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "tx_id is required" }, { status: 400 });
     }
 
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // Deterministic pseudo-random logic based on tx_id hash
     const hashCode = (s: string) => s.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0);

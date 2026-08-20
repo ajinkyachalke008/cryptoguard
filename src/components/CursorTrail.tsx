@@ -8,10 +8,12 @@ export default function CursorTrail() {
   useEffect(() => {
     const canvas = ref.current
     if (!canvas) return
-    const ctx = canvas.getContext("2d")!
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
 
     let w = (canvas.width = window.innerWidth)
     let h = (canvas.height = window.innerHeight)
+    let animId: number | null = null
 
     const onResize = () => {
       w = canvas.width = window.innerWidth
@@ -20,13 +22,41 @@ export default function CursorTrail() {
     window.addEventListener("resize", onResize)
 
     const sparks: { x: number; y: number; vx: number; vy: number; life: number }[] = []
-    let mx = w / 2,
-      my = h / 2
+
+    const render = () => {
+      ctx.clearRect(0, 0, w, h)
+      if (sparks.length === 0) {
+        animId = null
+        return
+      }
+
+      ctx.globalCompositeOperation = "lighter"
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const s = sparks[i]
+        s.x += s.vx
+        s.y += s.vy
+        s.vx *= 0.98
+        s.vy *= 0.98
+        s.life *= 0.94
+        if (s.life < 0.05) {
+          sparks.splice(i, 1)
+          continue
+        }
+        const grd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 10)
+        grd.addColorStop(0, `rgba(255,215,0,${0.5 * s.life})`)
+        grd.addColorStop(1, `rgba(255,215,0,0)`)
+        ctx.fillStyle = grd
+        ctx.beginPath()
+        ctx.arc(s.x, s.y, 10, 0, Math.PI * 2)
+        ctx.fill()
+      }
+      animId = requestAnimationFrame(render)
+    }
 
     const onMove = (e: MouseEvent) => {
-      mx = e.clientX
-      my = e.clientY
-      for (let i = 0; i < 4; i++) {
+      const mx = e.clientX
+      const my = e.clientY
+      for (let i = 0; i < 3; i++) {
         sparks.push({
           x: mx,
           y: my,
@@ -35,36 +65,14 @@ export default function CursorTrail() {
           life: 1,
         })
       }
-    }
-    window.addEventListener("mousemove", onMove)
-
-    const render = () => {
-      ctx.clearRect(0, 0, w, h)
-      ctx.globalCompositeOperation = "lighter"
-      for (let i = sparks.length - 1; i >= 0; i--) {
-        const s = sparks[i]
-        s.x += s.vx
-        s.y += s.vy
-        s.vx *= 0.98
-        s.vy *= 0.98
-        s.life *= 0.96
-        if (s.life < 0.05) {
-          sparks.splice(i, 1)
-          continue
-        }
-        const grd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 12)
-        grd.addColorStop(0, `rgba(255,215,0,${0.6 * s.life})`)
-        grd.addColorStop(1, `rgba(255,215,0,0)`)
-        ctx.fillStyle = grd
-        ctx.beginPath()
-        ctx.arc(s.x, s.y, 12, 0, Math.PI * 2)
-        ctx.fill()
+      if (!animId) {
+        animId = requestAnimationFrame(render)
       }
-      requestAnimationFrame(render)
     }
-    render()
+    window.addEventListener("mousemove", onMove, { passive: true })
 
     return () => {
+      if (animId) cancelAnimationFrame(animId)
       window.removeEventListener("mousemove", onMove)
       window.removeEventListener("resize", onResize)
     }
