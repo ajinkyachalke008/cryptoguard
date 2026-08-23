@@ -5,7 +5,7 @@
 <!-- ===================================================== -->
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/yourusername/cryptoguard/main/assets/cryptoguard-banner.png" alt="CryptoGuard AI Banner" width="100%">
+  <img src="https://raw.githubusercontent.com/ajinkyachalke008/cryptoguard/main/public/favicon.png" alt="CryptoGuard AI Logo" width="120" />
 </p>
 
 <p align="center">
@@ -13,14 +13,16 @@
 </p>
 
 <p align="center">
-Real-time monitoring • Wallet Intelligence • Transaction Forensics • AI Risk Analysis
+Real-time 3D Globe Telemetry • Multi-Chain Wallet Intelligence • Institutional Graph Forensics • AI Risk Analysis
 </p>
 
 ---
 
 <p align="center">
-  <a href="https://cryptoguard-flame.vercel.app/"><strong>Live Demo</strong></a> •
-  <a href="https://github.com/ajinkyachalke008/cryptoguard"><strong>GitHub Repository</strong></a>
+  <a href="https://cryptoguard-flame.vercel.app/"><strong>🌐 Live Production Web App</strong></a> •
+  <a href="https://github.com/ajinkyachalke008/cryptoguard"><strong>📦 GitHub Repository</strong></a> •
+  <a href="https://cryptoguard-flame.vercel.app/hub/ultra"><strong>⚡ ULTRA Intelligence Hub</strong></a> •
+  <a href="https://cryptoguard-flame.vercel.app/graph"><strong>🕸️ Forensic Graph Explorer</strong></a>
 </p>
 
 ---
@@ -374,22 +376,23 @@ CryptoGuard is optimized for performance through:
 
 ---
 
-# 🎯 Roadmap
+# 🎯 Features & Roadmap Status
 
-### Current
+### ✅ Production Ready & Deployed
+• 🌐 **3D Threat Globe & Earth Mode**: Real-time multi-chain arcs, OSINT telemetry, country risk profiling  
+• 🕸️ **Institutional Forensic Graph Explorer**: 3D spatial constellation, 2D force, hierarchical tree, radial ego, and risk matrix modes  
+• ⚡ **ULTRA Forensic Intelligence Hub**: Universal entity investigation, behavioral telemetry, smart contract explanations  
+• 🔍 **Multi-Chain Wallet Scanner**: OFAC sanctions screening, mixer exposure, transaction clustering, AI risk analyst breakdown  
+• 📊 **Live Transaction Center**: Real-time mempool analysis, realistic 64-char hashes, automated risk classification  
+• 🛡️ **DeFi Protocol & Token Risk Engine**: Flash loan vulnerability detection, oracle health, TVL anomaly detection  
+• 🎨 **NFT Risk & Wash Trading Scanner**: Synthetic volume filters, provenance checks, fake collection alerts  
+• 🧩 **Pattern Matcher**: Peeling chain detection, ransomware cashouts, drainer network identification  
+• 📱 **PWA & Chrome Extension**: Cross-platform standalone installation with dedicated gold shield icons & companion extension  
 
-• wallet scanning
-• transaction risk detection
-• DeFi protocol analysis
-• AI risk explanations
-
-### Future
-
-• graph-based investigation explorer
-• cross-chain transaction tracking
-• ML-based fraud prediction models
-• browser extension
-• mobile applications
+### 🔮 Next-Gen Additions
+• Automated multi-signature smart contract execution interceptor  
+• Enterprise SIEM / Splunk / Sentinel automated webhook streams  
+• Direct on-chain automated freeze-notice generation for law enforcement  
 
 ---
 
