@@ -56,10 +56,15 @@ export default function RootLayout({
             <Script id="register-sw" strategy="afterInteractive">
               {`
                 if ('serviceWorker' in navigator) {
-                  navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                    for(let registration of registrations) {
-                      registration.unregister();
-                    }
+                  window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(
+                      function(registration) {
+                        console.log('CryptoGuard PWA ServiceWorker registered with scope:', registration.scope);
+                      },
+                      function(err) {
+                        console.log('CryptoGuard PWA ServiceWorker registration failed:', err);
+                      }
+                    );
                   });
                 }
               `}
