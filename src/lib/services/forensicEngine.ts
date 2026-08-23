@@ -551,11 +551,16 @@ export function generateRealisticTxHash(seed: number, chain: string = 'ethereum'
   if (norm === 'solana') {
     return generateRealisticAddress(seed, 99, 'solana');
   }
-  const part1 = ((seed * 1337) % 0xffffffff).toString(16).padStart(8, '0');
-  const part2 = ((seed * 7331) % 0xffffffff).toString(16).padStart(8, '0');
-  const part3 = ((seed * 31337) % 0xffffffff).toString(16).padStart(8, '0');
-  const part4 = ((seed * 91137) % 0xffffffff).toString(16).padStart(8, '0');
-  return `0x${part1}${part2}${part3}${part4}`;
+  const s = Math.abs(seed);
+  const p1 = ((s * 1664525 + 1013904223) >>> 0).toString(16).padStart(8, '0');
+  const p2 = ((s * 22695477 + 1) >>> 0).toString(16).padStart(8, '0');
+  const p3 = ((s * 1103515245 + 12345) >>> 0).toString(16).padStart(8, '0');
+  const p4 = ((s * 134775813 + 1) >>> 0).toString(16).padStart(8, '0');
+  const p5 = ((s * 214013 + 2531011) >>> 0).toString(16).padStart(8, '0');
+  const p6 = ((s * 69069 + 1) >>> 0).toString(16).padStart(8, '0');
+  const p7 = ((s * 397204094 + 7) >>> 0).toString(16).padStart(8, '0');
+  const p8 = ((s * 741103597 + 13) >>> 0).toString(16).padStart(8, '0');
+  return `0x${p1}${p2}${p3}${p4}${p5}${p6}${p7}${p8}`;
 }
 
 export function getRiskLevelFromScore(score: number): RiskLevel {

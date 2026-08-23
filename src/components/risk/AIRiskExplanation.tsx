@@ -17,7 +17,7 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 
-export type RiskFactorType = "SANCTIONS" | "PEP" | "MIXER" | "SCAM" | "EXPLOIT" | "RUG_PULL" | "WASH_TRADING" | "DARKNET" | "PHISHING"
+export type RiskFactorType = "SANCTIONS" | "PEP" | "MIXER" | "SCAM" | "EXPLOIT" | "RUG_PULL" | "WASH_TRADING" | "DARKNET" | "PHISHING" | "SUSPICIOUS_FLOW" | "MALICIOUS_CONTRACT" | "HIGH_RISK_INTERACTION"
 
 export interface RiskFactor {
   factor_type: RiskFactorType
@@ -53,7 +53,10 @@ const factorConfig: Record<RiskFactorType, { label: string; color: string; bgCol
   RUG_PULL: { label: "Rug Pull", color: "text-red-400", bgColor: "bg-red-500/20" },
   WASH_TRADING: { label: "Wash Trading", color: "text-orange-400", bgColor: "bg-orange-500/20" },
   DARKNET: { label: "Darknet", color: "text-red-400", bgColor: "bg-red-500/20" },
-  PHISHING: { label: "Phishing", color: "text-red-400", bgColor: "bg-red-500/20" }
+  PHISHING: { label: "Phishing", color: "text-red-400", bgColor: "bg-red-500/20" },
+  SUSPICIOUS_FLOW: { label: "Suspicious Flow", color: "text-orange-400", bgColor: "bg-orange-500/20" },
+  MALICIOUS_CONTRACT: { label: "Malicious Contract", color: "text-red-400", bgColor: "bg-red-500/20" },
+  HIGH_RISK_INTERACTION: { label: "High Risk Interaction", color: "text-red-400", bgColor: "bg-red-500/20" }
 }
 
 const severityConfig = {

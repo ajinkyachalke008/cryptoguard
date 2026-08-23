@@ -544,7 +544,7 @@ export default function GlobeDemoComponent() {
         }
 
         globeRef.current = globe
-        scene.add(globe as unknown as THREE.Object3D)
+        scene.add(globe as any)
 
         // Atmosphere Fresnel Glow Shell
         const atmoGeom = new THREE.SphereGeometry(102.8, 48, 48)

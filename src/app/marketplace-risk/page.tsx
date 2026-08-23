@@ -112,19 +112,19 @@ export default function MarketplaceRiskPage() {
         const result = await response.json()
         const scanData = result.scan_data
         if (scanData?.marketplace_data?.reputation_score) {
-          mpData.safety_score = scanData.marketplace_data.reputation_score
-          mpData.safety_label = mpData.safety_score >= 75 ? "LOW" : mpData.safety_score >= 50 ? "MEDIUM" : "HIGH"
+          mpData.marketplace_risk_score = 100 - scanData.marketplace_data.reputation_score
+          mpData.marketplace_risk_label = mpData.marketplace_risk_score < 25 ? "LOW" : mpData.marketplace_risk_score < 50 ? "MEDIUM" : "HIGH"
         }
       }
       
-      const aiData = generateMockMarketplaceAIExplanation(name, 100 - mpData.safety_score)
+      const aiData = generateMockMarketplaceAIExplanation(name, mpData.marketplace_risk_score)
       setMarketplaceData(mpData)
       setAiExplanation(aiData)
       setScanComplete(true)
       toast.success(`${name} scan complete`)
     } catch {
       const mpData = generateMockMarketplaceData(name)
-      const aiData = generateMockMarketplaceAIExplanation(name, 100 - mpData.safety_score)
+      const aiData = generateMockMarketplaceAIExplanation(name, mpData.marketplace_risk_score)
       setMarketplaceData(mpData)
       setAiExplanation(aiData)
       setScanComplete(true)

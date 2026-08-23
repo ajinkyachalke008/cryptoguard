@@ -53,9 +53,9 @@ export function BlockchainIdentifier({
 
   const truncateMiddle = (str: string) => {
     if (!str) return ""
-    if (str.length <= 12) return str
-    // Format: 0xABCD…1234
-    return `${str.slice(0, 6)}…${str.slice(-4)}`
+    if (str.length <= 14) return str
+    // Format: 0xABCD12…1234 (displays 0x + 6 hex characters)
+    return `${str.slice(0, 8)}…${str.slice(-4)}`
   }
 
   const handleCopy = async (e?: React.MouseEvent | React.KeyboardEvent) => {

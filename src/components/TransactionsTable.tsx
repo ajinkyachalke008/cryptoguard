@@ -65,7 +65,9 @@ export default function TransactionsTable() {
   }
 
   const shortenId = (id: string) => {
-    if (id.length <= 13) return id
+    if (!id) return ""
+    if (id.length <= 14) return id
+    // Display 0x followed by 6 hex digits and 4 trailing digits, e.g. 0x8a94b2...3f1c
     return `${id.slice(0, 8)}...${id.slice(-4)}`
   }
 
@@ -176,17 +178,17 @@ export default function TransactionsTable() {
         </div>
       </div>
 
-      <div className="w-full overflow-hidden">
+      <div className="w-full overflow-x-auto">
         <TooltipProvider>
-          <table className="w-full text-xs table-fixed">
+          <table className="w-full text-xs table-fixed min-w-[500px]">
             <thead>
               <tr className="text-left text-gray-300 border-b border-yellow-500/30">
-                <th className="py-2 px-1.5 sm:px-2 font-black text-yellow-300 w-[17%] sm:w-[15%]">Time</th>
-                <th className="py-2 px-1.5 sm:px-2 font-black text-white w-[22%] sm:w-[20%]">Tx ID</th>
-                <th className="py-2 px-1.5 sm:px-2 font-black text-yellow-400 w-[18%] sm:w-[16%]">Amount</th>
-                <th className="py-2 px-1.5 sm:px-2 font-bold text-gray-300 w-[17%] sm:w-[17%]">From</th>
-                <th className="py-2 px-1.5 sm:px-2 font-black text-yellow-300 w-[17%] sm:w-[17%]">To</th>
-                <th className="py-2 px-1.5 sm:px-2 font-black text-white w-[9%] sm:w-[15%] text-right sm:text-left">Risk</th>
+                <th className="py-2 px-1.5 sm:px-2 font-black text-yellow-300 w-[14%] sm:w-[13%]">Time</th>
+                <th className="py-2 px-1.5 sm:px-2 font-black text-white w-[28%] sm:w-[26%]">Tx ID</th>
+                <th className="py-2 px-1.5 sm:px-2 font-black text-yellow-400 w-[16%] sm:w-[15%]">Amount</th>
+                <th className="py-2 px-1.5 sm:px-2 font-bold text-gray-300 w-[14%] sm:w-[15%]">From</th>
+                <th className="py-2 px-1.5 sm:px-2 font-black text-yellow-300 w-[14%] sm:w-[15%]">To</th>
+                <th className="py-2 px-1.5 sm:px-2 font-black text-white w-[14%] sm:w-[16%] text-right sm:text-left">Risk</th>
               </tr>
             </thead>
             <tbody>
@@ -208,7 +210,7 @@ export default function TransactionsTable() {
                     <div className="flex items-center gap-1.5">
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="hover:text-yellow-300 transition-colors truncate block max-w-[70px] sm:max-w-[90px]">
+                          <span className="hover:text-yellow-300 transition-colors font-mono font-bold text-[11px] sm:text-xs text-yellow-100/90 whitespace-nowrap tracking-tight">
                             {shortenId(t.id)}
                           </span>
                         </TooltipTrigger>
@@ -217,7 +219,7 @@ export default function TransactionsTable() {
                         </TooltipContent>
                       </Tooltip>
                       
-                      <div className="hidden sm:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                      <div className="hidden lg:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button 

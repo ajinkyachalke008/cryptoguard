@@ -152,7 +152,7 @@ interface GraphData {
   target?: any
 }
 
-const riskColors: Record<RiskLevel, string> = {
+const riskColors: Record<string, string> = {
   low: "#00e676",
   medium: "#ffdd57",
   high: "#ff8c00",
@@ -650,7 +650,7 @@ function GraphContent() {
 
         // 3D Nodes Group
         const nodesGroup = new THREE.Group()
-        const nodePositions = new Map<string, THREE.Vector3>()
+        const nodePositions = new Map<string, any>()
 
         filteredData.nodes.forEach((n, i) => {
           const isTarget = n.nodeType === "target"
