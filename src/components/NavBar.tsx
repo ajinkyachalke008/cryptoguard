@@ -41,14 +41,15 @@ import {
   TrendingUp,
   Activity,
   Fingerprint,
-  Zap
+  Zap,
+  FolderArchive
 } from "lucide-react"
 
 const mainNavItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/cases", label: "Cases", icon: FolderArchive, badge: "NEW" },
   { href: "/hub", label: "Intelligence Hub", icon: Globe, badge: "NEW" },
-  { href: "/hub/ultra", label: "ULTRA_HUB", icon: Zap, badge: "ELITE" },
 ]
 
 const scannerItems = [
@@ -56,27 +57,26 @@ const scannerItems = [
   { href: "/scanner", label: "Quick Scan", icon: Search, description: "Fast wallet lookup" },
   { href: "/protocol-risk", label: "Protocol/Token", icon: FileCode, description: "DeFi protocol risk scoring" },
   { href: "/nft-risk", label: "NFT Collection", icon: Image, description: "Wash trading & fake volume" },
-    { href: "/marketplace-risk", label: "Marketplace", icon: Store, description: "Marketplace risk assessment" },
-    { href: "/contract-explainer", label: "Contract Explainer", icon: FileCode, description: "AI-powered contract analysis" },
-    { href: "/wallet-intelligence", label: "Wallet Intelligence", icon: Fingerprint, description: "Attribution & Geo-Behavior" },
-  ]
-
-
-const toolItems = [
-  { href: "/watchlist", label: "Watchlist", icon: Eye },
-  { href: "/crypto-watchlist", label: "Crypto Watchlist", icon: TrendingUp },
-  { href: "/alerts", label: "Alerts", icon: Bell },
-  { href: "/graph", label: "Graph Explorer", icon: Network },
-  { href: "/trust-timeline", label: "Trust Timeline", icon: Activity },
-  { href: "/delta-engine", label: "Delta Engine", icon: Activity },
-    { href: "/behavior-heatmap", label: "Behavior Heatmap", icon: Activity },
-    { href: "/pattern-matching", label: "Pattern Matching", icon: Search },
-    { href: "/social-hype", label: "Social Detector", icon: MessageSquare },
-  { href: "/transaction-center", label: "Transaction Center", icon: Activity },
-  { href: "/reports", label: "Reports", icon: Download },
-  { href: "/ask-ai", label: "Ask CryptoGuard", icon: MessageSquare },
-  { href: "/downloads", label: "Downloads", icon: Download },
+  { href: "/marketplace-risk", label: "Marketplace", icon: Store, description: "Marketplace risk assessment" },
+  { href: "/contract-explainer", label: "Contract Explainer", icon: FileCode, description: "AI-powered contract analysis" },
+  { href: "/wallet-intelligence", label: "Wallet Intelligence", icon: Fingerprint, description: "Attribution & Geo-Behavior" },
 ]
+
+const forensicsItems = [
+  { href: "/graph", label: "Graph Explorer", icon: Network, description: "Interactive 2.5D transaction clustering" },
+  { href: "/pattern-matching", label: "Pattern Matching", icon: Search, description: "Mixers, peel chains & fraud topologies" },
+  { href: "/behavior-heatmap", label: "Behavior Heatmap", icon: Activity, description: "Temporal frequency & velocity matrix" },
+  { href: "/trust-timeline", label: "Trust Timeline", icon: Activity, description: "Historical trust scores & risk shifts" },
+  { href: "/delta-engine", label: "Delta Engine", icon: Activity, description: "Fast anomaly & state differential tracking" },
+  { href: "/watchlist", label: "Watchlist", icon: Eye, description: "Continuous target monitoring & address tracking" },
+  { href: "/alerts", label: "Alerts Center", icon: Bell, description: "Real-time threat notifications & rules" },
+  { href: "/reports", label: "Compliance Reports", icon: Download, description: "Executive PDF & CSV forensic dossiers" },
+  { href: "/transaction-center", label: "Transaction Center", icon: Activity, description: "Cross-chain transaction ledger analysis" },
+  { href: "/social-hype", label: "Social Detector", icon: MessageSquare, description: "Pump & dump sentiment tracking" },
+  { href: "/hub/ultra", label: "ULTRA_HUB", icon: Zap, description: "High-throughput intelligence grid" },
+]
+
+const toolItems = forensicsItems
 
   export default function NavBar() {
     const { theme, setTheme } = useTheme()
@@ -90,6 +90,7 @@ const toolItems = [
 
   const isPathActive = (href: string) => pathname === href
   const isScannerActive = scannerItems.some(item => pathname === item.href)
+  const isForensicsActive = forensicsItems.some(item => pathname === item.href)
 
   return (
     <div className="sticky top-0 z-50 w-full glass-card border-b border-gold/30 shadow-[0_4px_30px_rgba(255,215,0,0.1)]">
@@ -195,39 +196,77 @@ const toolItems = [
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {toolItems.slice(0, 4).map((item) => {
-            const isActive = isPathActive(item.href)
-            const Icon = item.icon
-            return (
+          {/* Forensics & Tools Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button
-                key={item.href}
                 variant="ghost"
                 size="sm"
-                onClick={() => router.push(item.href)}
                 className={`text-sm ${
-                  isActive 
-                    ? "text-yellow-300 bg-yellow-500/20" 
+                  isForensicsActive
+                    ? "text-yellow-300 bg-yellow-500/20"
                     : "text-gray-400 hover:text-yellow-300 hover:bg-yellow-500/10"
                 }`}
               >
-                <Icon className="size-4 mr-1.5" />
-                {item.label}
+                <Network className="size-4 mr-1.5" />
+                Forensics
+                <ChevronDown className="size-3 ml-1" />
               </Button>
-            )
-          })}
-          
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-72 max-h-[75vh] overflow-y-auto bg-black/95 border-yellow-500/30 backdrop-blur-sm">
+              <DropdownMenuLabel className="text-yellow-400 text-xs uppercase tracking-wider">Forensics & Intelligence</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-yellow-500/20" />
+              {forensicsItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <DropdownMenuItem
+                    asChild
+                    key={item.href}
+                    className={`cursor-pointer ${
+                      isPathActive(item.href)
+                        ? "bg-yellow-500/20 text-yellow-300"
+                        : "text-gray-300 hover:text-yellow-300 hover:bg-yellow-500/10"
+                    }`}
+                  >
+                    <Link href={item.href} className="flex items-center w-full px-2 py-1.5">
+                      <Icon className="size-4 mr-2 text-yellow-500 shrink-0" />
+                      <div>
+                        <div className="font-medium text-sm">{item.label}</div>
+                        <div className="text-xs text-gray-500">{item.description}</div>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                )
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => router.push("/downloads")}
+            onClick={() => router.push("/graph")}
             className={`text-sm ${
-              isPathActive("/downloads")
+              isPathActive("/graph")
+                ? "text-yellow-300 bg-yellow-500/20" 
+                : "text-gray-400 hover:text-yellow-300 hover:bg-yellow-500/10"
+            }`}
+          >
+            <Network className="size-4 mr-1.5" />
+            Graph
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push("/reports")}
+            className={`text-sm ${
+              isPathActive("/reports")
                 ? "text-yellow-300 bg-yellow-500/20" 
                 : "text-gray-400 hover:text-yellow-300 hover:bg-yellow-500/10"
             }`}
           >
             <Download className="size-4 mr-1.5" />
-            Downloads
+            Reports
           </Button>
         </nav>
 

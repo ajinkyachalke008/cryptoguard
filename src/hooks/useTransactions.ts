@@ -31,25 +31,8 @@ function createTxFromSeed(seed: number, timestamp: number): Tx {
   const chain = pick(CHAINS);
   const forensic = resolveForensicEntity(`0x${seed.toString(16).padStart(8, '0')}`, chain);
   
-  // Realistic 4-tier risk distribution matching specification:
-  // 65% Safe (0-29), 15% Watch/Low (30-59), 12% Risky (60-84), 8% Fraud (85-100)
-  const roll = seed % 100;
-  let riskScore: number;
-  let status: TxStatus = "safe";
-
-  if (roll < 65) {
-    riskScore = (seed % 28) + 2; // 2 - 29 (SAFE)
-    status = "safe";
-  } else if (roll < 80) {
-    riskScore = (seed % 29) + 30; // 30 - 58 (WATCH / LOW)
-    status = "safe";
-  } else if (roll < 92) {
-    riskScore = (seed % 24) + 60; // 60 - 83 (RISKY)
-    status = "risky";
-  } else {
-    riskScore = (seed % 15) + 85; // 85 - 99 (FRAUD)
-    status = "fraud";
-  }
+  const riskScore = forensic.riskScore !== undefined ? forensic.riskScore : (seed % 28) + 2;
+  const status: TxStatus = riskScore >= 85 ? "fraud" : riskScore >= 60 ? "risky" : "safe";
   
   return {
     id: forensic.txHash,

@@ -52,7 +52,8 @@ import {
   TrendingUp,
   Activity,
   RefreshCw,
-  Loader2
+  Loader2,
+  FolderArchive
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -155,6 +156,35 @@ export default function AlertsPage() {
       toast.success(`Alert status updated to ${statusConfig[newStatus].label}`)
     } catch {
       toast.error("Failed to update alert status")
+    }
+  }
+
+  const handleAttachToCase = async (alert: Alert) => {
+    try {
+      const res = await fetch("/api/cases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: `Investigation: ${alert.message}`,
+          description: `Alert ${alert.id} triggered on ${alert.blockchain.toUpperCase()} by rule ${alert.triggering_rule}. Target address: ${alert.wallet_address}`,
+          priority: alert.severity === "critical" ? "critical" : alert.severity === "high" ? "high" : "medium"
+        })
+      })
+      if (res.ok) {
+        const data = await res.json()
+        await fetch(`/api/cases/${data.case.id}/items`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            itemType: "wallet",
+            itemId: alert.wallet_address
+          })
+        })
+        toast.success(`Case #${data.case.id} created from alert!`)
+        router.push("/cases")
+      }
+    } catch {
+      toast.error("Failed to create case from alert")
     }
   }
 
@@ -384,9 +414,10 @@ export default function AlertsPage() {
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation()
-                              router.push(`/scanner?address=${alert.wallet_address}`)
+                              router.push(`/wallet-scan?address=${encodeURIComponent(alert.wallet_address)}`)
                             }}
                             className="text-yellow-300 hover:text-yellow-200 hover:bg-yellow-500/20"
+                            title="Multi-Chain Risk Scan"
                           >
                             <Eye className="w-4 h-4" />
                           </Button>
@@ -522,7 +553,7 @@ export default function AlertsPage() {
                   <div className="flex flex-wrap gap-2 pt-2">
                     <Button
                       onClick={() => {
-                        router.push(`/scanner?address=${selectedAlert.wallet_address}`)
+                        router.push(`/wallet-scan?address=${encodeURIComponent(selectedAlert.wallet_address)}`)
                         setSelectedAlert(null)
                       }}
                       className="bg-yellow-500/20 border border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/30"
@@ -531,8 +562,15 @@ export default function AlertsPage() {
                       Scan Wallet
                     </Button>
                     <Button
+                      onClick={() => handleAttachToCase(selectedAlert)}
+                      className="bg-yellow-500 text-black hover:bg-yellow-400 font-semibold shadow-[0_0_20px_#ffd70066]"
+                    >
+                      <FolderArchive className="w-4 h-4 mr-2" />
+                      Open Case
+                    </Button>
+                    <Button
                       onClick={() => {
-                        router.push(`/graph?address=${selectedAlert.wallet_address}`)
+                        router.push(`/graph?address=${encodeURIComponent(selectedAlert.wallet_address)}`)
                         setSelectedAlert(null)
                       }}
                       variant="outline"
@@ -542,7 +580,7 @@ export default function AlertsPage() {
                       Graph Explorer
                     </Button>
                     <Button
-                      onClick={() => router.push(`/reports?address=${selectedAlert.wallet_address}`)}
+                      onClick={() => router.push(`/reports?address=${encodeURIComponent(selectedAlert.wallet_address)}`)}
                       variant="outline"
                       className="border-yellow-500/50 text-yellow-300 hover:bg-yellow-500/20"
                     >

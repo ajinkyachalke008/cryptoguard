@@ -10,10 +10,23 @@ import {
   XCircle
 } from "lucide-react"
 
-export type ChainType = "Ethereum" | "Bitcoin" | "BSC" | "Polygon" | "Solana" | "Arbitrum" | "Avalanche" | "Base"
+export type ChainType = 
+  | "Ethereum" 
+  | "Bitcoin" 
+  | "BSC" 
+  | "Polygon" 
+  | "Solana" 
+  | "Arbitrum" 
+  | "Avalanche" 
+  | "Base"
+  | "Optimism"
+  | "Cardano"
+  | "Polkadot"
+  | "Tron"
+  | string
 
 export interface ChainRiskData {
-  chain: ChainType
+  chain: string
   chain_risk_score: number
   key_risks: string[]
   transaction_count: number
@@ -29,19 +42,31 @@ export interface MultiChainData {
 
 interface MultiChainSelectorProps {
   data: MultiChainData
-  selectedChain: ChainType | "ALL"
-  onChainSelect: (chain: ChainType | "ALL") => void
+  selectedChain: string | "ALL"
+  onChainSelect: (chain: string | "ALL") => void
 }
 
-const chainColors: Record<ChainType, { bg: string; border: string; text: string; icon: string }> = {
-  Ethereum: { bg: "bg-blue-500/20", border: "border-blue-500/50", text: "text-blue-400", icon: "Ξ" },
-  Bitcoin: { bg: "bg-orange-500/20", border: "border-orange-500/50", text: "text-orange-400", icon: "₿" },
-  BSC: { bg: "bg-yellow-500/20", border: "border-yellow-500/50", text: "text-yellow-400", icon: "BNB" },
-  Polygon: { bg: "bg-purple-500/20", border: "border-purple-500/50", text: "text-purple-400", icon: "MATIC" },
-  Solana: { bg: "bg-gradient-to-r from-purple-500/20 to-cyan-500/20", border: "border-purple-500/50", text: "text-purple-400", icon: "SOL" },
-  Arbitrum: { bg: "bg-blue-600/20", border: "border-blue-600/50", text: "text-blue-300", icon: "ARB" },
-  Avalanche: { bg: "bg-red-500/20", border: "border-red-500/50", text: "text-red-400", icon: "AVAX" },
-  Base: { bg: "bg-blue-400/20", border: "border-blue-400/50", text: "text-blue-300", icon: "BASE" }
+const defaultChainColor = { bg: "bg-yellow-500/20", border: "border-yellow-500/50", text: "text-yellow-400", icon: "⬡" }
+
+const chainColors: Record<string, { bg: string; border: string; text: string; icon: string }> = {
+  ethereum: { bg: "bg-blue-500/20", border: "border-blue-500/50", text: "text-blue-400", icon: "Ξ" },
+  bitcoin: { bg: "bg-orange-500/20", border: "border-orange-500/50", text: "text-orange-400", icon: "₿" },
+  bsc: { bg: "bg-yellow-500/20", border: "border-yellow-500/50", text: "text-yellow-400", icon: "BNB" },
+  polygon: { bg: "bg-purple-500/20", border: "border-purple-500/50", text: "text-purple-400", icon: "MATIC" },
+  solana: { bg: "bg-gradient-to-r from-purple-500/20 to-cyan-500/20", border: "border-purple-500/50", text: "text-purple-400", icon: "SOL" },
+  arbitrum: { bg: "bg-blue-600/20", border: "border-blue-600/50", text: "text-blue-300", icon: "ARB" },
+  avalanche: { bg: "bg-red-500/20", border: "border-red-500/50", text: "text-red-400", icon: "AVAX" },
+  base: { bg: "bg-blue-400/20", border: "border-blue-400/50", text: "text-blue-300", icon: "BASE" },
+  optimism: { bg: "bg-red-500/20", border: "border-red-500/50", text: "text-red-400", icon: "OP" },
+  cardano: { bg: "bg-blue-700/20", border: "border-blue-700/50", text: "text-blue-400", icon: "ADA" },
+  polkadot: { bg: "bg-pink-600/20", border: "border-pink-600/50", text: "text-pink-400", icon: "DOT" },
+  tron: { bg: "bg-red-600/20", border: "border-red-600/50", text: "text-red-400", icon: "TRX" }
+}
+
+function getChainColor(chainName?: string) {
+  if (!chainName) return defaultChainColor
+  const key = chainName.toLowerCase().trim()
+  return chainColors[key] || defaultChainColor
 }
 
 function getRiskColor(score: number) {
@@ -87,7 +112,7 @@ export function MultiChainSelector({ data, selectedChain, onChainSelect }: Multi
             All Chains
           </Button>
           {activeChains.map((chain) => {
-            const colors = chainColors[chain.chain]
+            const colors = getChainColor(chain.chain)
             const riskColors = getRiskColor(chain.chain_risk_score)
             const isSelected = selectedChain === chain.chain
             
@@ -115,7 +140,7 @@ export function MultiChainSelector({ data, selectedChain, onChainSelect }: Multi
         {/* Chain Details Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {(selectedChain === "ALL" ? activeChains : activeChains.filter(c => c.chain === selectedChain)).map((chain) => {
-            const colors = chainColors[chain.chain]
+            const colors = getChainColor(chain.chain)
             const riskColors = getRiskColor(chain.chain_risk_score)
             
             return (
@@ -173,11 +198,14 @@ export function MultiChainSelector({ data, selectedChain, onChainSelect }: Multi
           <div className="pt-2 border-t border-gray-800">
             <p className="text-xs text-gray-500 mb-2">No activity detected on:</p>
             <div className="flex flex-wrap gap-2">
-              {data.chains.filter(c => !c.active).map((chain) => (
-                <Badge key={chain.chain} variant="outline" className="text-gray-500 border-gray-700">
-                  {chainColors[chain.chain].icon} {chain.chain}
-                </Badge>
-              ))}
+              {data.chains.filter(c => !c.active).map((chain) => {
+                const colors = getChainColor(chain.chain)
+                return (
+                  <Badge key={chain.chain} variant="outline" className="text-gray-500 border-gray-700">
+                    {colors.icon} {chain.chain}
+                  </Badge>
+                )
+              })}
             </div>
           </div>
         )}

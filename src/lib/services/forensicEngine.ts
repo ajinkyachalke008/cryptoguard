@@ -570,6 +570,16 @@ export function getRiskLevelFromScore(score: number): RiskLevel {
   return "low";
 }
 
+const g = globalThis as any;
+
+export function registerCanonicalResolvers(
+  accountLookup: (address: string) => any,
+  txLookup: (idOrHash: string) => any
+) {
+  g.__canonicalAccountLookup = accountLookup;
+  g.__canonicalTxLookup = txLookup;
+}
+
 /**
  * Resolve or generate deterministic forensic telemetry for any transaction or wallet identifier.
  */
@@ -577,6 +587,66 @@ export function resolveForensicEntity(identifier: string, preferredChain: string
   const cleanId = (identifier || '0x742d35Cc6634C0532925a3b844Bc9e7595f2bd3e').trim();
   const seed = computeDeterministicSeed(cleanId);
   const chain = normalizeChainName(preferredChain);
+  
+  // Check if this identifier is an active canonical transaction
+  const txLookup = g.__canonicalTxLookup;
+  if (txLookup) {
+    const txMatch = txLookup(cleanId);
+    if (txMatch) {
+      const fromCountry = FORENSIC_COUNTRIES.find(c => c.code === "US") || FORENSIC_COUNTRIES[0];
+      const toCountry = FORENSIC_COUNTRIES.find(c => c.code === "GB") || FORENSIC_COUNTRIES[1];
+      return {
+        id: txMatch.txHash,
+        txHash: txMatch.txHash,
+        fromAddress: txMatch.source,
+        toAddress: txMatch.destination,
+        fromCountry,
+        toCountry,
+        chain: txMatch.chain.toLowerCase(),
+        amountUSD: txMatch.amountUSD,
+        cryptoAmount: `${txMatch.amount} ${txMatch.token}`,
+        riskScore: txMatch.riskScore,
+        riskLevel: txMatch.riskLevel,
+        fraudPattern: txMatch.patternLabel,
+        patternDetails: FRAUD_PATTERN_TAXONOMY[0],
+        tags: [...txMatch.heuristicFlags, txMatch.stage.toUpperCase(), txMatch.chain],
+        ruleFlags: txMatch.heuristicFlags,
+        aiExplanation: txMatch.forensicNotes,
+        detailedAnalysis: `${txMatch.forensicNotes}\n\nCase ID: ${txMatch.caseId}\nStatus: ${txMatch.evidenceStatus}\nBlock: ${txMatch.blockNumber}`,
+        timestamp: new Date(txMatch.timestamp).getTime(),
+      };
+    }
+  }
+
+  // Check if this identifier is an active canonical account
+  const accLookup = g.__canonicalAccountLookup;
+  if (accLookup) {
+    const accMatch = accLookup(cleanId);
+    if (accMatch) {
+      const fromCountry = FORENSIC_COUNTRIES.find(c => c.code === accMatch.countryCode) || FORENSIC_COUNTRIES[seed % FORENSIC_COUNTRIES.length];
+      const toCountry = FORENSIC_COUNTRIES[(seed + 11) % FORENSIC_COUNTRIES.length];
+      return {
+        id: accMatch.address,
+        txHash: generateRealisticTxHash(seed, chain),
+        fromAddress: accMatch.address,
+        toAddress: generateRealisticAddress(seed, 2, chain),
+        fromCountry,
+        toCountry,
+        chain,
+        amountUSD: accMatch.volume,
+        cryptoAmount: `${(accMatch.volume / 2650).toFixed(3)} ETH`,
+        riskScore: accMatch.riskScore,
+        riskLevel: accMatch.riskLevel,
+        fraudPattern: accMatch.behavioralTag,
+        patternDetails: FRAUD_PATTERN_TAXONOMY[0],
+        tags: [...accMatch.heuristicFlags, accMatch.entityRole, fromCountry.code, chain.toUpperCase()],
+        ruleFlags: accMatch.heuristicFlags,
+        aiExplanation: accMatch.nodeExplanation,
+        detailedAnalysis: `${accMatch.nodeExplanation}\n\nEntity Role: ${accMatch.entityRole}\nBehavioral Tag: ${accMatch.behavioralTag}\nEvidence Status: ${accMatch.evidenceStatus}`,
+        timestamp: new Date(accMatch.lastSeen).getTime(),
+      };
+    }
+  }
   
   // Specific known test addresses / known patterns
   const isKnownSanction = cleanId.toLowerCase().includes('742d') || cleanId.toLowerCase().includes('fraud') || cleanId.toLowerCase().includes('tornado');

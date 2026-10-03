@@ -54,7 +54,8 @@ import {
   Wallet,
   ArrowUpDown,
   CheckCircle2,
-  XCircle
+  XCircle,
+  FolderArchive
 } from "lucide-react"
 import { toast } from "sonner"
 import { Textarea } from "@/components/ui/textarea"
@@ -527,16 +528,18 @@ export default function WatchlistPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => router.push(`/scanner?address=${item.address}`)}
+                          onClick={() => router.push(`/wallet-scan?address=${encodeURIComponent(item.address)}`)}
                           className="text-yellow-300 hover:text-yellow-200 hover:bg-yellow-500/20"
+                          title="Multi-Chain Risk Scan"
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => router.push(`/graph?address=${item.address}`)}
+                          onClick={() => router.push(`/graph?address=${encodeURIComponent(item.address)}`)}
                           className="text-yellow-300 hover:text-yellow-200 hover:bg-yellow-500/20"
+                          title="Graph Forensics Explorer"
                         >
                           <Network className="w-4 h-4" />
                         </Button>
@@ -547,6 +550,37 @@ export default function WatchlistPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="bg-black border-yellow-500/30">
+                            <DropdownMenuItem 
+                              onClick={async () => {
+                                try {
+                                  const res = await fetch("/api/cases", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                      title: `Watchlist Target: ${item.address.slice(0, 10)}...`,
+                                      description: item.notes || `Monitored address under surveillance on ${item.blockchain}`,
+                                      priority: item.currentRiskLevel
+                                    })
+                                  })
+                                  if (res.ok) {
+                                    const data = await res.json()
+                                    await fetch(`/api/cases/${data.case.id}/items`, {
+                                      method: "POST",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({ itemType: "wallet", itemId: item.address })
+                                    })
+                                    toast.success("Investigation Case opened!")
+                                    router.push("/cases")
+                                  }
+                                } catch {
+                                  toast.error("Failed to create case")
+                                }
+                              }}
+                              className="text-yellow-300 focus:text-yellow-200 focus:bg-yellow-500/20"
+                            >
+                              <FolderArchive className="w-4 h-4 mr-2" />
+                              Open Case
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => startEditing(item)} className="text-gray-300 focus:text-yellow-300 focus:bg-yellow-500/20">
                               <Edit className="w-4 h-4 mr-2" />
                               Edit Settings

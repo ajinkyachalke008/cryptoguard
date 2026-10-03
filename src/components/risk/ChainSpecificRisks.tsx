@@ -32,7 +32,11 @@ const chainIcons: Record<string, string> = {
   Solana: "SOL",
   Arbitrum: "ARB",
   Avalanche: "AVAX",
-  Base: "BASE"
+  Base: "BASE",
+  Optimism: "OP",
+  Cardano: "ADA",
+  Polkadot: "DOT",
+  Tron: "TRX"
 }
 
 const chainColors: Record<string, { bg: string; border: string; text: string }> = {
@@ -43,7 +47,11 @@ const chainColors: Record<string, { bg: string; border: string; text: string }> 
   Solana: { bg: "bg-purple-500/20", border: "border-purple-500/50", text: "text-purple-400" },
   Arbitrum: { bg: "bg-blue-600/20", border: "border-blue-600/50", text: "text-blue-300" },
   Avalanche: { bg: "bg-red-500/20", border: "border-red-500/50", text: "text-red-400" },
-  Base: { bg: "bg-blue-400/20", border: "border-blue-400/50", text: "text-blue-300" }
+  Base: { bg: "bg-blue-400/20", border: "border-blue-400/50", text: "text-blue-300" },
+  Optimism: { bg: "bg-red-500/20", border: "border-red-500/50", text: "text-red-400" },
+  Cardano: { bg: "bg-blue-700/20", border: "border-blue-700/50", text: "text-blue-400" },
+  Polkadot: { bg: "bg-pink-600/20", border: "border-pink-600/50", text: "text-pink-400" },
+  Tron: { bg: "bg-red-600/20", border: "border-red-600/50", text: "text-red-400" }
 }
 
 const severityColors = {

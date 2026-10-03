@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { walletScans } from '@/db/schema';
 import { normalizeChainName, resolveForensicEntity } from '@/lib/services/forensicEngine';
+import { findCanonicalAccount, findCanonicalTransaction } from '@/lib/services/canonicalCaseEngine';
 
 const SUPPORTED_BLOCKCHAINS = [
   'ethereum',
@@ -207,14 +208,16 @@ export async function POST(request: NextRequest) {
     }
     
     const normalizedAddress = address.trim();
+    const canonicalAcc = findCanonicalAccount(normalizedAddress);
+    const canonicalTx = findCanonicalTransaction(normalizedAddress);
     const cacheKey = `${normalizedBlockchain}:${normalizedAddress.toLowerCase()}`;
     const cached = scanCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    if (!canonicalAcc && !canonicalTx && cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
       return NextResponse.json(cached.response, { status: 200 });
     }
 
     const forensic = resolveForensicEntity(normalizedAddress, normalizedBlockchain);
-    const riskScore = forensic.riskScore;
+    const riskScore = canonicalAcc ? canonicalAcc.riskScore : canonicalTx ? canonicalTx.riskScore : forensic.riskScore;
     const sanctionsStatus = riskScore >= 80 ? 'sanctioned' : riskScore >= 60 ? 'flagged' : 'clean';
     const pepRiskLevel = riskScore >= 80 ? 'high' : riskScore >= 60 ? 'medium' : riskScore >= 30 ? 'low' : 'none';
     const multiChainData = generateMultiChainData(normalizedBlockchain);
@@ -323,6 +326,34 @@ export async function POST(request: NextRequest) {
         error: 'Internal server error: ' + (error instanceof Error ? error.message : 'Unknown error'),
         code: 'INTERNAL_ERROR'
       },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const address = searchParams.get('address');
+    const blockchain = searchParams.get('blockchain') || 'ethereum';
+
+    if (!address) {
+      return NextResponse.json(
+        { error: 'Wallet address is required', code: 'MISSING_ADDRESS' },
+        { status: 400 }
+      );
+    }
+
+    // Delegate to POST logic using synthetic NextRequest
+    return POST(new NextRequest(request.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ address, blockchain })
+    }));
+  } catch (error) {
+    console.error('GET wallet scan error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error', code: 'INTERNAL_ERROR' },
       { status: 500 }
     );
   }

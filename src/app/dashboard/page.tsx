@@ -26,7 +26,8 @@ import {
   FileText,
   Key,
   Loader2,
-  Globe
+  Globe,
+  FolderArchive
 } from "lucide-react"
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
 import { toast } from "sonner"
@@ -335,7 +336,13 @@ export default function Dashboard() {
                         <span className="text-xs text-gray-500">{alert.time}</span>
                       </div>
                     </div>
-                    <Button size="sm" variant="ghost" className="text-yellow-300 hover:text-yellow-200 hover:bg-yellow-500/20">
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="text-yellow-300 hover:text-yellow-200 hover:bg-yellow-500/20"
+                      onClick={() => router.push(`/graph?address=${encodeURIComponent(alert.from)}`)}
+                      title="Inspect address in Graph Explorer"
+                    >
                       <Eye className="h-4 w-4" />
                     </Button>
                   </div>
@@ -392,6 +399,13 @@ export default function Dashboard() {
         <div className="rounded-xl border border-yellow-500/40 bg-black/60 p-6 backdrop-blur-sm shadow-[0_0_40px_#ffd70022]">
           <h2 className="text-xl font-semibold text-yellow-300 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            <Button
+              onClick={() => router.push("/cases")}
+              className="h-auto flex flex-col items-center gap-2 py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/20 hover:border-yellow-500/50 shadow-[0_0_20px_rgba(255,215,0,0.1)]"
+            >
+              <FolderArchive className="size-6 text-yellow-400" />
+              <span className="font-semibold text-sm">Cases</span>
+            </Button>
             <Button
               onClick={() => router.push("/hub")}
               className="h-auto flex flex-col items-center gap-2 py-4 bg-gold/5 border border-gold/20 text-gold hover:bg-gold/10 hover:border-gold/40 shadow-[0_0_20px_rgba(255,215,0,0.1)]"

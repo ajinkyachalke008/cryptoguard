@@ -171,8 +171,8 @@ export function AIRiskExplanation({ data }: AIRiskExplanationProps) {
                 </p>
                 <div className="space-y-3">
                   {data.risk_factors.map((factor, idx) => {
-                    const factorStyle = factorConfig[factor.factor_type]
-                    const severityStyle = severityConfig[factor.severity]
+                    const factorStyle = (factor?.factor_type && factorConfig[factor.factor_type]) || { label: factor?.factor_type || "Risk Factor", color: "text-red-400", bgColor: "bg-red-500/20" }
+                    const severityStyle = (factor?.severity && severityConfig[factor.severity]) || severityConfig.MEDIUM
                     
                     return (
                       <div key={idx} className={`p-3 rounded-lg ${factorStyle.bgColor} border ${severityStyle.borderColor}`}>

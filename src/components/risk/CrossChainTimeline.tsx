@@ -62,7 +62,12 @@ const chainColors: Record<string, string> = {
   Polygon: "bg-purple-500/30 text-purple-300 border-purple-500/50",
   Solana: "bg-purple-500/30 text-purple-300 border-purple-500/50",
   Arbitrum: "bg-blue-600/30 text-blue-200 border-blue-600/50",
-  Avalanche: "bg-red-500/30 text-red-300 border-red-500/50"
+  Avalanche: "bg-red-500/30 text-red-300 border-red-500/50",
+  Optimism: "bg-red-500/30 text-red-300 border-red-500/50",
+  Base: "bg-blue-400/30 text-blue-300 border-blue-400/50",
+  Tron: "bg-red-600/30 text-red-300 border-red-600/50",
+  Cardano: "bg-blue-700/30 text-blue-300 border-blue-700/50",
+  Polkadot: "bg-pink-600/30 text-pink-300 border-pink-600/50"
 }
 
 export function CrossChainTimeline({ data, onAddressClick }: CrossChainTimelineProps) {
@@ -117,11 +122,12 @@ export function CrossChainTimeline({ data, onAddressClick }: CrossChainTimelineP
           {/* Timeline Items */}
           <div className="space-y-4">
             {data.flow.map((hop, index) => {
-              const config = hopConfig[hop.hop_type]
-              const HopIcon = config.icon
+              const config = (hop?.hop_type && hopConfig[hop.hop_type]) || hopConfig.WALLET
+              const HopIcon = config.icon || Wallet
               const isExpanded = expandedHops.has(index)
               const isLast = index === data.flow.length - 1
-              const chainColor = chainColors[hop.chain] || "bg-gray-500/30 text-gray-300 border-gray-500/50"
+              const hopChainKey = hop?.chain ? hop.chain.charAt(0).toUpperCase() + hop.chain.slice(1).toLowerCase() : ""
+              const chainColor = chainColors[hop.chain] || chainColors[hopChainKey] || "bg-gray-500/30 text-gray-300 border-gray-500/50"
 
               return (
                 <div key={index} className="relative flex gap-4">

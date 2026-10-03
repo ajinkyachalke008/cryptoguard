@@ -34,6 +34,13 @@ async function main() {
             createdAt: new Date('2024-11-10T08:45:00.000Z').toISOString(),
             updatedAt: new Date('2024-12-19T10:30:00.000Z').toISOString(),
         },
+        {
+            email: 'compliance@cryptoguard.io',
+            passwordHash,
+            role: 'user',
+            createdAt: new Date('2024-11-15T09:00:00.000Z').toISOString(),
+            updatedAt: new Date('2024-12-20T10:00:00.000Z').toISOString(),
+        },
     ];
 
     await db.insert(users).values(sampleUsers);

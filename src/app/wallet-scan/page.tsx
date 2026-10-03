@@ -32,7 +32,7 @@ import {
 import { toast } from "sonner"
 
 // Import risk components
-import { SanctionsPanel, SanctionsData } from "@/components/risk/SanctionsPanel"
+import { SanctionsPanel, SanctionsData, SanctionsStatus } from "@/components/risk/SanctionsPanel"
 import { PEPPanel, PEPData } from "@/components/risk/PEPPanel"
 import { MultiChainSelector, MultiChainData, ChainType } from "@/components/risk/MultiChainSelector"
 import { ChainSpecificRisks, ChainSpecificRiskData } from "@/components/risk/ChainSpecificRisks"
@@ -158,6 +158,23 @@ function generateMockCrossChainFlow(): CrossChainFlowData {
   }
 }
 
+function formatChainDisplayName(chain: string): string {
+  const lower = (chain || "").toLowerCase().trim()
+  if (lower === "bsc") return "BSC"
+  if (lower === "eth" || lower === "ethereum") return "Ethereum"
+  if (lower === "btc" || lower === "bitcoin") return "Bitcoin"
+  if (lower === "polygon" || lower === "matic") return "Polygon"
+  if (lower === "solana" || lower === "sol") return "Solana"
+  if (lower === "arbitrum" || lower === "arb") return "Arbitrum"
+  if (lower === "optimism" || lower === "op") return "Optimism"
+  if (lower === "avalanche" || lower === "avax") return "Avalanche"
+  if (lower === "base") return "Base"
+  if (lower === "tron" || lower === "trx") return "Tron"
+  if (lower === "cardano" || lower === "ada") return "Cardano"
+  if (lower === "polkadot" || lower === "dot") return "Polkadot"
+  return chain ? chain.charAt(0).toUpperCase() + chain.slice(1) : "Ethereum"
+}
+
 function WalletScanContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -190,7 +207,7 @@ function WalletScanContent() {
 
   useEffect(() => {
     if (initialAddress && initialAddress.trim() && !scanComplete) {
-      loadInstantMockData(initialAddress.trim())
+      handleScan(initialAddress.trim())
     }
   }, [initialAddress])
 
@@ -202,12 +219,11 @@ function WalletScanContent() {
     }
     
     setAddress(addrToScan)
-    loadInstantMockData(addrToScan)
     setIsScanning(true)
     
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 3500)
+      const timeoutId = setTimeout(() => controller.abort(), 6000)
 
       // Call real API
       const response = await fetch('/api/wallet-scan', {
@@ -231,7 +247,7 @@ function WalletScanContent() {
           const scanData = data.scan_data
           
           // Map sanctions data
-          const sanctionsStatus = data.sanctions_status === 'sanctioned' ? 'CONFIRMED_MATCH' :
+          const sanctionsStatus: SanctionsStatus = data.sanctions_status === 'sanctioned' ? 'CONFIRMED_MATCH' :
                                  data.sanctions_status === 'flagged' ? 'POSSIBLE_MATCH' : 'CLEAR'
           
           setSanctionsData({
@@ -271,7 +287,7 @@ function WalletScanContent() {
           
           // Map multi-chain data
           const chainsData = scanData.chain_risks?.map((cr: any) => ({
-            chain: cr.chain.charAt(0).toUpperCase() + cr.chain.slice(1),
+            chain: formatChainDisplayName(cr.chain),
             chain_risk_score: cr.risk_score,
             key_risks: cr.flags || [],
             transaction_count: Math.floor(Math.random() * 200) + 10,
@@ -287,7 +303,7 @@ function WalletScanContent() {
           
           // Map chain-specific risks
           const chainRisks = scanData.chain_risks?.map((cr: any) => ({
-            chain: cr.chain.charAt(0).toUpperCase() + cr.chain.slice(1),
+            chain: formatChainDisplayName(cr.chain),
             top_red_flags: cr.flags?.map((flag: string) => ({
               flag: flag.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()),
               severity: cr.risk_score >= 70 ? "HIGH" : cr.risk_score >= 40 ? "MEDIUM" : "LOW",
@@ -326,17 +342,17 @@ function WalletScanContent() {
               flow: [
                 ...flow.inbound_chains?.map((ch: string, idx: number) => ({
                   hop_type: "WALLET" as const,
-                  chain: ch,
+                  chain: formatChainDisplayName(ch),
                   address: `0x${idx}...in`,
-                  description: `Inbound from ${ch}`,
+                  description: `Inbound from ${formatChainDisplayName(ch)}`,
                   timestamp: new Date(Date.now() - 86400000 * (idx + 1)).toISOString(),
                   amount: Math.floor(Math.random() * 50000) + 1000
                 })) || [],
                 ...flow.outbound_chains?.map((ch: string, idx: number) => ({
                   hop_type: "WALLET" as const,
-                  chain: ch,
+                  chain: formatChainDisplayName(ch),
                   address: `0x${idx}...out`,
-                  description: `Outbound to ${ch}`,
+                  description: `Outbound to ${formatChainDisplayName(ch)}`,
                   timestamp: new Date(Date.now() - 43200000 * (idx + 1)).toISOString(),
                   amount: Math.floor(Math.random() * 50000) + 1000
                 })) || []
@@ -354,29 +370,16 @@ function WalletScanContent() {
       }
 
       // Fallback to deterministic mock data
-      const mockMultiChain = generateMockMultiChainData(addrToScan)
-      setSanctionsData(generateMockSanctionsData())
-      setPepData(generateMockPEPData())
-      setMultiChainData(mockMultiChain)
-      setChainSpecificRisks(generateMockChainSpecificRisks())
-      setAiExplanation(generateMockAIExplanation(addrToScan, mockMultiChain.global_risk_score))
-      setCrossChainFlow(generateMockCrossChainFlow())
-      setIsScanning(false)
-      setScanComplete(true)
+      loadInstantMockData(addrToScan)
       toast.success("Wallet scan complete")
       
     } catch {
       // Fallback to mock data on network error
-      const mockMultiChain = generateMockMultiChainData(addrToScan)
-      setSanctionsData(generateMockSanctionsData())
-      setPepData(generateMockPEPData())
-      setMultiChainData(mockMultiChain)
-      setChainSpecificRisks(generateMockChainSpecificRisks())
-      setAiExplanation(generateMockAIExplanation(addrToScan, mockMultiChain.global_risk_score))
-      setCrossChainFlow(generateMockCrossChainFlow())
+      loadInstantMockData(addrToScan)
+      toast.success("Wallet scan complete")
+    } finally {
       setIsScanning(false)
       setScanComplete(true)
-      toast.success("Wallet scan complete")
     }
   }
 

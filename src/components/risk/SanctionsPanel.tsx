@@ -69,8 +69,13 @@ const statusConfig = {
 
 export function SanctionsPanel({ data }: SanctionsPanelProps) {
   const [expanded, setExpanded] = useState(false)
-  const config = statusConfig[data.sanctions_status]
-  const StatusIcon = config.icon
+  const normStatus = ((data?.sanctions_status || "").toUpperCase() === "CONFIRMED_MATCH" || (data?.sanctions_status || "").toLowerCase() === "sanctioned") 
+    ? "CONFIRMED_MATCH" 
+    : ((data?.sanctions_status || "").toUpperCase() === "POSSIBLE_MATCH" || (data?.sanctions_status || "").toLowerCase() === "flagged") 
+    ? "POSSIBLE_MATCH" 
+    : "CLEAR"
+  const config = statusConfig[normStatus] || statusConfig.CLEAR
+  const StatusIcon = config.icon || CheckCircle2
 
   return (
     <Card className={`border-2 ${config.borderColor} bg-black/60 backdrop-blur-sm ${config.glowColor}`}>

@@ -82,8 +82,9 @@ const pepTypeIcons = {
 
 export function PEPPanel({ data }: PEPPanelProps) {
   const [expanded, setExpanded] = useState(false)
-  const config = riskConfig[data.pep_risk_level]
-  const StatusIcon = config.icon
+  const normLevel = (data?.pep_risk_level || "").toUpperCase() as PEPRiskLevel
+  const config = riskConfig[normLevel] || riskConfig.NONE
+  const StatusIcon = config.icon || CheckCircle2
   const TypeIcon = data.pep_type ? pepTypeIcons[data.pep_type] || User : User
 
   return (
