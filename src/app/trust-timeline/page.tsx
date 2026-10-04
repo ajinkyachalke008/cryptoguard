@@ -482,10 +482,8 @@ export default function TrustTimelinePage() {
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest" | "highest_risk">("newest")
   const [copiedTxId, setCopiedTxId] = useState<string | null>(null)
 
-  // Chart Canvas ref & hover state
+  // Chart Canvas ref
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [hoveredDataPoint, setHoveredDataPoint] = useState<RiskDataPoint | null>(null)
-  const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(null)
 
   // Periodically update nowTime so relative times ("18m ago") stay active and fresh
   useEffect(() => {
@@ -514,6 +512,19 @@ export default function TrustTimelinePage() {
     }
   }, [showResults, animationProgress])
 
+  // Continuous animation loop for living pulse halos and social waves
+  useEffect(() => {
+    if (showResults) {
+      const interval = setInterval(() => {
+        const canvas = canvasRef.current
+        if (canvas) {
+          setRiskData(prev => [...prev])
+        }
+      }, 50)
+      return () => clearInterval(interval)
+    }
+  }, [showResults])
+
   // Canvas drawing effect
   useEffect(() => {
     const canvas = canvasRef.current
@@ -534,8 +545,7 @@ export default function TrustTimelinePage() {
     const graphWidth = rect.width - padding.left - padding.right
     const graphHeight = rect.height - padding.top - padding.bottom
 
-    // Draw Grid Lines & Y-axis
-    ctx.strokeStyle = "rgba(255,215,0,0.06)"
+    ctx.strokeStyle = "rgba(255,215,0,0.05)"
     ctx.lineWidth = 1
     for (let i = 0; i <= 4; i++) {
       const y = padding.top + (graphHeight / 4) * i
@@ -544,10 +554,10 @@ export default function TrustTimelinePage() {
       ctx.lineTo(padding.left + graphWidth, y)
       ctx.stroke()
       
-      ctx.fillStyle = "rgba(255,255,255,0.35)"
+      ctx.fillStyle = "rgba(255,255,255,0.3)"
       ctx.font = "10px monospace"
       ctx.textAlign = "right"
-      ctx.fillText(`${100 - i * 25}%`, padding.left - 12, y + 4)
+      ctx.fillText(`${100 - i * 25}`, padding.left - 15, y + 4)
     }
 
     const visiblePoints = Math.floor((riskData.length * animationProgress) / 100)
@@ -556,10 +566,9 @@ export default function TrustTimelinePage() {
     const getX = (i: number) => padding.left + (i / (riskData.length - 1)) * graphWidth
     const getY = (val: number) => padding.top + ((100 - val) / 100) * graphHeight
 
-    // 1. Risk Confidence Corridor Band
     if (activeLayers.has("risk")) {
       ctx.beginPath()
-      const bandOpacity = 0.12 * (animationProgress / 100)
+      const bandOpacity = 0.1 * (animationProgress / 100)
       ctx.fillStyle = `rgba(255, 215, 0, ${bandOpacity})`
       
       for (let i = 0; i < visiblePoints; i++) {
@@ -576,10 +585,9 @@ export default function TrustTimelinePage() {
       ctx.fill()
     }
 
-    // 2. Liquidity Area Band
     if (activeLayers.has("liquidity")) {
       ctx.beginPath()
-      ctx.fillStyle = "rgba(56, 189, 248, 0.12)"
+      ctx.fillStyle = "rgba(56, 189, 248, 0.15)"
       for (let i = 0; i < visiblePoints; i++) {
         const x = getX(i)
         const y = getY(riskData[i].liquidity)
@@ -589,10 +597,10 @@ export default function TrustTimelinePage() {
       ctx.lineTo(padding.left, padding.top + graphHeight)
       ctx.closePath()
       ctx.fill()
-
+      
       ctx.beginPath()
-      ctx.strokeStyle = "rgba(56, 189, 248, 0.7)"
-      ctx.lineWidth = 1.5
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.4)"
+      ctx.lineWidth = 1
       for (let i = 0; i < visiblePoints; i++) {
         const x = getX(i)
         const y = getY(riskData[i].liquidity)
@@ -601,11 +609,10 @@ export default function TrustTimelinePage() {
       ctx.stroke()
     }
 
-    // 3. Ownership Curve
     if (activeLayers.has("ownership")) {
       ctx.beginPath()
       ctx.setLineDash([5, 5])
-      ctx.strokeStyle = "rgba(168, 85, 247, 0.7)"
+      ctx.strokeStyle = "rgba(168, 85, 247, 0.6)"
       ctx.lineWidth = 2
       for (let i = 0; i < visiblePoints; i++) {
         const x = getX(i)
@@ -616,26 +623,24 @@ export default function TrustTimelinePage() {
       ctx.setLineDash([])
     }
 
-    // 4. Social Pulse
     if (activeLayers.has("social")) {
-      for (let i = 0; i < visiblePoints; i += 3) {
+      for (let i = 0; i < visiblePoints; i += 4) {
         const x = getX(i)
         const y = getY(riskData[i].social)
         const intensity = riskData[i].social / 100
         const pulse = Math.sin(Date.now() / 1000 + i) * 0.2 + 0.8
         
-        const grad = ctx.createRadialGradient(x, y, 0, x, y, 25 * intensity * pulse)
-        grad.addColorStop(0, `rgba(244, 114, 182, ${0.25 * intensity})`)
+        const grad = ctx.createRadialGradient(x, y, 0, x, y, 30 * intensity * pulse)
+        grad.addColorStop(0, `rgba(244, 114, 182, ${0.2 * intensity})`)
         grad.addColorStop(1, "rgba(244, 114, 182, 0)")
         
         ctx.fillStyle = grad
         ctx.beginPath()
-        ctx.arc(x, y, 25 * intensity * pulse, 0, Math.PI * 2)
+        ctx.arc(x, y, 30 * intensity * pulse, 0, Math.PI * 2)
         ctx.fill()
       }
     }
 
-    // 5. Main Risk Score Curve
     if (activeLayers.has("risk")) {
       const gradient = ctx.createLinearGradient(padding.left, 0, padding.left + graphWidth, 0)
       riskData.slice(0, visiblePoints).forEach((point, i) => {
@@ -645,7 +650,7 @@ export default function TrustTimelinePage() {
 
       ctx.beginPath()
       ctx.strokeStyle = gradient
-      ctx.lineWidth = 3.5
+      ctx.lineWidth = 4
       ctx.lineCap = "round"
       ctx.lineJoin = "round"
 
@@ -656,17 +661,16 @@ export default function TrustTimelinePage() {
       }
       ctx.stroke()
 
-      // Extrapolation dashed tail
       if (visiblePoints === riskData.length) {
         ctx.beginPath()
-        ctx.setLineDash([4, 4])
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.35)"
+        ctx.setLineDash([5, 5])
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.3)"
         const lastPoint = riskData[riskData.length - 1]
         ctx.moveTo(getX(riskData.length - 1), getY(lastPoint.score))
         
-        for (let j = 1; j <= 3; j++) {
-          const fx = padding.left + graphWidth + (j / 3) * 50
-          const fy = getY(Math.min(100, Math.max(0, lastPoint.score + (j * 2))))
+        for (let j = 1; j <= 4; j++) {
+          const fx = padding.left + graphWidth + (j / 4) * 60
+          const fy = getY(lastPoint.score + (Math.random() - 0.3) * 15)
           ctx.lineTo(fx, fy)
         }
         ctx.stroke()
@@ -674,101 +678,50 @@ export default function TrustTimelinePage() {
       }
     }
 
-    // 6. Draw Clickable Event Node Markers
     riskData.slice(0, visiblePoints).forEach((point, i) => {
       if (!point.event) return
       
       const x = getX(i)
       const y = getY(point.score)
-      const isSelected = selectedEvent?.id === point.event.id
       const color = getSeverityColor(point.event.severity)
+      const isSelected = selectedEvent?.id === point.event.id
 
-      // Outer Halo
-      const pulse = isSelected ? 1.4 : Math.sin(Date.now() / 500 + i) * 0.25 + 0.75
+      const pulse = Math.sin(Date.now() / 500 + i) * 0.3 + 0.7
       ctx.beginPath()
-      ctx.arc(x, y, (isSelected ? 18 : 12) * pulse, 0, Math.PI * 2)
-      ctx.fillStyle = `${color}33`
+      ctx.arc(x, y, (isSelected ? 16 : 14) * pulse, 0, Math.PI * 2)
+      ctx.fillStyle = `${color}22`
       ctx.fill()
 
-      // Inner Core
       ctx.beginPath()
-      ctx.arc(x, y, isSelected ? 8 : 6, 0, Math.PI * 2)
+      ctx.arc(x, y, isSelected ? 7 : 6, 0, Math.PI * 2)
       ctx.fillStyle = color
       ctx.fill()
-      ctx.strokeStyle = "#000"
+      ctx.strokeStyle = isSelected ? "#fff" : "#000"
       ctx.lineWidth = 2
       ctx.stroke()
       
-      // Dashed Selection Ring
       ctx.beginPath()
-      ctx.arc(x, y, isSelected ? 14 : 10, 0, Math.PI * 2)
-      ctx.strokeStyle = isSelected ? "#ffffff" : `${color}88`
-      ctx.lineWidth = isSelected ? 2 : 1
+      ctx.arc(x, y, isSelected ? 12 : 10, 0, Math.PI * 2)
+      ctx.strokeStyle = isSelected ? "#fff" : `${color}66`
+      ctx.lineWidth = 1
       ctx.setLineDash([2, 2])
       ctx.stroke()
       ctx.setLineDash([])
     })
 
-    // 7. Time Axis Labels (Dynamic per timeRange)
-    const labelStep = Math.max(1, Math.floor(riskData.length / 6))
+    const labelStep = Math.ceil(riskData.length / 6)
     riskData.forEach((point, i) => {
-      if (i % labelStep === 0 || i === riskData.length - 1) {
+      if (i % labelStep === 0) {
         const x = getX(i)
-        let label = ""
-
-        if (timeRange === "24h") {
-          label = point.timestamp.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false })
-        } else if (timeRange === "7d") {
-          label = point.timestamp.toLocaleDateString("en-US", { month: "short", day: "numeric" })
-        } else {
-          label = point.timestamp.toLocaleDateString("en-US", { month: "numeric", day: "numeric" })
-        }
-
-        ctx.fillStyle = "rgba(255,255,255,0.45)"
+        const date = point.timestamp.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+        ctx.fillStyle = "rgba(255,255,255,0.4)"
         ctx.font = "9px monospace"
         ctx.textAlign = "center"
-        ctx.fillText(label, x, rect.height - padding.bottom + 22)
+        ctx.fillText(date, x, rect.height - padding.bottom + 25)
       }
     })
 
-  }, [riskData, animationProgress, activeLayers, selectedEvent, timeRange])
-
-  // Mouse move handler for canvas hover HUD
-  const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current
-    if (!canvas || riskData.length === 0) return
-
-    const rect = canvas.getBoundingClientRect()
-    const mouseX = e.clientX - rect.left
-    const mouseY = e.clientY - rect.top
-
-    const padding = { top: 40, right: 60, bottom: 60, left: 60 }
-    const graphWidth = rect.width - padding.left - padding.right
-
-    if (mouseX < padding.left || mouseX > padding.left + graphWidth) {
-      setHoveredDataPoint(null)
-      setHoverPos(null)
-      return
-    }
-
-    const relX = (mouseX - padding.left) / graphWidth
-    const pointIdx = Math.round(relX * (riskData.length - 1))
-    const clampedIdx = Math.max(0, Math.min(riskData.length - 1, pointIdx))
-
-    setHoveredDataPoint(riskData[clampedIdx])
-    setHoverPos({ x: mouseX, y: mouseY })
-  }
-
-  const handleCanvasMouseLeave = () => {
-    setHoveredDataPoint(null)
-    setHoverPos(null)
-  }
-
-  const handleCanvasClick = () => {
-    if (hoveredDataPoint?.event) {
-      setSelectedEvent(hoveredDataPoint.event)
-    }
-  }
+  }, [riskData, animationProgress, activeLayers, selectedEvent])
 
   // Trigger manual timeline re-analysis
   const handleScan = () => {
@@ -955,25 +908,23 @@ export default function TrustTimelinePage() {
             {/* Main Interactive Column */}
             <div className="lg:col-span-2 space-y-6">
               
-              {/* 1. Interactive Risk Evolution Timeline Canvas */}
-              <Card className="border-yellow-500/30 bg-black/60 backdrop-blur-md overflow-hidden shadow-2xl">
-                <CardHeader className="border-b border-yellow-500/20 py-4">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <CardTitle className="text-base text-yellow-300 flex items-center gap-2 font-bold uppercase tracking-wider">
-                        <TrendingUp className="w-4 h-4 text-yellow-400" />
-                        Risk Trajectory Chart
+              {/* 1. Risk Evolution Timeline */}
+              <Card className="border-yellow-500/30 bg-black/60 backdrop-blur-sm overflow-hidden">
+                <CardHeader className="border-b border-yellow-500/20">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <CardTitle className="text-lg text-yellow-300 flex items-center gap-2">
+                        <TrendingUp className="w-5 h-5" />
+                        Risk Evolution Timeline
                       </CardTitle>
-                      
-                      {/* Time Range Selector */}
-                      <div className="flex bg-black/60 rounded-lg p-0.5 border border-yellow-500/20">
+                      <div className="flex bg-black/40 rounded-lg p-1 border border-yellow-500/20">
                         {(["24h", "7d", "30d", "all"] as const).map((r) => (
                           <button
                             key={r}
                             onClick={() => setTimeRange(r)}
-                            className={`px-2.5 py-1 text-xs rounded transition-all font-mono font-bold ${
+                            className={`px-3 py-1 text-xs rounded transition-all ${
                               timeRange === r 
-                                ? "bg-yellow-500 text-black shadow" 
+                                ? "bg-yellow-500 text-black font-bold" 
                                 : "text-gray-500 hover:text-gray-300"
                             }`}
                           >
@@ -982,87 +933,52 @@ export default function TrustTimelinePage() {
                         ))}
                       </div>
                     </div>
-
-                    {/* Layer Toggles */}
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      {[
-                        { id: "risk", label: "Risk Score", color: "bg-yellow-500" },
-                        { id: "liquidity", label: "Liquidity", color: "bg-sky-400" },
-                        { id: "ownership", label: "Ownership", color: "bg-purple-500" },
-                        { id: "social", label: "Social", color: "bg-pink-400" }
-                      ].map(layer => (
-                        <button
-                          key={layer.id}
-                          onClick={() => {
-                            const next = new Set(activeLayers)
-                            if (next.has(layer.id)) next.delete(layer.id); else next.add(layer.id)
-                            setActiveLayers(next)
-                          }}
-                          className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono uppercase border transition-all ${
-                            activeLayers.has(layer.id)
-                              ? "border-white/20 bg-white/10 text-white font-bold"
-                              : "border-transparent text-gray-600 opacity-40 hover:opacity-70"
-                          }`}
-                        >
-                          <div className={`w-1.5 h-1.5 rounded-full ${layer.color}`} />
-                          <span>{layer.label}</span>
-                        </button>
-                      ))}
+                    <div className="flex items-center gap-4">
+                      <div className="flex gap-2">
+                        {[
+                          { id: "risk", label: "Risk", color: "bg-yellow-500" },
+                          { id: "liquidity", label: "Liquidity", color: "bg-sky-400" },
+                          { id: "ownership", label: "Ownership", color: "bg-purple-500" },
+                          { id: "social", label: "Social", color: "bg-pink-400" }
+                        ].map(layer => (
+                          <button
+                            key={layer.id}
+                            onClick={() => {
+                              const next = new Set(activeLayers)
+                              if (next.has(layer.id)) next.delete(layer.id); else next.add(layer.id)
+                              setActiveLayers(next)
+                            }}
+                            className={`flex items-center gap-1.5 px-2 py-1 rounded border transition-all ${
+                              activeLayers.has(layer.id)
+                                ? "border-white/20 bg-white/5 opacity-100"
+                                : "border-transparent opacity-30 grayscale"
+                            }`}
+                          >
+                            <div className={`w-1.5 h-1.5 rounded-full ${layer.color}`} />
+                            <span className="text-[10px] font-medium uppercase">{layer.label}</span>
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </CardHeader>
-
                 <CardContent className="p-0 relative">
-                  {/* Canvas Status Badge */}
-                  <div className="absolute top-3 left-4 z-10 flex items-center gap-2 bg-black/70 backdrop-blur-md border border-white/10 rounded-lg px-2.5 py-1 text-[11px]">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="font-mono text-emerald-400 font-bold">LIVE TELEMETRY STREAM</span>
-                    <span className="text-gray-600">|</span>
-                    <span className="text-gray-400">{events.length} Milestones</span>
+                  <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+                    <div className="bg-black/60 backdrop-blur-md border border-white/10 rounded-lg px-3 py-2">
+                      <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Status</div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-xs font-mono text-emerald-400">LIVE TRACKING ACTIVE</span>
+                      </div>
+                    </div>
                   </div>
-
-                  {/* Canvas Container */}
-                  <div className="relative h-[420px] w-full bg-[#07080c] cursor-crosshair">
+                  <div className="relative h-[450px] w-full bg-[#08090d] cursor-crosshair">
                     <canvas 
                       ref={canvasRef}
-                      onMouseMove={handleCanvasMouseMove}
-                      onMouseLeave={handleCanvasMouseLeave}
-                      onClick={handleCanvasClick}
                       className="w-full h-full"
                       style={{ display: "block" }}
                     />
-                    
-                    {/* Crosshair HUD Tooltip */}
-                    {hoveredDataPoint && hoverPos && (
-                      <div 
-                        className="absolute z-20 pointer-events-none p-3 rounded-xl bg-black/90 border border-yellow-500/40 backdrop-blur-md shadow-2xl text-xs space-y-1.5"
-                        style={{
-                          left: Math.min(hoverPos.x + 15, canvasRef.current ? canvasRef.current.clientWidth - 220 : hoverPos.x),
-                          top: Math.max(10, Math.min(hoverPos.y - 60, 300))
-                        }}
-                      >
-                        <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-1">
-                          <span className="font-mono font-bold text-yellow-400">
-                            {formatRelativeTime(hoveredDataPoint.timestamp, nowTime)}
-                          </span>
-                          <span className="text-[10px] text-gray-500 font-mono">
-                            {hoveredDataPoint.timestamp.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] font-mono">
-                          <div>Risk: <span className="font-bold" style={{ color: getRiskColor(hoveredDataPoint.score) }}>{Math.round(hoveredDataPoint.score)}%</span></div>
-                          <div>Liquidity: <span className="text-sky-400 font-bold">{Math.round(hoveredDataPoint.liquidity)}%</span></div>
-                          <div>Ownership: <span className="text-purple-400 font-bold">{Math.round(hoveredDataPoint.ownership)}%</span></div>
-                          <div>Confidence: <span className="text-emerald-400 font-bold">{Math.round(hoveredDataPoint.confidence)}%</span></div>
-                        </div>
-                        {hoveredDataPoint.event && (
-                          <div className="pt-1 border-t border-white/10 text-yellow-300 font-semibold flex items-center gap-1.5 text-[10px]">
-                            <AlertTriangle className="w-3 h-3 text-red-400" />
-                            {hoveredDataPoint.event.title} (Click to inspect)
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#05060a] via-transparent to-transparent opacity-40" />
                   </div>
                 </CardContent>
               </Card>
