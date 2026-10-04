@@ -1396,21 +1396,7 @@ export default function TrustTimelinePage() {
                     Forensic Risk Summary
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-5 pt-5">
-                  <div className="text-center py-2">
-                    <div 
-                      className="text-6xl font-mono font-black mb-1 tracking-tight"
-                      style={{ color: getRiskColor(currentRisk) }}
-                    >
-                      {Math.round(currentRisk)}%
-                    </div>
-                    <div className="text-xs font-bold uppercase tracking-widest text-gray-400">
-                      Current Cumulative Risk
-                    </div>
-                    <div className="text-[11px] text-gray-500 mt-1 font-mono">
-                      ± 5.2% confidence corridor
-                    </div>
-                  </div>
+                <CardContent className="space-y-4 pt-4">
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3 text-center">
