@@ -117,132 +117,95 @@ function generateEventsForRange(
   targetAddress: string = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
 ): TimelineEvent[] {
   const now = Date.now()
-  const days = timeRange === "24h" ? 1 : timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90
-  const totalMs = days * 86400000
   const currentBlock = 21085420
 
   const addrPrefix = targetAddress && targetAddress.length >= 6 ? targetAddress.slice(0, 6) : "0x742d"
   const addrSuffix = targetAddress && targetAddress.length >= 4 ? targetAddress.slice(-4) : "3a91"
   const targetFormatted = `${addrPrefix}...${addrSuffix}`
 
-  if (timeRange === "all") {
-    // 90-Day Full Lifecycle Forensic Profile
+  if (timeRange === "24h") {
+    // 24-Hour Intraday Attack & Tactical Contagion
     return [
       {
-        id: "ev-all-1",
-        timestamp: new Date(now - 86400000 * 88),
-        blockNumber: Math.floor(currentBlock - (86400000 * 88) / 12000),
+        id: "ev-24h-1",
+        timestamp: new Date(now - 1000 * 60 * 60 * 22),
+        blockNumber: Math.floor(currentBlock - (1000 * 60 * 60 * 22) / 12000),
         txHash: "0x3e1a8b9c0d2e4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a",
-        type: "contract",
-        title: "Multi-Sig Deployer Vault Creation",
-        description: "2-of-3 Gnosis Safe deployed to fund protocol genesis",
-        riskDelta: 0,
-        severity: "low",
-        aiExplanation: "Deployer created cold-storage multi-sig wallet. Standard governance setup with no initial risk indicators.",
-        evidence: ["Deployer Multi-Sig: 0x8f2a...b4c2", "Signers: 3 Keyholders", "Initial Seed: 45.0 ETH"],
+        type: "anomaly",
+        title: "Flash Loan Arbitrage Probe ($8.4M DAI)",
+        description: "Uncollateralized flash loan borrowed from Aave V3 testing pool liquidity depth",
+        riskDelta: 10,
+        severity: "high",
+        aiExplanation: "Probe transaction executed across 3 DEX routers. Model flags pre-attack capital simulation testing pool slippage tolerance.",
+        evidence: ["Lender: Aave V3 Pool", "Borrowed: 8,400,000 DAI", "Gas Priority: 84 Gwei", "Reverted Re-entry: 1"]
+      },
+      {
+        id: "ev-24h-2",
+        timestamp: new Date(now - 1000 * 60 * 60 * 16.5),
+        blockNumber: Math.floor(currentBlock - (1000 * 60 * 60 * 16.5) / 12000),
+        txHash: "0x7e9a1c3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c",
+        type: "anomaly",
+        title: "Spot Oracle Deviation (+14.8%)",
+        description: "Coordinated low-liquidity trade skewed TWAP price feeder against secondary pools",
+        riskDelta: 12,
+        severity: "high",
+        aiExplanation: "Spot price forced 14.8% above fair valuation on Uniswap V3 pair, triggering artificial borrowing capacity in connected lending protocol.",
+        evidence: ["TWAP Deviation: +14.8%", "Volume: 120 ETH", "Pool Impact: Severe", "Block Delay: 2 blocks"]
+      },
+      {
+        id: "ev-24h-3",
+        timestamp: new Date(now - 1000 * 60 * 60 * 10),
+        blockNumber: Math.floor(currentBlock - (1000 * 60 * 60 * 10) / 12000),
+        txHash: "0x1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d",
+        type: "anomaly",
+        title: "MEV Sandwich Bot Swarm Active",
+        description: "14 bot accounts executing sandwich attacks on retail transactions across mempool",
+        riskDelta: 8,
+        severity: "medium",
+        aiExplanation: "Predatory MEV bots extracting slippage value from incoming swap orders. High gas auction bidding indicates automated priority bundling.",
+        evidence: ["Bot Cluster: 14 Nodes", "Extracted Value: 18.4 ETH", "Bribe Fees: 4.2 ETH", "Victim Swaps: 88"],
+        walletIntelligence: {
+          cluster_detected: true,
+          cluster_size: 14,
+          wallet_role: "MEV Swarm",
+          timezone_pattern: "24/7 Continuous (Automated Bot)",
+          behavior_type: "bot_like",
+          geo_region: "Proxy / VPN Masked",
+          geo_confidence: "low"
+        }
+      },
+      {
+        id: "ev-24h-4",
+        timestamp: new Date(now - 1000 * 60 * 60 * 4.5),
+        blockNumber: Math.floor(currentBlock - (1000 * 60 * 60 * 4.5) / 12000),
+        txHash: "0x5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e",
+        type: "ownership",
+        title: "Timelock Bypass Function Invoked",
+        description: "Admin keyholder invoked emergency fast-track function bypassing 24h timelock delay",
+        riskDelta: 18,
+        severity: "critical",
+        aiExplanation: "Critical governance vulnerability: Emergency upgrade bypass triggered without multi-sig consensus. Implementation change immediate.",
+        evidence: ["Caller: 0x4e2a...c912", "Timelock Delay: 24h -> 0s", "Function: emergencyExecute()", "Status: Confirmed"],
         walletIntelligence: {
           cluster_detected: false,
-          timezone_pattern: "UTC+0 to UTC+2 (Western Europe)",
+          timezone_pattern: "UTC+5 to UTC+8 (South Asia)",
           behavior_type: "human_like",
-          geo_region: "Western Europe",
+          geo_region: "South Asia",
           geo_confidence: "high"
         }
       },
       {
-        id: "ev-all-2",
-        timestamp: new Date(now - 86400000 * 75),
-        blockNumber: Math.floor(currentBlock - (86400000 * 75) / 12000),
-        txHash: "0x5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e",
-        type: "contract",
-        title: "Token Generation & Initial Mint",
-        description: `Genesis mint of 100M tokens executed to ${targetFormatted}`,
-        riskDelta: 0,
-        severity: "low",
-        aiExplanation: "ERC-20 token minted according to verified bytecode parameters. Ownership set to multi-sig timelock.",
-        evidence: [`Contract: ${targetFormatted}`, "Total Supply: 100,000,000", "Decimals: 18", "Audit Status: CertiK Pending"]
-      },
-      {
-        id: "ev-all-3",
-        timestamp: new Date(now - 86400000 * 59),
-        blockNumber: Math.floor(currentBlock - (86400000 * 59) / 12000),
-        txHash: "0x8f3c5e7a9b1d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a",
-        type: "liquidity",
-        title: "Uniswap V3 Mainnet Pairing",
-        description: "$3.8M initial liquidity injected and locked for 6 months",
-        riskDelta: -6,
-        severity: "low",
-        aiExplanation: "Large capital commitment locked via Uncx smart contract. Liquidity depth verified, reducing volatility risk.",
-        evidence: ["Pool: ETH/TOKEN V3", "Initial TVL: $3,800,000", "Locker: Uncx 180-Day Lock", "LP Tokens: 1,420,800"]
-      },
-      {
-        id: "ev-all-4",
-        timestamp: new Date(now - 86400000 * 44),
-        blockNumber: Math.floor(currentBlock - (86400000 * 44) / 12000),
-        txHash: "0x1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d",
-        type: "social",
-        title: "Strategic Ecosystem Marketing Surge",
-        description: "Organic expansion accompanied by tier-1 crypto media coverage",
-        riskDelta: 4,
-        severity: "medium",
-        aiExplanation: "Broad social distribution detected. Early speculative hype begins accumulating retail attention.",
-        evidence: ["Social Reach: 180,000+", "Telegram Growth: +24,000", "Sentiment Score: 88/100 Positive"]
-      },
-      {
-        id: "ev-all-5",
-        timestamp: new Date(now - 86400000 * 30),
-        blockNumber: Math.floor(currentBlock - (86400000 * 30) / 12000),
-        txHash: "0x9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c",
-        type: "ownership",
-        title: "Admin Proxy Implementation Upgrade",
-        description: "Contract logic implementation silently switched to unverified proxy bytecode",
-        riskDelta: 14,
-        severity: "high",
-        aiExplanation: "Critical governance alert: Upgradeable proxy pointed to unverified logic address containing unannounced balance alteration functions.",
-        evidence: ["Proxy: TransparentUpgradeable", "New Implementation: 0x4e2a...c912", "Timelock: Bypassed via fast-track", "Vulnerability: High"],
-        walletIntelligence: {
-          cluster_detected: true,
-          cluster_size: 4,
-          wallet_role: "Proxy Controllers",
-          timezone_pattern: "UTC+8 to UTC+12 (East Asia)",
-          behavior_type: "mixed",
-          geo_region: "East Asia",
-          geo_confidence: "high"
-        }
-      },
-      {
-        id: "ev-all-6",
-        timestamp: new Date(now - 86400000 * 16),
-        blockNumber: Math.floor(currentBlock - (86400000 * 16) / 12000),
-        txHash: "0x7e9a1c3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c",
-        type: "whale",
-        title: "Syndicate Supply Consolidation",
-        description: "5 coordinated wallets accumulated 64.2% of circulating token float",
-        riskDelta: 16,
-        severity: "high",
-        aiExplanation: "Supply concentration reached critical threshold. Mathematical model identifies asymmetric dump vulnerability.",
-        evidence: ["Syndicate Wallets: 5", "Combined Float: 64.2%", "DEX Liquidity Depth: $2.4M", "Simulated Dump Impact: -82%"],
-        walletIntelligence: {
-          cluster_detected: true,
-          cluster_size: 5,
-          wallet_role: "Whale Syndicate",
-          timezone_pattern: "UTC+8 to UTC+12 (East Asia)",
-          behavior_type: "bot_like",
-          geo_region: "East Asia",
-          geo_confidence: "high"
-        }
-      },
-      {
-        id: "ev-all-7",
-        timestamp: new Date(now - 86400000 * 2.5),
-        blockNumber: Math.floor(currentBlock - (86400000 * 2.5) / 12000),
+        id: "ev-24h-5",
+        timestamp: new Date(now - 1000 * 60 * 105),
+        blockNumber: Math.floor(currentBlock - (1000 * 60 * 105) / 12000),
         txHash: "0x2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a6c8e0b2d4f",
         type: "liquidity",
-        title: "Catastrophic LP Drainage",
-        description: "74% ($1.92M) of pooled liquidity pulled across 3 rapid flash transactions",
+        title: "Emergency Flash Liquidity Extraction ($740K)",
+        description: "68% of remaining pool liquidity drained in 2 consecutive flash transactions",
         riskDelta: 24,
         severity: "critical",
-        aiExplanation: "Unilateral emergency withdrawal executed using privileged proxy functions. Pool depth collapsed, leaving retail holders stranded.",
-        evidence: ["Drained Amount: $1,920,000", "Remaining Pool TVL: $240,000", "Slippage: +410%", "Destination: 0x9b1c...4f2a"],
+        aiExplanation: "Core exploit executed: dev privileged function drained 68% of pool liquidity into private intermediary wallet. Trading depth collapsed.",
+        evidence: ["Drained: $740,000 ETH", "Pool Slippage: +340%", "Destination: 0x9b1c...4f2a", "Remaining TVL: $84,000"],
         walletIntelligence: {
           cluster_detected: true,
           cluster_size: 3,
@@ -254,36 +217,147 @@ function generateEventsForRange(
         }
       },
       {
-        id: "ev-all-8",
-        timestamp: new Date(now - 86400000 * 0.75),
-        blockNumber: Math.floor(currentBlock - (86400000 * 0.75) / 12000),
-        txHash: "0x4b2c8e3d5f7a0b2c4e6f8a1b3c5d7e9f0a2b4c6e8f1a3b5c7d9e0f2a4b6c8e3d",
+        id: "ev-24h-6",
+        timestamp: new Date(now - 1000 * 60 * 22),
+        blockNumber: Math.floor(currentBlock - (1000 * 60 * 22) / 12000),
+        txHash: "0x9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c",
         type: "ownership",
-        title: "Peeling Chain Dispersion to Mixer Mules",
-        description: "Drained ETH dispersed across 24 mule wallets and routed towards privacy protocols",
-        riskDelta: 15,
+        title: "Rapid Mixer Dispersion via Railgun / Tornado",
+        description: "Stolen funds split into sub-10 ETH tranches routed to privacy pools",
+        riskDelta: 14,
         severity: "critical",
-        aiExplanation: "Layering phase in progress: stolen funds split into sub-10 ETH tranches across multiple hops to evade AML thresholds.",
-        evidence: ["Peel Nodes: 24 Mules", "Routed Value: 580 ETH", "Tornado Proximity: 1 Hop", "AML Risk Flag: Extreme"]
+        aiExplanation: "Layering phase active. Stolen funds fragmented into 18 fresh mule addresses and deposited into privacy mixers to break audit trails.",
+        evidence: ["Mule Wallets: 18", "Volume Dispersed: 240 ETH", "Mixer: Railgun / Tornado Hop 1", "AML Risk Flag: Extreme"]
+      }
+    ]
+  }
+
+  if (timeRange === "7d") {
+    // 7-Day Weekly Governance Hijacking & Capital Flight
+    return [
+      {
+        id: "ev-7d-1",
+        timestamp: new Date(now - 86400000 * 6.5),
+        blockNumber: Math.floor(currentBlock - (86400000 * 6.5) / 12000),
+        txHash: "0x4a9f1b2c8e3d5f7a0b2c4e6f8a1b3c5d7e9f0a2b4c6e8f1a3b5c7d9e0f2a4b6c",
+        type: "contract",
+        title: "Admin Multi-Sig Signer Migration",
+        description: "2 keyholders quietly updated to unverified hardware addresses",
+        riskDelta: 4,
+        severity: "low",
+        aiExplanation: "Governance multi-sig signer threshold modified. Key ownership migrated away from original audited deployer addresses.",
+        evidence: ["Multi-Sig: 0x8f2a...b4c2", "Replaced Signers: 2 of 3", "Execution Tx: 0x4a9f...4b6c", "Timelock: None"]
       },
       {
-        id: "ev-all-9",
-        timestamp: new Date(now - 1000 * 60 * 95),
-        blockNumber: Math.floor(currentBlock - (1000 * 60 * 95) / 12000),
+        id: "ev-7d-2",
+        timestamp: new Date(now - 86400000 * 5.2),
+        blockNumber: Math.floor(currentBlock - (86400000 * 5.2) / 12000),
+        txHash: "0x7e9a1c3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c",
+        type: "whale",
+        title: "Snapshot Governance Hijack (Single Whale 52% Quorum)",
+        description: "Flash-voted governance proposal passed altering protocol fee redirection",
+        riskDelta: 14,
+        severity: "high",
+        aiExplanation: "Single whale address mobilized 52% of voting tokens in a single block to force through proposal redirecting protocol fees to private EOA.",
+        evidence: ["Whale Quorum: 52.4%", "Voting Wallets: 1", "Proposal: CIP-14 Fee Redirect", "Voting Duration: 24h Flash"],
+        walletIntelligence: {
+          cluster_detected: true,
+          cluster_size: 4,
+          wallet_role: "Governance Whale",
+          timezone_pattern: "UTC+8 to UTC+12 (East Asia)",
+          behavior_type: "human_like",
+          geo_region: "East Asia",
+          geo_confidence: "high"
+        }
+      },
+      {
+        id: "ev-7d-3",
+        timestamp: new Date(now - 86400000 * 3.8),
+        blockNumber: Math.floor(currentBlock - (86400000 * 3.8) / 12000),
+        txHash: "0x5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e",
+        type: "ownership",
+        title: "Treasury Allocation Peeling ($1.2M to Binance Mule)",
+        description: "Vested dev tokens transferred to unverified CEX deposit intermediary",
+        riskDelta: 16,
+        severity: "high",
+        aiExplanation: "Substantial treasury liquidation signal: 30% of vested dev reserves transferred to new unverified deposit mule directly connected to Binance hot wallet.",
+        evidence: ["Transferred Value: $1,200,000", "Vesting Schedule: Bypassed", "Recipient: 0x3d2a...e901", "CEX Proximity: 1 Hop"],
+        walletIntelligence: {
+          cluster_detected: true,
+          cluster_size: 6,
+          wallet_role: "Treasury Peeling Mule",
+          timezone_pattern: "UTC+5 to UTC+8 (South Asia)",
+          behavior_type: "human_like",
+          geo_region: "South Asia",
+          geo_confidence: "high"
+        }
+      },
+      {
+        id: "ev-7d-4",
+        timestamp: new Date(now - 86400000 * 2.4),
+        blockNumber: Math.floor(currentBlock - (86400000 * 2.4) / 12000),
+        txHash: "0x8f3c5e7a9b1d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a",
+        type: "liquidity",
+        title: "Tier-1 LP Capital Flight (-38% TVL)",
+        description: "Institutional liquidity provider unstaked and exited pool position",
+        riskDelta: 16,
+        severity: "high",
+        aiExplanation: "Major liquidity collapse: Top institutional LP withdrew 38% of total pooled reserves after detecting anomalous treasury transfers.",
+        evidence: ["Unstaked LP: $1,150,000", "Remaining TVL: $1,850,000", "Pool Slippage Jump: +9.2%", "Holder: 0x6e1b...f2a4"]
+      },
+      {
+        id: "ev-7d-5",
+        timestamp: new Date(now - 86400000 * 1.1),
+        blockNumber: Math.floor(currentBlock - (86400000 * 1.1) / 12000),
+        txHash: "0x1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d",
+        type: "ownership",
+        title: "Unannounced Proxy Implementation Switch",
+        description: "Proxy pointed to unverified bytecode containing hidden balance reduction hook",
+        riskDelta: 18,
+        severity: "critical",
+        aiExplanation: "Exploit preparation: Proxy implementation pointed to unverified bytecode containing backdoor functions allowing admin to burn user LP positions.",
+        evidence: ["Proxy: TransparentUpgradeable", "New Logic: 0x2b4d...f0a2", "Audit Match: 0% Unverified", "Vulnerability: Extreme"]
+      },
+      {
+        id: "ev-7d-6",
+        timestamp: new Date(now - 1000 * 60 * 60 * 7.5),
+        blockNumber: Math.floor(currentBlock - (1000 * 60 * 60 * 7.5) / 12000),
+        txHash: "0x2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a6c8e0b2d4f",
+        type: "liquidity",
+        title: "Emergency Liquidity Removal ($890K ETH)",
+        description: "72% of remaining DEX pool reserves drained in 2 flash blocks",
+        riskDelta: 24,
+        severity: "critical",
+        aiExplanation: "Catastrophic liquidity removal executed using privileged proxy functions. Remaining retail token holders stranded with zero pool depth.",
+        evidence: ["Drained Amount: $890,000", "Pool TVL Remaining: $110,000", "Slippage Spike: +420%", "Destination: 0x9b1c...4f2a"],
+        walletIntelligence: {
+          cluster_detected: true,
+          cluster_size: 3,
+          wallet_role: "Dump Executors",
+          timezone_pattern: "UTC+5 to UTC+8 (South Asia)",
+          behavior_type: "human_like",
+          geo_region: "South Asia",
+          geo_confidence: "high"
+        }
+      },
+      {
+        id: "ev-7d-7",
+        timestamp: new Date(now - 1000 * 60 * 40),
+        blockNumber: Math.floor(currentBlock - (1000 * 60 * 40) / 12000),
         txHash: "0x9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c",
         type: "anomaly",
-        title: "Algorithmic Wash Trading & Spoofing",
-        description: "High-frequency bot loop generating $1.8M fake volume to trap exit buyers",
+        title: "Automated Sybil Wash Trading Loop",
+        description: "8 sybil addresses executing self-swaps generating $1.8M synthetic volume",
         riskDelta: 8,
         severity: "high",
-        aiExplanation: "Circular liquidity cycling active. Bot contracts generating false volume signals to create illusion of active trading recovery.",
-        evidence: ["Volume Inflation: 420%", "Unique Traders: 6", "Circular Ratio: 94%", "Gas Burn: 8.2 ETH"]
+        aiExplanation: "Synthetic trading loop inflating DEX volume metrics to deceive automated tracking scanners and trap secondary dip buyers.",
+        evidence: ["Sybil Nodes: 8 Wallets", "Synthetic Volume: $1,820,000", "Organic Net Volume: ~$140,000", "Cycle Speed: 5.2s/tx"]
       }
     ]
   }
 
   if (timeRange === "30d") {
-    // 30-Day Structural Timeline
+    // 30-Day Complete Pump, Trap & Dump Lifecycle
     return [
       {
         id: "ev-30d-1",
@@ -291,51 +365,64 @@ function generateEventsForRange(
         blockNumber: Math.floor(currentBlock - (86400000 * 29) / 12000),
         txHash: "0x4a9f1b2c8e3d5f7a0b2c4e6f8a1b3c5d7e9f0a2b4c6e8f1a3b5c7d9e0f2a4b6c",
         type: "contract",
-        title: "Contract Deployed & Verified",
+        title: "ERC-20 Contract Deployed & Verified",
         description: `Token contract verified on Etherscan for ${targetFormatted}`,
         riskDelta: 0,
         severity: "low",
-        aiExplanation: "Contract code matched open-source standard with 100% bytecode compiler match. Genesis security audit green.",
+        aiExplanation: "Contract code matched open-source standard with 100% bytecode compiler match. Genesis security audit passed cleanly.",
         evidence: [`Contract: ${targetFormatted}`, "Compiler: Solc 0.8.24", "Optimization: 200 runs", "License: MIT"]
       },
       {
         id: "ev-30d-2",
-        timestamp: new Date(now - 86400000 * 23),
-        blockNumber: Math.floor(currentBlock - (86400000 * 23) / 12000),
+        timestamp: new Date(now - 86400000 * 24.5),
+        blockNumber: Math.floor(currentBlock - (86400000 * 24.5) / 12000),
         txHash: "0x8f3c5e7a9b1d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a",
         type: "liquidity",
-        title: "Initial Uniswap V3 Pool Liquidity",
+        title: "Initial Uniswap V3 Seed Liquidity Injected ($2.6M)",
         description: "$2.6M added to ETH/TOKEN pool with initial timelock commitment",
-        riskDelta: -5,
+        riskDelta: -8,
         severity: "low",
-        aiExplanation: "Substantial capital commitment deposited into DEX liquidity pool. Initial trading volatility suppressed.",
-        evidence: ["Pool: ETH/TOKEN", "Initial TVL: $2,600,000", "LP Tokens: 920,000", "Lock Window: 30 Days"]
+        aiExplanation: "Substantial capital commitment deposited into DEX liquidity pool with 30-day initial locker on Uncx.",
+        evidence: ["Pool: ETH/TOKEN", "Initial TVL: $2,600,000", "LP Tokens: 920,000", "Lock Window: 30 Days (Uncx)"]
       },
       {
         id: "ev-30d-3",
-        timestamp: new Date(now - 86400000 * 17),
-        blockNumber: Math.floor(currentBlock - (86400000 * 17) / 12000),
+        timestamp: new Date(now - 86400000 * 18.5),
+        blockNumber: Math.floor(currentBlock - (86400000 * 18.5) / 12000),
         txHash: "0x1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d",
         type: "social",
-        title: "Coordinated Shilling Campaign",
-        description: "280% burst in bot accounts promoting contract presale incentives",
-        riskDelta: 8,
+        title: "Viral Influencer Marketing & Social Blitz (+520% Reach)",
+        description: "Coordinated Telegram and X campaign driving massive retail FOMO",
+        riskDelta: 6,
         severity: "medium",
-        aiExplanation: "Automated social sentiment manipulation flagged. High correlation with coordinated pump-and-dump operations.",
-        evidence: ["Bot Activity: 46%", "Mentions Velocity: +280%", "Sybil Clusters: 8", "Sentiment Index: 92 Artificial"]
+        aiExplanation: "Explosive retail onboarding wave. Community metrics expanded from 400 to 32,000 members in 72 hours, typical of pre-pump staging.",
+        evidence: ["Social Reach: 520,000+", "Telegram Growth: +32,000", "Influencer Callouts: 14", "Sentiment Index: 94/100"]
       },
       {
         id: "ev-30d-4",
-        timestamp: new Date(now - 86400000 * 11),
-        blockNumber: Math.floor(currentBlock - (86400000 * 11) / 12000),
+        timestamp: new Date(now - 86400000 * 14),
+        blockNumber: Math.floor(currentBlock - (86400000 * 14) / 12000),
+        txHash: "0x3e1a8b9c0d2e4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a",
+        type: "liquidity",
+        title: "Peak Protocol TVL Reached ($6.2M Across Pools)",
+        description: "Trading volume hit $18M/day with highest organic liquidity depth",
+        riskDelta: -4,
+        severity: "low",
+        aiExplanation: "All-time high liquidity reached. Low immediate slippage, but market depth sets stage for asymmetric exit liquidity capture.",
+        evidence: ["Peak TVL: $6,200,000", "24h Volume: $18,400,000", "Unique Swappers: 4,820", "DEX Depth: Deep"]
+      },
+      {
+        id: "ev-30d-5",
+        timestamp: new Date(now - 86400000 * 10.5),
+        blockNumber: Math.floor(currentBlock - (86400000 * 10.5) / 12000),
         txHash: "0x7e9a1c3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c",
         type: "whale",
-        title: "Whale Wallet Consolidation",
-        description: "Top 4 private non-custodial wallets corner 58.4% of total supply",
-        riskDelta: 14,
+        title: "Syndicate Whale Supply Cornering (4 Wallets Hold 58%)",
+        description: "Top 4 private non-custodial accounts corner 58.4% of total supply",
+        riskDelta: 16,
         severity: "high",
-        aiExplanation: "Rapid centralization of token holdings into unverified private vaults. Asymmetric selling pressure risk escalated.",
-        evidence: ["Top 4 Concentration: 58.4%", "Largest Holder: 28.1%", "Retail Float: 41.6%", "Dump Risk: Elevated"],
+        aiExplanation: "Rapid centralization of token holdings into unverified private vaults. Asymmetric selling pressure risk escalated dramatically.",
+        evidence: ["Top 4 Concentration: 58.4%", "Largest Holder: 28.1%", "Retail Float: 41.6%", "Dump Impact: -78%"],
         walletIntelligence: {
           cluster_detected: true,
           cluster_size: 4,
@@ -347,27 +434,27 @@ function generateEventsForRange(
         }
       },
       {
-        id: "ev-30d-5",
-        timestamp: new Date(now - 86400000 * 4),
-        blockNumber: Math.floor(currentBlock - (86400000 * 4) / 12000),
+        id: "ev-30d-6",
+        timestamp: new Date(now - 86400000 * 6.2),
+        blockNumber: Math.floor(currentBlock - (86400000 * 6.2) / 12000),
         txHash: "0x2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a6c8e0b2d4f",
         type: "liquidity",
-        title: "Partial Liquidity Extraction ($620K)",
-        description: "26% of pool reserves withdrawn without governance announcement",
-        riskDelta: 18,
-        severity: "critical",
-        aiExplanation: "Core pre-rug signature detected: substantial liquidity extraction right before planned token distribution event.",
-        evidence: ["Drained Amount: $620,000", "Pool Impact: -26.0%", "Slippage Jump: +14.2%", "Destination: 0x9b1c...4f2a"]
+        title: "30-Day Liquidity Locker Expiration (Uncx Lock End)",
+        description: "Initial LP locker expired with no governance renewal, opening dump window",
+        riskDelta: 15,
+        severity: "high",
+        aiExplanation: "Uncx timelock reached maturity. Dev deployer wallet did not execute renewal or extension, leaving full LP tokens unconstrained.",
+        evidence: ["Lock Status: Expired", "Unlocked LP: 920,000 Tokens", "Extension Tx: None Detected", "Vulnerability: Critical"]
       },
       {
-        id: "ev-30d-6",
-        timestamp: new Date(now - 86400000 * 1.5),
-        blockNumber: Math.floor(currentBlock - (86400000 * 1.5) / 12000),
+        id: "ev-30d-7",
+        timestamp: new Date(now - 86400000 * 2.2),
+        blockNumber: Math.floor(currentBlock - (86400000 * 2.2) / 12000),
         txHash: "0x5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e",
         type: "ownership",
-        title: "Insider Dev Wallet Peeling Chain",
+        title: "Insider Dev Wallet Peeling Chain (14 Mule Wallets)",
         description: "Deployer distributed 18M tokens across 14 newly generated mule addresses",
-        riskDelta: 16,
+        riskDelta: 18,
         severity: "critical",
         aiExplanation: "Multi-hop dispersion actively slicing dev allocations into smaller amounts to bypass automated CEX deposit limits.",
         evidence: ["Source Vault: 0x7a2f...c891", "Mule Wallets: 14", "Peel Depth: 3 Hops", "Tokens: 18,000,000"],
@@ -382,94 +469,111 @@ function generateEventsForRange(
         }
       },
       {
-        id: "ev-30d-7",
-        timestamp: new Date(now - 1000 * 60 * 110),
-        blockNumber: Math.floor(currentBlock - (1000 * 60 * 110) / 12000),
+        id: "ev-30d-8",
+        timestamp: new Date(now - 1000 * 60 * 115),
+        blockNumber: Math.floor(currentBlock - (1000 * 60 * 115) / 12000),
         txHash: "0x9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c",
-        type: "anomaly",
-        title: "Circular Wash Trading Loop",
-        description: "8 sybil addresses executing self-swaps generating $2.1M synthetic volume",
-        riskDelta: 10,
-        severity: "high",
-        aiExplanation: "Automated wash trading detected. Trading volume artificially inflated by 340% to lure retail liquidity into exit traps.",
-        evidence: ["Sybil Nodes: 8", "Fake Volume: $2,140,000", "Organic Net Volume: ~$420,000", "Cycle Speed: 4.8s/tx"]
+        type: "liquidity",
+        title: "Coordinated Liquidity Drainage ($620K ETH)",
+        description: "26% of pool reserves withdrawn without governance announcement",
+        riskDelta: 24,
+        severity: "critical",
+        aiExplanation: "Sudden liquidity extraction executed right before scheduled token unlock. Triggers severe retail panic selling.",
+        evidence: ["Drained Amount: $620,000", "Pool Impact: -26.0%", "Slippage Jump: +14.2%", "Destination: 0x9b1c...4f2a"]
       }
     ]
   }
 
-  // 7D and 24H default events
+  // ALL: 90-Day Full Lifecycle Macro Forensic Profile
   return [
     {
-      id: "ev-1",
-      timestamp: new Date(now - totalMs * 0.96),
-      blockNumber: Math.floor(currentBlock - (totalMs * 0.96) / 12000),
-      txHash: "0x4a9f1b2c8e3d5f7a0b2c4e6f8a1b3c5d7e9f0a2b4c6e8f1a3b5c7d9e0f2a4b6c",
+      id: "ev-all-1",
+      timestamp: new Date(now - 86400000 * 88),
+      blockNumber: Math.floor(currentBlock - (86400000 * 88) / 12000),
+      txHash: "0x3e1a8b9c0d2e4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a",
       type: "contract",
-      title: "Contract Deployed",
-      description: `Target token contract deployed on Ethereum Mainnet from deployer vault`,
+      title: "Multi-Sig Genesis Deployer Vault Creation",
+      description: "2-of-3 Gnosis Safe deployed to fund protocol genesis",
       riskDelta: 0,
       severity: "low",
-      aiExplanation: "Initial contract deployment confirmed with standard ERC-20 interface. No immediate malicious bytecode or hidden mint privileges detected at genesis.",
-      evidence: [`Contract: ${targetFormatted}`, "Deployer: 0x8f2a...b4c2", "Gas Used: 1,842,910", "Bytecode Hash: 0x9e2b...7a1f"],
+      aiExplanation: "Deployer created cold-storage multi-sig wallet. Standard governance setup with no initial risk indicators.",
+      evidence: ["Deployer Multi-Sig: 0x8f2a...b4c2", "Signers: 3 Keyholders", "Initial Seed: 45.0 ETH"],
       walletIntelligence: {
         cluster_detected: false,
-        timezone_pattern: "UTC+0 to UTC+4 (Europe/Middle East)",
+        timezone_pattern: "UTC+0 to UTC+2 (Western Europe)",
         behavior_type: "human_like",
         geo_region: "Western Europe",
-        geo_confidence: "medium"
-      }
-    },
-    {
-      id: "ev-2",
-      timestamp: new Date(now - totalMs * 0.81),
-      blockNumber: Math.floor(currentBlock - (totalMs * 0.81) / 12000),
-      txHash: "0x8f3c5e7a9b1d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a",
-      type: "liquidity",
-      title: "Initial Liquidity Provision",
-      description: "$2.4M liquidity injected into Uniswap V3 ETH/TOKEN pool",
-      riskDelta: -5,
-      severity: "low",
-      aiExplanation: "Substantial upfront liquidity commitment detected. Deepens market depth and reduces initial volatility risk score by 5%.",
-      evidence: ["Pool: ETH/TOKEN V3", "Liquidity Added: $2,410,000", "LP Position: 847,231 tokens", "Lock Contract: None Detected"]
-    },
-    {
-      id: "ev-3",
-      timestamp: new Date(now - totalMs * 0.64),
-      blockNumber: Math.floor(currentBlock - (totalMs * 0.64) / 12000),
-      txHash: "0x1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d",
-      type: "social",
-      title: "Coordinated Social Hype Spike",
-      description: "340% surge in algorithmic social shill mentions across Telegram & X botnets",
-      riskDelta: 8,
-      severity: "medium",
-      aiExplanation: "Anomalous engagement velocity flagged by OSINT sensors. Bot likelihood index at 42%, typical of coordinated pump-and-dump campaigns.",
-      evidence: ["Mentions Velocity: +340%", "Sybil Account Ratio: 42%", "Origin Timezone: UTC+5 to UTC+8", "Influencer Shills: 6 Accounts"],
-      walletIntelligence: {
-        cluster_detected: true,
-        cluster_size: 14,
-        wallet_role: "Coordinated Promoters",
-        timezone_pattern: "UTC+5 to UTC+8 (South Asia)",
-        behavior_type: "bot_like",
-        geo_region: "South Asia",
         geo_confidence: "high"
       }
     },
     {
-      id: "ev-4",
-      timestamp: new Date(now - totalMs * 0.46),
-      blockNumber: Math.floor(currentBlock - (totalMs * 0.46) / 12000),
-      txHash: "0x7e9a1c3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c",
-      type: "whale",
-      title: "Whale Supply Accumulation",
-      description: "Top 5 linked addresses accumulated 68.4% of total circulating token supply",
-      riskDelta: 12,
+      id: "ev-all-2",
+      timestamp: new Date(now - 86400000 * 76),
+      blockNumber: Math.floor(currentBlock - (86400000 * 76) / 12000),
+      txHash: "0x5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e",
+      type: "contract",
+      title: "Token Generation Event & Public Fair Launch",
+      description: `Genesis mint of 100M tokens executed to ${targetFormatted}`,
+      riskDelta: 0,
+      severity: "low",
+      aiExplanation: "ERC-20 token minted according to verified bytecode parameters. Initial ownership set to multi-sig timelock.",
+      evidence: [`Contract: ${targetFormatted}`, "Total Supply: 100,000,000", "Decimals: 18", "Audit Status: CertiK Verified"]
+    },
+    {
+      id: "ev-all-3",
+      timestamp: new Date(now - 86400000 * 64),
+      blockNumber: Math.floor(currentBlock - (86400000 * 64) / 12000),
+      txHash: "0x8f3c5e7a9b1d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a",
+      type: "liquidity",
+      title: "Uniswap V3 Primary Liquidity Pairing ($3.8M)",
+      description: "$3.8M initial liquidity injected and locked for 6 months on Uncx",
+      riskDelta: -6,
+      severity: "low",
+      aiExplanation: "Large capital commitment locked via Uncx smart contract. Liquidity depth verified, establishing low initial volatility.",
+      evidence: ["Pool: ETH/TOKEN V3", "Initial TVL: $3,800,000", "Locker: Uncx 180-Day Lock", "LP Tokens: 1,420,800"]
+    },
+    {
+      id: "ev-all-4",
+      timestamp: new Date(now - 86400000 * 50),
+      blockNumber: Math.floor(currentBlock - (86400000 * 50) / 12000),
+      txHash: "0x1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d",
+      type: "social",
+      title: "Tier-2 CEX Listing & Volume Expansion",
+      description: "Organic expansion accompanied by tier-1 crypto media coverage",
+      riskDelta: -3,
+      severity: "low",
+      aiExplanation: "Listing on MEXC and Gate.io increases market liquidity dispersion and secondary trading depth.",
+      evidence: ["CEX Listings: 2", "Secondary Volume: $8,400,000", "Holder Growth: +6,200", "Status: Healthy"]
+    },
+    {
+      id: "ev-all-5",
+      timestamp: new Date(now - 86400000 * 39),
+      blockNumber: Math.floor(currentBlock - (86400000 * 39) / 12000),
+      txHash: "0x4a9f1b2c8e3d5f7a0b2c4e6f8a1b3c5d7e9f0a2b4c6e8f1a3b5c7d9e0f2a4b6c",
+      type: "contract",
+      title: "Admin Multi-Sig Signer Handover",
+      description: "Original founder signers replaced by new anonymous hardware wallets",
+      riskDelta: 6,
+      severity: "medium",
+      aiExplanation: "First structural governance change: Multi-sig threshold transferred to unverified offshore hardware keys.",
+      evidence: ["Signers Changed: 2 of 3", "New Key: 0x9a4f...c120", "Timelock: Bypassed via fast-track"]
+    },
+    {
+      id: "ev-all-6",
+      timestamp: new Date(now - 86400000 * 28),
+      blockNumber: Math.floor(currentBlock - (86400000 * 28) / 12000),
+      txHash: "0x9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c",
+      type: "ownership",
+      title: "Transparent Proxy Implementation Upgrade",
+      description: "Contract logic implementation silently switched to unverified proxy bytecode",
+      riskDelta: 14,
       severity: "high",
-      aiExplanation: "Dangerous concentration of circulating supply in non-vested private addresses. Poses severe asymmetric dump and liquidity crash risk.",
-      evidence: ["Top 5 Holders: 68.4%", "Largest Single Wallet: 24.3%", "Herfindahl Index: 0.384", "Retail Float: 31.6%"],
+      aiExplanation: "Critical governance alert: Upgradeable proxy pointed to unverified logic address containing unannounced balance alteration functions.",
+      evidence: ["Proxy: TransparentUpgradeable", "New Implementation: 0x4e2a...c912", "Timelock: Bypassed", "Vulnerability: High"],
       walletIntelligence: {
         cluster_detected: true,
-        cluster_size: 5,
-        wallet_role: "Liquidity Controllers",
+        cluster_size: 4,
+        wallet_role: "Proxy Controllers",
         timezone_pattern: "UTC+8 to UTC+12 (East Asia)",
         behavior_type: "mixed",
         geo_region: "East Asia",
@@ -477,43 +581,43 @@ function generateEventsForRange(
       }
     },
     {
-      id: "ev-5",
-      timestamp: new Date(now - totalMs * 0.28),
-      blockNumber: Math.floor(currentBlock - (totalMs * 0.28) / 12000),
-      txHash: "0x2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a6c8e0b2d4f",
-      type: "liquidity",
-      title: "Emergency Liquidity Removal",
-      description: "22.5% ($542K) of pooled liquidity drained within a single 14-minute window",
-      riskDelta: 18,
-      severity: "critical",
-      aiExplanation: "Rapid unilateral liquidity withdrawal detected without timelock governance. Core hallmark signature of pre-rug liquidity extraction.",
-      evidence: ["Amount Drained: $542,000", "Pool Impact: -22.5% TVL", "Slippage Spike: +8.4%", "Destination: 0x9b1c...4f2a"],
+      id: "ev-all-7",
+      timestamp: new Date(now - 86400000 * 17),
+      blockNumber: Math.floor(currentBlock - (86400000 * 17) / 12000),
+      txHash: "0x7e9a1c3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c",
+      type: "whale",
+      title: "Syndicate Supply Consolidation (64.2% Float)",
+      description: "5 coordinated wallets accumulated 64.2% of circulating token float",
+      riskDelta: 16,
+      severity: "high",
+      aiExplanation: "Supply concentration reached critical threshold. Mathematical model identifies asymmetric dump vulnerability.",
+      evidence: ["Syndicate Wallets: 5", "Combined Float: 64.2%", "DEX Liquidity Depth: $2.4M", "Simulated Dump Impact: -82%"],
       walletIntelligence: {
         cluster_detected: true,
-        cluster_size: 3,
-        wallet_role: "Dump Executors",
+        cluster_size: 5,
+        wallet_role: "Whale Syndicate",
         timezone_pattern: "UTC+8 to UTC+12 (East Asia)",
-        behavior_type: "human_like",
+        behavior_type: "bot_like",
         geo_region: "East Asia",
-        geo_confidence: "medium"
+        geo_confidence: "high"
       }
     },
     {
-      id: "ev-6",
-      timestamp: new Date(now - totalMs * 0.12),
-      blockNumber: Math.floor(currentBlock - (totalMs * 0.12) / 12000),
-      txHash: "0x5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e",
-      type: "ownership",
-      title: "Insider Dev Wallet Splitting",
-      description: "Deployer executed multi-sig dispersion of 15M tokens across 12 fresh unverified mules",
-      riskDelta: 15,
+      id: "ev-all-8",
+      timestamp: new Date(now - 86400000 * 5),
+      blockNumber: Math.floor(currentBlock - (86400000 * 5) / 12000),
+      txHash: "0x2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a6c8e0b2d4f",
+      type: "liquidity",
+      title: "Catastrophic Liquidity Drainage ($1.92M ETH)",
+      description: "74% of pooled liquidity pulled across 3 rapid flash transactions",
+      riskDelta: 25,
       severity: "critical",
-      aiExplanation: "Classic peeling chain dispersion pattern. High statistical probability that dev team is obfuscating insider holdings prior to decentralized dump.",
-      evidence: ["Source Vault: 0x7a2f...c891", "Mule Wallets: 12 Addresses", "Dispersed Amount: 15,000,000 Tokens", "Peel Depth: 2 Hops"],
+      aiExplanation: "Unilateral emergency withdrawal executed using privileged proxy functions. Pool depth collapsed, leaving retail holders stranded.",
+      evidence: ["Drained Amount: $1,920,000", "Remaining Pool TVL: $240,000", "Slippage: +410%", "Destination: 0x9b1c...4f2a"],
       walletIntelligence: {
         cluster_detected: true,
-        cluster_size: 12,
-        wallet_role: "Funding Source / Mule Origin",
+        cluster_size: 3,
+        wallet_role: "Exploit Operators",
         timezone_pattern: "UTC+5 to UTC+8 (South Asia)",
         behavior_type: "human_like",
         geo_region: "South Asia",
@@ -521,26 +625,30 @@ function generateEventsForRange(
       }
     },
     {
-      id: "ev-7",
-      timestamp: new Date(now - totalMs * 0.02),
-      blockNumber: Math.floor(currentBlock - (totalMs * 0.02) / 12000),
+      id: "ev-all-9",
+      timestamp: new Date(now - 86400000 * 1.4),
+      blockNumber: Math.floor(currentBlock - (86400000 * 1.4) / 12000),
+      txHash: "0x4b2c8e3d5f7a0b2c4e6f8a1b3c5d7e9f0a2b4c6e8f1a3b5c7d9e0f2a4b6c8e3d",
+      type: "ownership",
+      title: "Layering Phase: Dispersion to 24 Mule Wallets",
+      description: "Drained ETH dispersed across 24 mule wallets and routed towards privacy protocols",
+      riskDelta: 16,
+      severity: "critical",
+      aiExplanation: "Layering phase in progress: stolen funds split into sub-10 ETH tranches across multiple hops to evade AML thresholds.",
+      evidence: ["Peel Nodes: 24 Mules", "Routed Value: 580 ETH", "Tornado Proximity: 1 Hop", "AML Risk Flag: Extreme"]
+    },
+    {
+      id: "ev-all-10",
+      timestamp: new Date(now - 1000 * 60 * 85),
+      blockNumber: Math.floor(currentBlock - (1000 * 60 * 85) / 12000),
       txHash: "0x9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c",
       type: "anomaly",
-      title: "High-Frequency Wash Trading Loop",
-      description: "Circular loop generating $2.1M synthetic volume between 8 sybil addresses",
-      riskDelta: 10,
+      title: "Algorithmic Wash Trading & Spoofing Swarm",
+      description: "High-frequency bot loop generating $1.8M fake volume to trap exit buyers",
+      riskDelta: 8,
       severity: "high",
-      aiExplanation: "Algorithmic cyclical trade cycle detected with zero net price discovery. DEX trading volume artificially inflated by an estimated 340%.",
-      evidence: ["Sybil Nodes: 8 Wallets", "Synthetic Volume: $2,140,000", "Net Organic Volume: ~$480,000", "Cycle Time: 4.2 seconds/round"],
-      walletIntelligence: {
-        cluster_detected: true,
-        cluster_size: 8,
-        wallet_role: "Wash Traders / Bot Swarm",
-        timezone_pattern: "24/7 Continuous (Automated Bot)",
-        behavior_type: "bot_like",
-        geo_region: "Proxy / VPN Masked",
-        geo_confidence: "low"
-      }
+      aiExplanation: "Circular liquidity cycling active. Bot contracts generating false volume signals to create illusion of active trading recovery.",
+      evidence: ["Volume Inflation: 420%", "Unique Traders: 6", "Circular Ratio: 94%", "Gas Burn: 8.2 ETH"]
     }
   ]
 }
@@ -551,56 +659,234 @@ const generateRiskData = (events: TimelineEvent[], days: number = 7): RiskDataPo
   const totalMs = days * 86400000
   const startTime = new Date(now - totalMs)
 
-  // Calibrate sample points to match institutional financial charts
-  const points = days === 1 ? 32 : days === 7 ? 38 : days === 30 ? 46 : 64
+  if (days === 1) {
+    // 24H: Intraday Tactical Attack
+    // Jittery micro-volatility, already elevated baseline, steep jumps at attack triggers
+    const points = 36
+    const baseRisk = 56
+    for (let i = 0; i <= points; i++) {
+      const progress = i / points
+      const timestamp = new Date(startTime.getTime() + progress * totalMs)
+      const windowMs = totalMs / points / 1.5
+      const matchingEvent = events.find(e => Math.abs(e.timestamp.getTime() - timestamp.getTime()) < windowMs)
 
-  // Baselines appropriate for the timeframe
-  const baseRisk = days >= 30 ? 15 : 22
-  const baseLiquidity = days >= 30 ? 92 : 82
-  const baseOwnership = days >= 30 ? 25 : 35
-  const baseSocial = 20
+      // Intraday jagged micro-volatility
+      const microJitter = Math.sin(i * 1.6) * 3.8 + Math.cos(i * 3.1) * 2.2
 
+      let riskVal = baseRisk
+      if (progress < 0.33) {
+        riskVal = baseRisk + progress * 14 + microJitter
+      } else if (progress < 0.66) {
+        riskVal = 65 + ((progress - 0.33) / 0.33) * 11 + microJitter
+      } else if (progress < 0.88) {
+        riskVal = 76 + Math.pow((progress - 0.66) / 0.22, 1.4) * 18 + microJitter * 0.5
+      } else {
+        riskVal = 94 + Math.sin(i * 2) * 1.5
+      }
+
+      let liqVal = progress < 0.66 
+        ? 68 - progress * 15 + Math.cos(i * 0.8) * 3 
+        : progress < 0.88 
+        ? Math.max(16, 58 - Math.pow((progress - 0.66) / 0.22, 1.5) * 42) 
+        : 16 + Math.sin(i) * 1.5
+
+      let ownVal = 64 + progress * 24 + Math.sin(i * 0.5) * 2
+      let socVal = 35 + Math.sin(i * 0.9) * 15
+
+      if (matchingEvent?.severity === "critical") {
+        riskVal = Math.min(98, riskVal + 6)
+        liqVal = Math.max(12, liqVal - 8)
+      }
+
+      data.push({
+        timestamp,
+        score: Math.min(98, Math.max(10, Math.round(riskVal * 10) / 10)),
+        liquidity: Math.min(98, Math.max(12, Math.round(liqVal * 10) / 10)),
+        ownership: Math.min(96, Math.max(20, Math.round(ownVal * 10) / 10)),
+        social: Math.min(90, Math.max(15, Math.round(socVal * 10) / 10)),
+        confidence: Math.round((93 + Math.sin(i * 0.5) * 3) * 10) / 10,
+        event: matchingEvent
+      })
+    }
+    return data
+  }
+
+  if (days === 7) {
+    // 7D: Weekly Governance & Capital Flight
+    // Staircase jumps: Day 1-2 steady (32), Day 3 governance jump (52), Day 5 treasury jump (68), Day 6-7 drain (92)
+    const points = 42
+    for (let i = 0; i <= points; i++) {
+      const progress = i / points
+      const timestamp = new Date(startTime.getTime() + progress * totalMs)
+      const windowMs = totalMs / points / 1.5
+      const matchingEvent = events.find(e => Math.abs(e.timestamp.getTime() - timestamp.getTime()) < windowMs)
+
+      const noise = Math.sin(i * 0.9) * 2.2 + Math.cos(i * 1.7) * 1.2
+
+      let riskVal = 32
+      if (progress < 0.28) {
+        riskVal = 32 + progress * 10 + noise
+      } else if (progress < 0.52) {
+        riskVal = 48 + ((progress - 0.28) / 0.24) * 8 + noise
+      } else if (progress < 0.76) {
+        riskVal = 64 + ((progress - 0.52) / 0.24) * 8 + noise
+      } else {
+        riskVal = 74 + Math.pow((progress - 0.76) / 0.24, 1.4) * 18 + noise * 0.5
+      }
+
+      let liqVal = progress < 0.28 
+        ? 78 + Math.cos(i * 0.5) * 2 
+        : Math.max(18, 78 - Math.pow((progress - 0.28) / 0.72, 1.2) * 60 + Math.cos(i * 0.6) * 2)
+
+      let ownVal = progress < 0.28 
+        ? 38 + noise 
+        : progress < 0.52 
+        ? 62 + noise 
+        : 84 + noise * 0.8
+
+      let socVal = 28 + Math.sin(i * 0.7) * 8
+
+      if (matchingEvent?.severity === "critical") {
+        riskVal = Math.min(98, riskVal + 8)
+        liqVal = Math.max(12, liqVal - 10)
+      }
+
+      data.push({
+        timestamp,
+        score: Math.min(98, Math.max(10, Math.round(riskVal * 10) / 10)),
+        liquidity: Math.min(98, Math.max(14, Math.round(liqVal * 10) / 10)),
+        ownership: Math.min(96, Math.max(20, Math.round(ownVal * 10) / 10)),
+        social: Math.min(90, Math.max(15, Math.round(socVal * 10) / 10)),
+        confidence: Math.round((92 + Math.cos(i * 0.4) * 3) * 10) / 10,
+        event: matchingEvent
+      })
+    }
+    return data
+  }
+
+  if (days === 30) {
+    // 30D: Classic Pump, Trap & Dump Cycle
+    // Social has a prominent euphoria dome peaking in week 2 (92%)
+    // Liquidity curves UP during early launch (from 48% to 88%), then plunges
+    // Risk starts low (18%), steady rise, then escalates after locks expire
+    const points = 52
+    for (let i = 0; i <= points; i++) {
+      const progress = i / points
+      const timestamp = new Date(startTime.getTime() + progress * totalMs)
+      const windowMs = totalMs / points / 1.5
+      const matchingEvent = events.find(e => Math.abs(e.timestamp.getTime() - timestamp.getTime()) < windowMs)
+
+      const noise = Math.sin(i * 0.8) * 1.8 + Math.cos(i * 1.4) * 1.1
+
+      let riskVal = 18
+      if (progress < 0.25) {
+        riskVal = 17 + progress * 16 + noise
+      } else if (progress < 0.58) {
+        riskVal = 26 + ((progress - 0.25) / 0.33) * 14 + noise
+      } else if (progress < 0.80) {
+        riskVal = 44 + ((progress - 0.58) / 0.22) * 22 + noise
+      } else {
+        riskVal = 68 + Math.pow((progress - 0.80) / 0.20, 1.3) * 24 + noise * 0.5
+      }
+
+      // Liquidity curves UP first to 88% then collapses
+      let liqVal = 50
+      if (progress < 0.45) {
+        liqVal = 48 + Math.sin(progress / 0.45 * (Math.PI / 2)) * 40 + noise
+      } else if (progress < 0.75) {
+        liqVal = 88 - Math.pow((progress - 0.45) / 0.30, 1.4) * 38 + noise
+      } else {
+        liqVal = Math.max(16, 50 - Math.pow((progress - 0.75) / 0.25, 1.3) * 34 + noise * 0.5)
+      }
+
+      // Social Hype Dome peaking at progress 0.45 at ~92%!
+      let socVal = 18
+      if (progress >= 0.15 && progress <= 0.75) {
+        const bellProg = (progress - 0.15) / 0.60
+        socVal = 20 + Math.sin(bellProg * Math.PI) * 72 + noise
+      } else if (progress > 0.75) {
+        socVal = Math.max(12, 22 - (progress - 0.75) * 30 + noise)
+      }
+
+      let ownVal = 24 + Math.pow(progress, 1.2) * 62 + noise
+
+      if (matchingEvent?.severity === "critical") {
+        riskVal = Math.min(98, riskVal + 8)
+        liqVal = Math.max(12, liqVal - 10)
+      }
+
+      data.push({
+        timestamp,
+        score: Math.min(98, Math.max(10, Math.round(riskVal * 10) / 10)),
+        liquidity: Math.min(98, Math.max(14, Math.round(liqVal * 10) / 10)),
+        ownership: Math.min(96, Math.max(18, Math.round(ownVal * 10) / 10)),
+        social: Math.min(96, Math.max(12, Math.round(socVal * 10) / 10)),
+        confidence: Math.round((91 + Math.sin(i * 0.4) * 4) * 10) / 10,
+        event: matchingEvent
+      })
+    }
+    return data
+  }
+
+  // ALL: 90 Days Macro Protocol Lifecycle
+  // Pristine flat green baseline for first 38% (Days 1 to 35: Risk 11-14%)
+  // Gentle growth phase (Days 35 to 60: Risk 15-32%)
+  // Syndicate accumulation (Days 60 to 78: Risk 32-58%)
+  // Exploitation & dispersion (Last 12 days: Risk 58-92%)
+  const points = 65
   for (let i = 0; i <= points; i++) {
     const progress = i / points
     const timestamp = new Date(startTime.getTime() + progress * totalMs)
-
-    // Check if an event falls near this timestamp window
     const windowMs = totalMs / points / 1.5
     const matchingEvent = events.find(e => Math.abs(e.timestamp.getTime() - timestamp.getTime()) < windowMs)
 
-    // Organic macro trend drift with gentle Brownian motion
-    // Initial ~55% of timeframe: quiet, healthy protocol with minor market noise
-    // Final ~45%: escalation as whale accumulation and exploit events unfold
-    const macroRiskShift = progress > 0.55 ? Math.pow((progress - 0.55) / 0.45, 1.8) * 58 : progress * 8
-    const naturalNoise = Math.sin(i * 0.7) * 2.2 + Math.cos(i * 1.3) * 1.4
+    const noise = Math.sin(i * 0.6) * 1.5 + Math.cos(i * 1.2) * 0.9
 
-    let pointRisk = Math.min(96, Math.max(10, baseRisk + macroRiskShift + naturalNoise))
-    let pointLiquidity = Math.max(14, Math.min(98, baseLiquidity - (progress > 0.65 ? Math.pow((progress - 0.65) / 0.35, 1.6) * 65 : progress * 8) + Math.cos(i * 0.5) * 2.5))
-    let pointOwnership = Math.min(94, Math.max(18, baseOwnership + (progress > 0.38 ? Math.pow((progress - 0.38) / 0.62, 1.3) * 54 : 0) + Math.sin(i * 0.4) * 2))
-    let pointSocial = Math.min(95, Math.max(12, baseSocial + (progress > 0.3 && progress < 0.75 ? 42 * Math.sin((progress - 0.3) / 0.45 * Math.PI) : 12) + Math.sin(i * 0.8) * 3))
+    let riskVal = 12
+    if (progress < 0.38) {
+      // First 35 days: pristine low-risk audited baseline!
+      riskVal = 12 + progress * 5 + noise * 0.8
+    } else if (progress < 0.65) {
+      riskVal = 16 + ((progress - 0.38) / 0.27) * 14 + noise
+    } else if (progress < 0.85) {
+      riskVal = 32 + Math.pow((progress - 0.65) / 0.20, 1.2) * 26 + noise
+    } else {
+      riskVal = 60 + Math.pow((progress - 0.85) / 0.15, 1.3) * 32 + noise * 0.5
+    }
 
-    if (matchingEvent) {
-      if (matchingEvent.severity === "critical") {
-        pointRisk = Math.min(98, pointRisk + 12)
-        pointLiquidity = Math.max(12, pointLiquidity - 16)
-      } else if (matchingEvent.severity === "high") {
-        pointRisk = Math.min(92, pointRisk + 8)
-      } else if (matchingEvent.riskDelta < 0) {
-        pointRisk = Math.max(10, pointRisk - 6)
-      }
+    let liqVal = progress < 0.65 
+      ? 88 + Math.cos(i * 0.4) * 2 
+      : progress < 0.85 
+      ? 84 - ((progress - 0.65) / 0.20) * 24 + noise 
+      : Math.max(14, 60 - Math.pow((progress - 0.85) / 0.15, 1.4) * 46)
+
+    let ownVal = progress < 0.45 
+      ? 20 + noise 
+      : progress < 0.80 
+      ? 24 + ((progress - 0.45) / 0.35) * 44 + noise 
+      : 72 + ((progress - 0.80) / 0.20) * 18 + noise * 0.6
+
+    let socVal = progress < 0.35 
+      ? 18 + Math.sin(i * 0.5) * 6 
+      : progress < 0.70 
+      ? 35 + Math.sin(i * 0.8) * 12 
+      : Math.max(14, 25 - (progress - 0.70) * 25)
+
+    if (matchingEvent?.severity === "critical") {
+      riskVal = Math.min(98, riskVal + 8)
+      liqVal = Math.max(12, liqVal - 12)
     }
 
     data.push({
       timestamp,
-      score: Math.round(pointRisk * 10) / 10,
-      liquidity: Math.round(pointLiquidity * 10) / 10,
-      ownership: Math.round(pointOwnership * 10) / 10,
-      social: Math.round(pointSocial * 10) / 10,
-      confidence: Math.round((92 + Math.sin(i * 0.4) * 4) * 10) / 10,
+      score: Math.min(98, Math.max(10, Math.round(riskVal * 10) / 10)),
+      liquidity: Math.min(98, Math.max(12, Math.round(liqVal * 10) / 10)),
+      ownership: Math.min(96, Math.max(16, Math.round(ownVal * 10) / 10)),
+      social: Math.min(92, Math.max(12, Math.round(socVal * 10) / 10)),
+      confidence: Math.round((94 + Math.sin(i * 0.3) * 3) * 10) / 10,
       event: matchingEvent
     })
   }
-
   return data
 }
 
@@ -991,10 +1277,15 @@ export default function TrustTimelinePage() {
     riskData.forEach((point, i) => {
       if (i % labelStep === 0 || i === riskData.length - 1) {
         const x = getX(i)
-        const date = timeRange === "24h"
-          ? point.timestamp.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false })
-          : point.timestamp.toLocaleDateString("en-US", { month: "short", day: "numeric" })
-        ctx.fillStyle = "rgba(255,255,255,0.4)"
+        let date = ""
+        if (timeRange === "24h") {
+          date = point.timestamp.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false })
+        } else if (timeRange === "7d") {
+          date = i === riskData.length - 1 ? "Today" : point.timestamp.toLocaleDateString("en-US", { weekday: "short", month: "numeric", day: "numeric" })
+        } else {
+          date = i === riskData.length - 1 ? "Today" : point.timestamp.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+        }
+        ctx.fillStyle = "rgba(255,255,255,0.45)"
         ctx.font = "9px monospace"
         ctx.textAlign = "center"
         ctx.fillText(date, x, rect.height - padding.bottom + 25)
@@ -1245,11 +1536,21 @@ export default function TrustTimelinePage() {
                 </CardHeader>
                 <CardContent className="p-0 relative">
                   <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-                    <div className="bg-black/60 backdrop-blur-md border border-white/10 rounded-lg px-3 py-2">
-                      <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Status</div>
+                    <div className="bg-black/70 backdrop-blur-md border border-white/10 rounded-lg px-3 py-2 shadow-lg">
+                      <div className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">
+                        {timeRange === "24h" ? "Intraday Attack Forensics" :
+                         timeRange === "7d" ? "Weekly Governance & Contagion" :
+                         timeRange === "30d" ? "Pump & Distribution Cycle" :
+                         "90-Day Full Lifecycle Macro Ledger"}
+                      </div>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="text-xs font-mono text-emerald-400">LIVE TRACKING ACTIVE</span>
+                        <span className="text-xs font-mono text-emerald-400 font-bold">
+                          {timeRange === "24h" ? "TACTICAL MEMPOOL MONITORING" :
+                           timeRange === "7d" ? "LEDGER CONTAGION ACTIVE" :
+                           timeRange === "30d" ? "30D HEURISTIC AUDIT" :
+                           "MACRO MULTI-REGIME TELEMETRY"}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -1666,17 +1967,45 @@ export default function TrustTimelinePage() {
               {/* AI Predictive Forecast Card */}
               <Card className="border-cyan-500/30 bg-cyan-950/10 backdrop-blur-md shadow-2xl">
                 <CardHeader className="border-b border-cyan-500/20 py-4">
-                  <CardTitle className="text-base text-cyan-300 font-bold uppercase tracking-wider flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-cyan-400" />
-                    AI Predictive Forecast
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base text-cyan-300 font-bold uppercase tracking-wider flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-cyan-400" />
+                      AI Predictive Forecast
+                    </CardTitle>
+                    <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/30 text-[9px] font-mono uppercase">
+                      {timeRange.toUpperCase()} HORIZON
+                    </Badge>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-3 pt-4 text-xs">
-                  <p className="text-gray-300 leading-relaxed">
-                    Based on multi-hop fund dispersion and rapid liquidity extraction, algorithmic models calculate an 
-                    <span className="text-red-400 font-black font-mono"> 78.4% PROBABILITY </span> 
-                    of sudden catastrophic liquidity failure within the next 48-72 hours.
-                  </p>
+                  {timeRange === "24h" && (
+                    <p className="text-gray-300 leading-relaxed">
+                      <span className="text-amber-400 font-bold">Intraday Tactical Alert: </span>
+                      Rapid flash-loan probing and frontrunning MEV bot clusters indicate active mempool predation. Liquidity pool depth faces a
+                      <span className="text-red-400 font-black font-mono"> 91.4% PROBABILITY </span>
+                      of catastrophic zero-liquidity failure within the next 2–6 hours.
+                    </p>
+                  )}
+                  {timeRange === "7d" && (
+                    <p className="text-gray-300 leading-relaxed">
+                      <span className="text-amber-400 font-bold">Weekly Contagion Outlook: </span>
+                      Governance takeover and multi-sig key migrations over the past 5 days correlate with systematic treasury peeling. Models project an
+                      <span className="text-red-400 font-black font-mono"> 84.2% PROBABILITY </span>
+                      of total unannounced liquidity abandonment and secondary market collapse.
+                    </p>
+                  )}
+                  {timeRange === "30d" && (
+                    <p className="text-gray-300 leading-relaxed">
+                      <span className="text-amber-400 font-bold">Monthly Lifecycle Assessment: </span>
+                      Telemetry demonstrates a classic 30-day pump-and-dump cycle. Euphoric social hype peaked at Day 14 (+520% reach), followed by syndicate supply cornering and peeling chain dispersion once timelocks expired.
+                    </p>
+                  )}
+                  {timeRange === "all" && (
+                    <p className="text-gray-300 leading-relaxed">
+                      <span className="text-amber-400 font-bold">Macro Ledger Forensics: </span>
+                      Protocol exhibited 60+ days of audited stability during genesis incubation before silent proxy bytecode updates and syndicate accumulation in Month 3 triggered terminal liquidation.
+                    </p>
+                  )}
                   
                   <div className="p-3 rounded-lg bg-black/40 border border-cyan-500/20 text-[11px] space-y-1">
                     <div className="text-cyan-400 font-bold uppercase tracking-wider text-[10px]">
