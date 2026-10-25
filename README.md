@@ -279,4 +279,4 @@ Admin access is strictly enforced at the backend middleware and JWT layer:
 
 
 © 2026 **CryptoGuard** by **AJINKYA CHALKE**. All rights reserved.  
-Built for cutting-edge blockchain security research, financial crime compliance, and institutional investigations.
+Built for cutting-edge blockchain security research, financial crime compliance, and institutional investigations. 
