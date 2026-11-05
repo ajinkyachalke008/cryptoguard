@@ -13,13 +13,47 @@ import { logger } from '../utils/logger';
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_change_in_production';
 
 /**
- * Hard-coded Admin Whitelist
- * ONLY these email addresses are allowed to have admin privileges
+ * Default authorized Admin Whitelist
  */
-export const ADMIN_WHITELIST = [
+export const DEFAULT_ADMIN_WHITELIST = [
   'ajinkyachalke008@gmail.com',
   'ajinkyachalke94@gmail.com'
 ];
+
+/**
+ * Dynamically resolves the authorized admin whitelist from ADMIN_WHITELIST environment variable,
+ * falling back to DEFAULT_ADMIN_WHITELIST if not set or empty.
+ */
+export function getAdminWhitelist(): string[] {
+  const envAdmins = process.env.ADMIN_WHITELIST;
+  if (envAdmins && envAdmins.trim()) {
+    const parsed = envAdmins
+      .split(',')
+      .map(e => e.trim().toLowerCase())
+      .filter(Boolean);
+    if (parsed.length > 0) return parsed;
+  }
+  return DEFAULT_ADMIN_WHITELIST.map(e => e.toLowerCase());
+}
+
+/**
+ * Checks if an email belongs to an authorized administrator (case-insensitive)
+ */
+export function isWhitelistedAdmin(email?: string | null): boolean {
+  if (!email || typeof email !== 'string') return false;
+  const list = getAdminWhitelist();
+  return list.includes(email.trim().toLowerCase());
+}
+
+/**
+ * Exported for backward compatibility with existing array-style access
+ */
+export const ADMIN_WHITELIST: string[] = new Proxy(DEFAULT_ADMIN_WHITELIST, {
+  get(target, prop, receiver) {
+    const current = getAdminWhitelist();
+    return Reflect.get(current, prop, receiver);
+  }
+});
 
 export interface AuthenticatedUser {
   id: number;
@@ -125,7 +159,7 @@ export function requireAdmin(request: NextRequest): {
     return authResult;
   }
 
-  if (authResult.user.role !== 'admin' || !ADMIN_WHITELIST.includes(authResult.user.email.toLowerCase())) {
+  if (authResult.user.role !== 'admin' || !isWhitelistedAdmin(authResult.user.email)) {
     logger.warn('Non-authorized user attempted to access admin endpoint', {
       userId: authResult.user.id,
       email: authResult.user.email,
@@ -169,7 +203,7 @@ export function optionalAuth(request: NextRequest): {
  */
 export function generateToken(user: AuthenticatedUser): string {
   // Hard-enforce admin role only for whitelisted emails
-  const finalRole = (user.role === 'admin' && ADMIN_WHITELIST.includes(user.email.toLowerCase())) 
+  const finalRole = (user.role === 'admin' && isWhitelistedAdmin(user.email)) 
     ? 'admin' 
     : 'user';
 
@@ -191,7 +225,7 @@ export function generateToken(user: AuthenticatedUser): string {
  */
 export function hasPermission(user: AuthenticatedUser, resourceUserId?: number | null): boolean {
   // Admins have access to everything, but only if they are whitelisted
-  if (user.role === 'admin' && ADMIN_WHITELIST.includes(user.email.toLowerCase())) {
+  if (user.role === 'admin' && isWhitelistedAdmin(user.email)) {
     return true;
   }
 

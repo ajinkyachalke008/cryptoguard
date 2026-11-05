@@ -10,10 +10,11 @@ import { RegistrationModal } from "./RegistrationModal"
 import { VoiceAIModal } from "./VoiceAIModal"
 import { useAuth } from "@/contexts/AuthContext"
 
-const ADMIN_WHITELIST = [
-  'ajinkyachalke008@gmail.com',
-  'ajinkyachalke94@gmail.com'
-];
+const ADMIN_WHITELIST = (
+  process.env.NEXT_PUBLIC_ADMIN_WHITELIST
+    ? process.env.NEXT_PUBLIC_ADMIN_WHITELIST.split(',').map(e => e.trim().toLowerCase())
+    : ['ajinkyachalke008@gmail.com', 'ajinkyachalke94@gmail.com']
+);
 
 import {
   DropdownMenu,

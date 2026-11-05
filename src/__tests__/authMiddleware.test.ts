@@ -1,9 +1,18 @@
-import { describe, it, expect } from 'vitest';
-import { generateToken, verifyToken, ADMIN_WHITELIST } from '../lib/middleware/authMiddleware';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import {
+  generateToken,
+  verifyToken,
+  getAdminWhitelist,
+  isWhitelistedAdmin,
+  ADMIN_WHITELIST
+} from '../lib/middleware/authMiddleware';
 
 describe('AuthMiddleware — Token & Role Enforcement', () => {
-  it('enforces admin role only for whitelisted emails', () => {
-    // Whitelisted admin
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('enforces admin role only for whitelisted emails by default', () => {
     const whitelistedAdmin = {
       id: 1,
       email: 'ajinkyachalke008@gmail.com',
@@ -32,9 +41,38 @@ describe('AuthMiddleware — Token & Role Enforcement', () => {
     expect(result).toBeNull();
   });
 
-  it('contains the authorized admin emails in the whitelist', () => {
+  it('contains the authorized default admin emails', () => {
     expect(ADMIN_WHITELIST).toContain('ajinkyachalke008@gmail.com');
     expect(ADMIN_WHITELIST).toContain('ajinkyachalke94@gmail.com');
-    expect(ADMIN_WHITELIST.length).toBe(2);
+    expect(isWhitelistedAdmin('ajinkyachalke008@gmail.com')).toBe(true);
+    expect(isWhitelistedAdmin('ajinkyachalke94@gmail.com')).toBe(true);
+    expect(isWhitelistedAdmin('AJINKYACHALKE008@GMAIL.COM')).toBe(true); // Case-insensitive
+    expect(isWhitelistedAdmin('unknown@random.org')).toBe(false);
+    expect(isWhitelistedAdmin(null)).toBe(false);
+    expect(isWhitelistedAdmin(undefined)).toBe(false);
+  });
+
+  it('supports dynamic ADMIN_WHITELIST environment variable override', () => {
+    vi.stubEnv('ADMIN_WHITELIST', 'ops_lead@cryptoguard.io,  security_auditor@certik.com  ');
+
+    const dynamicAdmins = getAdminWhitelist();
+    expect(dynamicAdmins).toHaveLength(2);
+    expect(dynamicAdmins).toContain('ops_lead@cryptoguard.io');
+    expect(dynamicAdmins).toContain('security_auditor@certik.com');
+
+    expect(isWhitelistedAdmin('ops_lead@cryptoguard.io')).toBe(true);
+    expect(isWhitelistedAdmin('security_auditor@certik.com')).toBe(true);
+
+    // Dynamic token generation grants admin to the new env admin
+    const newAdminToken = generateToken({
+      id: 5,
+      email: 'ops_lead@cryptoguard.io',
+      role: 'admin'
+    });
+    const decodedNewAdmin = verifyToken(newAdminToken);
+    expect(decodedNewAdmin?.role).toBe('admin');
+
+    // Unlisted email is rejected
+    expect(isWhitelistedAdmin('ajinkyachalke008@gmail.com')).toBe(false);
   });
 });

@@ -11,12 +11,14 @@ This document outlines the security architecture, authentication boundaries, cre
 * **Token Lifetime:** Configured for 7 days (`authMiddleware.ts`).
 * **Transport:** Client requests pass the token in the `Authorization: Bearer <TOKEN>` header.
 
-### Hardcoded Admin Authorization Whitelist
+### Admin Authorization Whitelist & Environment Override
 Administrative endpoints under `/api/admin/*` and the frontend dashboard at `/admin` enforce strict double-validation:
 1. The user must present a valid JWT token where `user.role === 'admin'`.
-2. The user's lowercase email address **must** match the hardcoded whitelist (`ADMIN_WHITELIST`):
-   - `ajinkyachalke008@gmail.com`
-   - `ajinkyachalke94@gmail.com`
+2. The user's lowercase email address **must** match the authorized admin whitelist:
+   - Configurable dynamically via the `ADMIN_WHITELIST` environment variable (comma-separated list of emails).
+   - In production or local setups without `ADMIN_WHITELIST` set, safely defaults to:
+     - `ajinkyachalke008@gmail.com`
+     - `ajinkyachalke94@gmail.com`
 3. Any attempt by an unauthorized or non-whitelisted account to access administrative endpoints results in an HTTP 403 Forbidden response (`ADMIN_REQUIRED`) and generates a security audit record in the `adminAuditLogs` table.
 
 ---

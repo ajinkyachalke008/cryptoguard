@@ -9,7 +9,7 @@ import bcrypt from 'bcrypt';
 import { db } from '@/db';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import { generateToken, ADMIN_WHITELIST } from '@/lib/middleware/authMiddleware';
+import { generateToken, isWhitelistedAdmin } from '@/lib/middleware/authMiddleware';
 import { handleError, validationError, authError } from '@/lib/middleware/errorMiddleware';
 import { applyRateLimit } from '@/lib/middleware/rateLimitMiddleware';
 import { isValidEmail } from '@/lib/utils/validators';
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       throw authError('Invalid email or password');
     }
 
-    const effectiveRole = (user.role === 'admin' || ADMIN_WHITELIST.includes(user.email.toLowerCase())) ? 'admin' : 'user';
+    const effectiveRole = isWhitelistedAdmin(user.email) ? 'admin' : 'user';
 
     // Generate JWT token
     const token = generateToken({

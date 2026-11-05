@@ -10,7 +10,7 @@ import bcrypt from 'bcrypt';
 import { db } from '@/db';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import { generateToken, ADMIN_WHITELIST } from '@/lib/middleware/authMiddleware';
+import { generateToken, isWhitelistedAdmin } from '@/lib/middleware/authMiddleware';
 import { handleError, validationError, conflictError } from '@/lib/middleware/errorMiddleware';
 import { applyRateLimit } from '@/lib/middleware/rateLimitMiddleware';
 import { isValidEmail, isValidPassword } from '@/lib/utils/validators';
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     const normalizedEmail = email.toLowerCase().trim();
 
     // Check if whitelisted admin
-    const finalRole = ADMIN_WHITELIST.includes(normalizedEmail) ? 'admin' : (role === 'admin' ? 'admin' : 'user');
+    const finalRole = isWhitelistedAdmin(normalizedEmail) ? 'admin' : 'user';
 
     // Check if user already exists
     logger.info('Checking if user exists', { email: normalizedEmail });
