@@ -256,6 +256,7 @@ cryptoguard/
 
 ## 🔒 Security & Admin Access
 
+
 Admin access is strictly enforced at the backend middleware and JWT layer:
 - **Restricted Whitelist**: Admin features are reserved exclusively for:
   - `ajinkyachalke008@gmail.com`
@@ -265,6 +266,8 @@ Admin access is strictly enforced at the backend middleware and JWT layer:
 ---
 
 ## 📊 Risk Scoring Standard
+
+
 
 | Score Range | Risk Classification | Color Indicator | Typical Triggers |
 | :---: | :---: | :---: | :--- |
