@@ -282,13 +282,14 @@ const TOKEN_PRICES: Record<string, number> = {
 export interface GenerateCaseOptions {
   scenarioId?: string;
   targetAddress: string;
-  seed: number;
+  seed?: number;
   chain?: string;
 }
 
 export function generateSyntheticCase(options: GenerateCaseOptions): CanonicalForensicCase {
-  const { scenarioId, targetAddress, seed } = options;
+  const { scenarioId, targetAddress } = options;
   const cleanTarget = targetAddress.trim();
+  const seed = options.seed !== undefined ? Math.abs(options.seed) : computeDeterministicSeed(cleanTarget);
   const chain = normalizeChainName(options.chain || "ethereum");
 
   // Check cache first
