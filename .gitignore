@@ -45,6 +45,11 @@ next-env.d.ts
 .env.test.local
 .env.production.local
 
+# agent skills and caches
+.agents/
+.agent-cache/
+skills-lock.json
+
 # SQLite local databases
 *.db
 *.db-journal
