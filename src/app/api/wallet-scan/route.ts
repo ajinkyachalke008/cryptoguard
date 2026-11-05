@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { walletScans } from '@/db/schema';
-import { normalizeChainName, resolveForensicEntity } from '@/lib/services/forensicEngine';
+import { normalizeChainName, resolveForensicEntity, computeDeterministicSeed } from '@/lib/services/forensicEngine';
 import { findCanonicalAccount, findCanonicalTransaction } from '@/lib/services/canonicalCaseEngine';
+import { web3Service } from '@/lib/services/web3Service';
 
 const SUPPORTED_BLOCKCHAINS = [
   'ethereum',
@@ -26,47 +27,28 @@ interface CachedScan {
 const scanCache = new Map<string, CachedScan>();
 const CACHE_TTL_MS = 10 * 60 * 1000;
 
-
-function generateRiskScore(): number {
-  return Math.floor(Math.random() * (95 - 15 + 1)) + 15;
-}
-
-function generateSanctionsStatus(): 'clean' | 'sanctioned' | 'flagged' {
-  const rand = Math.random();
-  if (rand < 0.10) return 'sanctioned';
-  if (rand < 0.25) return 'flagged';
-  return 'clean';
-}
-
-function generatePepRiskLevel(): 'none' | 'low' | 'medium' | 'high' {
-  const rand = Math.random();
-  if (rand < 0.05) return 'high';
-  if (rand < 0.15) return 'medium';
-  if (rand < 0.30) return 'low';
-  return 'none';
-}
-
-function generateMultiChainData(blockchain: string) {
-  const numChains = Math.floor(Math.random() * 4) + 2;
+function generateMultiChainData(blockchain: string, seed: number) {
+  const numChains = (seed % 4) + 2;
   const allChains = [...SUPPORTED_BLOCKCHAINS];
   const selectedChains = [blockchain];
   
   for (let i = 0; i < numChains - 1; i++) {
     const availableChains = allChains.filter(c => !selectedChains.includes(c));
-    const randomChain = availableChains[Math.floor(Math.random() * availableChains.length)];
-    selectedChains.push(randomChain);
+    const nextChain = availableChains[(seed + i * 7) % availableChains.length];
+    selectedChains.push(nextChain);
   }
   
   return {
     chains: selectedChains,
-    total_balance_usd: Math.floor(Math.random() * 1000000) + 1000,
+    total_balance_usd: (seed % 950000) + 2500,
     cross_chain_activity: selectedChains.length > 3 ? 'high' : selectedChains.length > 2 ? 'medium' : 'low'
   };
 }
 
-function generateChainRisks(chains: string[], overallRiskScore: number) {
-  return chains.map(chain => {
-    const chainRiskScore = Math.max(0, Math.min(100, overallRiskScore + (Math.random() * 20 - 10)));
+function generateChainRisks(chains: string[], overallRiskScore: number, seed: number) {
+  return chains.map((chain, idx) => {
+    const jitter = ((seed + idx * 13) % 20) - 10;
+    const chainRiskScore = Math.max(0, Math.min(100, overallRiskScore + jitter));
     const flags: string[] = [];
     
     if (chainRiskScore > 70) {
@@ -79,10 +61,11 @@ function generateChainRisks(chains: string[], overallRiskScore: number) {
       flags.push('new_address', 'irregular_patterns');
     }
     
+    const count = ((seed + idx) % 3) + 1;
     return {
       chain,
       risk_score: Math.round(chainRiskScore),
-      flags: flags.slice(0, Math.floor(Math.random() * 3) + 1)
+      flags: flags.slice(0, count)
     };
   });
 }
@@ -132,9 +115,9 @@ function generateAIExplanation(
   return explanation;
 }
 
-function generateCrossChainFlow(chains: string[], riskScore: number) {
-  const numInbound = Math.floor(Math.random() * chains.length) + 1;
-  const numOutbound = Math.floor(Math.random() * chains.length) + 1;
+function generateCrossChainFlow(chains: string[], riskScore: number, seed: number) {
+  const numInbound = ((seed % chains.length) || 1);
+  const numOutbound = (((seed >> 2) % chains.length) || 1);
   
   const inboundChains = chains.slice(0, numInbound);
   const outboundChains = chains.slice(-numOutbound);
@@ -158,7 +141,7 @@ function generateCrossChainFlow(chains: string[], riskScore: number) {
     );
   }
   
-  const numPatterns = Math.min(suspiciousPatterns.length, Math.floor(Math.random() * 3) + 2);
+  const numPatterns = Math.min(suspiciousPatterns.length, (seed % 3) + 2);
   
   return {
     inbound_chains: inboundChains,
@@ -216,13 +199,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(cached.response, { status: 200 });
     }
 
+    const seed = computeDeterministicSeed(normalizedAddress);
+    const [blacklistInfo, walletActivity] = await Promise.all([
+      web3Service.checkBlacklist(normalizedAddress).catch(() => ({ isBlacklisted: false, reasons: [], sources: [] })),
+      web3Service.getWalletActivity(normalizedAddress, normalizedBlockchain).catch(() => null)
+    ]);
+
     const forensic = resolveForensicEntity(normalizedAddress, normalizedBlockchain);
-    const riskScore = canonicalAcc ? canonicalAcc.riskScore : canonicalTx ? canonicalTx.riskScore : forensic.riskScore;
-    const sanctionsStatus = riskScore >= 80 ? 'sanctioned' : riskScore >= 60 ? 'flagged' : 'clean';
+    let riskScore = canonicalAcc ? canonicalAcc.riskScore : canonicalTx ? canonicalTx.riskScore : forensic.riskScore;
+    
+    // Elevate score if verified on sanctions / blacklist
+    if (blacklistInfo.isBlacklisted) {
+      riskScore = Math.max(riskScore, 85);
+    }
+
+    const sanctionsStatus = (blacklistInfo.isBlacklisted || riskScore >= 80)
+      ? 'sanctioned'
+      : riskScore >= 60
+      ? 'flagged'
+      : 'clean';
+
     const pepRiskLevel = riskScore >= 80 ? 'high' : riskScore >= 60 ? 'medium' : riskScore >= 30 ? 'low' : 'none';
-    const multiChainData = generateMultiChainData(normalizedBlockchain);
-    const chainRisks = generateChainRisks(multiChainData.chains, riskScore);
-    const crossChainFlow = generateCrossChainFlow(multiChainData.chains, riskScore);
+    const multiChainData = generateMultiChainData(normalizedBlockchain, seed);
+    const chainRisks = generateChainRisks(multiChainData.chains, riskScore, seed);
+    const crossChainFlow = generateCrossChainFlow(multiChainData.chains, riskScore, seed);
     
     const sanctionLists = sanctionsStatus === 'sanctioned' 
       ? ['OFAC SDN', 'UN Security Council', 'EU Sanctions']
@@ -243,8 +243,8 @@ export async function POST(request: NextRequest) {
     const pepData = {
       is_pep: pepRiskLevel !== 'none',
       pep_level: pepRiskLevel,
-      country: pepRiskLevel !== 'none' ? pepCountries[Math.floor(Math.random() * pepCountries.length)] : '',
-      position: pepRiskLevel !== 'none' ? pepPositions[Math.floor(Math.random() * pepPositions.length)] : ''
+      country: pepRiskLevel !== 'none' ? pepCountries[seed % pepCountries.length] : '',
+      position: pepRiskLevel !== 'none' ? pepPositions[seed % pepPositions.length] : ''
     };
     
     const aiExplanation = generateAIExplanation(
@@ -254,13 +254,18 @@ export async function POST(request: NextRequest) {
       multiChainData
     );
     
+    const evidenceStatus = walletActivity?.evidenceStatus || "SIMULATED_MOCK";
+    const provider = walletActivity?.provider || "CryptoGuard Synthetic Simulator";
+
     const scanData = {
       sanctions_data: sanctionsData,
       pep_data: pepData,
       multi_chain_data: multiChainData,
       chain_risks: chainRisks,
       ai_explanation: aiExplanation,
-      cross_chain_flow: crossChainFlow
+      cross_chain_flow: crossChainFlow,
+      evidence_status: evidenceStatus,
+      provider: provider
     };
 
     // Determine risk level based on score
@@ -307,6 +312,14 @@ export async function POST(request: NextRequest) {
       risk_level: riskLevel,
       sanctions_status: sanctionsStatus,
       pep_risk_level: pepRiskLevel,
+      evidence_status: evidenceStatus,
+      provider: provider,
+      wallet_activity: walletActivity ? {
+        balance: walletActivity.balance,
+        transaction_count: walletActivity.transactionCount,
+        evidence_status: walletActivity.evidenceStatus,
+        provider: walletActivity.provider
+      } : undefined,
       created_at: createdAt,
       scan_data: scanData
     };
